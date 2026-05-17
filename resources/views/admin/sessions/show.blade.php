@@ -21,15 +21,15 @@
                             <dl class="space-y-3">
                                 <div>
                                     <dt class="text-sm font-medium text-gray-500">{{ __('Full Name') }}</dt>
-                                    <dd class="text-sm text-gray-900">{{ $session->user->full_name ?? __('N/A') }}</dd>
+                                    <dd class="text-sm text-gray-900">{{ $session->full_name }}</dd>
                                 </div>
                                 <div>
                                     <dt class="text-sm font-medium text-gray-500">{{ __('Email') }}</dt>
-                                    <dd class="text-sm text-gray-900">{{ $session->user->email ?? __('N/A') }}</dd>
+                                    <dd class="text-sm text-gray-900">{{ $session->volunteer->email ?? __('N/A') }}</dd>
                                 </div>
                                 <div>
                                     <dt class="text-sm font-medium text-gray-500">{{ __('School ID') }}</dt>
-                                    <dd class="text-sm text-gray-900">{{ $session->user->school_id ?? __('N/A') }}</dd>
+                                    <dd class="text-sm text-gray-900">{{ $session->volunteer->school_id ?? __('N/A') }}</dd>
                                 </div>
                             </dl>
                         </div>

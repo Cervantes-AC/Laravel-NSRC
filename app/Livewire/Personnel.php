@@ -55,7 +55,7 @@ class Personnel extends Component
 
         $users = $query->paginate($this->perPage);
 
-        return view('livewire.personnel', ['users' => $users])
+        return view('livewire.personnel', ['personnel' => $users])
             ->layout('components.layouts.app');
     }
 }

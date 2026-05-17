@@ -10,6 +10,12 @@ use Illuminate\Support\Facades\DB;
 
 class ReportService
 {
+    protected AIProviderService $aiProvider;
+
+    public function __construct(AIProviderService $aiProvider)
+    {
+        $this->aiProvider = $aiProvider;
+    }
     public function generateUserActivityReport(array $filters): array
     {
         $query = DutySession::with('volunteer');
@@ -174,5 +180,54 @@ class ReportService
                 'generated_at' => now()->toDateTimeString(),
             ],
         ];
+    }
+
+    /**
+     * Get AI-powered insights for a report
+     */
+    public function getReportInsights(array $reportData, string $reportType): array
+    {
+        try {
+            $insights = $this->aiProvider->generateReportInsights($reportData, $reportType);
+
+            return [
+                'success' => true,
+                'insights' => $insights,
+                'provider' => $this->aiProvider->getProvider(),
+                'generated_at' => now()->toDateTimeString(),
+            ];
+        } catch (\Exception $e) {
+            return [
+                'success' => false,
+                'error' => $e->getMessage(),
+                'provider' => $this->aiProvider->getProvider(),
+            ];
+        }
+    }
+
+    /**
+     * Switch AI provider
+     */
+    public function switchAIProvider(string $provider): self
+    {
+        $this->aiProvider->switchProvider($provider);
+        return $this;
+    }
+
+    /**
+     * Switch to alternate API key
+     */
+    public function switchAPIKey(): self
+    {
+        $this->aiProvider->switchApiKey();
+        return $this;
+    }
+
+    /**
+     * Get current AI provider
+     */
+    public function getCurrentProvider(): string
+    {
+        return $this->aiProvider->getProvider();
     }
 }

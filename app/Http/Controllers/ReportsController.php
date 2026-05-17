@@ -76,4 +76,81 @@ class ReportsController extends Controller
     {
         return view('reports.scheduled');
     }
+
+    /**
+     * Get AI-powered insights for a report
+     */
+    public function getInsights(Request $request)
+    {
+        $request->validate([
+            'type' => 'required|string|in:user_activity,transaction_summary,audit_trail,system_usage,custom',
+            'user_id' => 'nullable|exists:users,id',
+            'date_from' => 'nullable|date',
+            'date_to' => 'nullable|date',
+            'status' => 'nullable|string',
+            'columns' => 'nullable|array',
+            'columns.*' => 'string',
+        ]);
+
+        $filters = $request->all();
+
+        $report = match ($filters['type']) {
+            'user_activity' => $this->reportService->generateUserActivityReport($filters),
+            'transaction_summary' => $this->reportService->generateTransactionSummary($filters),
+            'audit_trail' => $this->reportService->generateAuditTrailReport($filters),
+            'system_usage' => $this->reportService->generateSystemUsageStats($filters),
+            'custom' => $this->reportService->generateCustomReport($filters, $filters['columns'] ?? []),
+            default => throw new \InvalidArgumentException('Invalid report type.'),
+        };
+
+        $insights = $this->reportService->getReportInsights($report['data'], $filters['type']);
+
+        return response()->json($insights);
+    }
+
+    /**
+     * Switch AI provider
+     */
+    public function switchProvider(Request $request)
+    {
+        $request->validate([
+            'provider' => 'required|string|in:groq,openrouter',
+        ]);
+
+        try {
+            $this->reportService->switchAIProvider($request->provider);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Provider switched successfully',
+                'current_provider' => $this->reportService->getCurrentProvider(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ], 400);
+        }
+    }
+
+    /**
+     * Switch API key for current provider
+     */
+    public function switchApiKey(Request $request)
+    {
+        try {
+            $this->reportService->switchAPIKey();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'API key switched successfully',
+                'current_provider' => $this->reportService->getCurrentProvider(),
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage(),
+            ], 400);
+        }
+    }
 }

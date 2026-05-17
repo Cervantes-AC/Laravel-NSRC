@@ -54,9 +54,9 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
-                    @forelse($results ?? [] as $result)
+                    @forelse(($results['data'] ?? []) as $result)
                         <tr>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $result->user->full_name ?? __('N/A') }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $result->volunteer->full_name ?? $result->full_name }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $result->date->format('M d, Y') }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $result->time_in ? $result->time_in->format('h:i A') : __('N/A') }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $result->time_out ? $result->time_out->format('h:i A') : __('N/A') }}</td>

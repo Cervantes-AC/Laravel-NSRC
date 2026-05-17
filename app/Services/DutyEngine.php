@@ -139,33 +139,42 @@ class DutyEngine
 
         $pairs = collect();
         $timeIn = null;
-        $timeOut = null;
+        $location = '';
 
         foreach ($sorted as $log) {
-            $attendance = $log instanceof \App\Models\Attendance
-                ? $log->attendance
-                : ($log['attendance'] ?? '');
+            $attendance = $this->normalizeAttendanceLabel(
+                $log instanceof \App\Models\Attendance
+                    ? (string) $log->attendance
+                    : (string) ($log['attendance'] ?? '')
+            );
             $dateTime = $log instanceof \App\Models\Attendance
                 ? $log->date_time
                 : ($log['date_time'] ?? null);
-            $location = $log instanceof \App\Models\Attendance
-                ? $log->location
-                : ($log['location'] ?? '');
+            $logLocation = $log instanceof \App\Models\Attendance
+                ? (string) ($log->location ?? '')
+                : (string) ($log['location'] ?? '');
 
-            if (strtolower($attendance) === 'time in' && !$timeIn) {
+            if ($logLocation !== '') {
+                $location = $logLocation;
+            }
+
+            if ($attendance === 'time in') {
+                if ($timeIn) {
+                    $pairs->push([
+                        'time_in' => $timeIn,
+                        'time_out' => null,
+                        'location' => $location,
+                    ]);
+                }
                 $timeIn = $dateTime;
-                $timeOut = null;
-            } elseif (strtolower($attendance) === 'time out' && $timeIn) {
-                $timeOut = $dateTime;
-
+            } elseif ($attendance === 'time out' && $timeIn) {
                 $pairs->push([
                     'time_in' => $timeIn,
-                    'time_out' => $timeOut,
+                    'time_out' => $dateTime,
                     'location' => $location,
                 ]);
 
                 $timeIn = null;
-                $timeOut = null;
             }
         }
 
@@ -173,11 +182,26 @@ class DutyEngine
             $pairs->push([
                 'time_in' => $timeIn,
                 'time_out' => null,
-                'location' => $location ?? '',
+                'location' => $location,
             ]);
         }
 
         return $pairs;
+    }
+
+    private function normalizeAttendanceLabel(string $attendance): string
+    {
+        $value = strtolower(trim($attendance));
+
+        if (in_array($value, ['time in', 'time_in', 'timein'], true)) {
+            return 'time in';
+        }
+
+        if (in_array($value, ['time out', 'time_out', 'timeout'], true)) {
+            return 'time out';
+        }
+
+        return $value;
     }
 
     private function buildSession(string $name, array $pair): DutySession

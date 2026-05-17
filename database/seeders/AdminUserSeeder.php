@@ -13,38 +13,11 @@ class AdminUserSeeder extends Seeder
         User::create([
             'name' => 'Admin User',
             'full_name' => 'Admin User',
-            'email' => 'admin@nsrc.gov.ph',
+            'email' => 'admin@gmail.com',
             'password' => Hash::make('Admin@123'),
             'role' => 'admin',
             'status' => 'active',
+            'email_verified_at' => now(),
         ]);
-
-        User::create([
-            'name' => 'Member User',
-            'full_name' => 'Member User',
-            'email' => 'member@nsrc.gov.ph',
-            'password' => Hash::make('Member@123'),
-            'role' => 'member',
-            'status' => 'active',
-        ]);
-
-        // Create sample member users
-        $members = [
-            ['name' => 'Juan Dela Cruz', 'email' => 'juan@nsrc.gov.ph'],
-            ['name' => 'Maria Santos', 'email' => 'maria@nsrc.gov.ph'],
-            ['name' => 'Pedro Reyes', 'email' => 'pedro@nsrc.gov.ph'],
-        ];
-
-        foreach ($members as $member) {
-            User::create([
-                'name' => $member['name'],
-                'full_name' => $member['name'],
-                'email' => $member['email'],
-                'password' => Hash::make('Member@123'),
-                'role' => 'member',
-                'status' => 'active',
-                'school_id' => 'NSRC-' . str_pad(random_int(1, 9999), 4, '0', STR_PAD_LEFT),
-            ]);
-        }
     }
 }

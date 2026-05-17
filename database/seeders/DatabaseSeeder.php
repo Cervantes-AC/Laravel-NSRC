@@ -11,7 +11,7 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RoleSeeder::class,
             AdminUserSeeder::class,
-            // DutySessionSeeder::class, // Uncomment to seed sample sessions
+            DutySessionSeeder::class,
         ]);
     }
 }

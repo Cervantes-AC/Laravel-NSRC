@@ -1,6 +1,14 @@
 <?php
 
 return [
+    'google_sheets' => [
+        'api_url' => env(
+            'GOOGLE_SHEETS_API_URL',
+            'https://script.google.com/macros/s/AKfycbwlIBr9rL3NM7hK6XWc0eiwmck1xzFhKCqrKYcA08x5MtH5wbTad47dNw7CMX_PAYlX/exec'
+        ),
+        'request_timeout' => (int) env('GOOGLE_SHEETS_TIMEOUT', 30),
+        'sync_schedule' => env('GOOGLE_SHEETS_SYNC_SCHEDULE', 'hourly'),
+    ],
     'name_merging' => [
         'enabled' => env('ATTENDANCE_NAME_MERGING', true),
         'similarity_threshold' => env('ATTENDANCE_SIMILARITY_THRESHOLD', 85.0),

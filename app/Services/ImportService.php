@@ -102,12 +102,13 @@ class ImportService
 
             foreach ($rows as $index => $row) {
                 try {
+                    $normalized = $this->normalizeSheetRow($row);
                     Attendance::create([
-                        'full_name' => $row['full_name'] ?? '',
-                        'attendance' => $row['attendance'] ?? '',
-                        'date_time' => $row['date_time'] ?? now(),
-                        'location' => $row['location'] ?? '',
-                        'shift_type' => $row['shift_type'] ?? '',
+                        'full_name' => $normalized['full_name'],
+                        'attendance' => $normalized['attendance'],
+                        'date_time' => $normalized['date_time'],
+                        'location' => $normalized['location'],
+                        'shift_type' => $normalized['shift_type'],
                     ]);
                     $success++;
                 } catch (\Exception $e) {
@@ -186,14 +187,33 @@ class ImportService
         return $rows;
     }
 
+    /**
+     * Normalize a CSV row to match the Google Sheets column layout.
+     *
+     * @return array{full_name: string, attendance: string, date_time: mixed, location: ?string, shift_type: ?string}
+     */
+    private function normalizeSheetRow(array $row): array
+    {
+        $timestamp = $row['timestamp'] ?? $row['date_time'] ?? now();
+
+        return [
+            'full_name' => trim((string) ($row['full_name'] ?? '')),
+            'attendance' => trim((string) ($row['attendance'] ?? '')),
+            'date_time' => $timestamp,
+            'location' => isset($row['location']) ? trim((string) $row['location']) : null,
+            'shift_type' => isset($row['shift_type']) ? trim((string) $row['shift_type']) : null,
+        ];
+    }
+
     private function validateRow(array $row, int $rowNumber): array
     {
         $errors = [];
+        $normalized = $this->normalizeSheetRow($row);
 
-        $validator = Validator::make($row, [
+        $validator = Validator::make($normalized, [
             'full_name' => 'required|string|max:255',
-            'attendance' => 'required|string|in:Time In,Time Out,time in,time out',
-            'date_time' => 'required|date',
+            'attendance' => 'required|string',
+            'date_time' => 'required',
             'location' => 'nullable|string|max:255',
         ]);
 

@@ -3,7 +3,18 @@
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ __('Import Data') }}</h2>
     </x-slot>
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-4">
+            @if (session('success'))
+                <div class="rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-800" role="status">
+                    {{ session('success') }}
+                </div>
+            @endif
+            @if (session('warning'))
+                <div class="rounded-lg bg-amber-50 border border-amber-200 px-4 py-3 text-sm text-amber-800" role="alert">
+                    {{ session('warning') }}
+                </div>
+            @endif
+
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="lg:col-span-2">
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -72,7 +83,29 @@
                     </div>
                 </div>
 
-                <div class="lg:col-span-1">
+                <div class="lg:col-span-1 space-y-6">
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-emerald-100">
+                        <div class="p-6 text-gray-900">
+                            <h3 class="text-lg font-medium text-gray-900 mb-2">{{ __('Google Sheets') }}</h3>
+                            <p class="text-sm text-gray-600 mb-4">{{ __('Pull the latest attendance logs from your connected spreadsheet and rebuild duty sessions.') }}</p>
+                            <form method="POST" action="{{ route('admin.import.sync-google-sheets') }}" class="space-y-3">
+                                @csrf
+                                <div>
+                                    <label for="sync_date" class="block text-xs font-medium text-gray-600">{{ __('Date (optional)') }}</label>
+                                    <input id="sync_date" name="date" type="text" placeholder="5/3/2026" class="mt-1 block w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-emerald-500 focus:ring-emerald-500" />
+                                </div>
+                                <div>
+                                    <label for="sync_name" class="block text-xs font-medium text-gray-600">{{ __('Name (optional)') }}</label>
+                                    <input id="sync_name" name="name" type="text" placeholder="{{ __('Volunteer name') }}" class="mt-1 block w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-emerald-500 focus:ring-emerald-500" />
+                                </div>
+                                <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg transition">
+                                    {{ __('Sync from Google Sheets') }}
+                                </button>
+                            </form>
+                            <p class="mt-3 text-xs text-gray-500">{{ __('Columns: timestamp, full_name, attendance (Time in / Time out)') }}</p>
+                        </div>
+                    </div>
+
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-6 text-gray-900">
                             <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('Templates') }}</h3>
@@ -84,11 +117,11 @@
                                     </svg>
                                     <span class="text-sm font-medium text-gray-700">{{ __('Personnel Template') }}</span>
                                 </a>
-                                <a href="{{ route('admin.import.template', 'sessions') }}" class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition" aria-label="{{ __('Download sessions template') }}">
+                                <a href="{{ route('admin.import.template') }}" class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition" aria-label="{{ __('Download attendance template') }}">
                                     <svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                     </svg>
-                                    <span class="text-sm font-medium text-gray-700">{{ __('Sessions Template') }}</span>
+                                    <span class="text-sm font-medium text-gray-700">{{ __('Attendance Template (Google Sheets format)') }}</span>
                                 </a>
                             </div>
 
@@ -97,8 +130,8 @@
                                 <ul class="text-xs text-blue-700 space-y-1 list-disc list-inside">
                                     <li>{{ __('Max file size: 10MB') }}</li>
                                     <li>{{ __('Supported formats: CSV, XLSX') }}</li>
-                                    <li>{{ __('Required columns must be present') }}</li>
-                                    <li>{{ __('No duplicate entries allowed') }}</li>
+                                    <li>{{ __('Required: timestamp, full_name, attendance') }}</li>
+                                    <li>{{ __('Attendance values: Time in, Time out') }}</li>
                                 </ul>
                             </div>
                         </div>

@@ -13,7 +13,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label for="full_name" class="block text-sm font-medium text-gray-700">{{ __('Full Name') }}</label>
-                                <input id="full_name" name="full_name" type="text" value="{{ old('full_name', $session->user->full_name ?? '') }}" required aria-required="true" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                                <input id="full_name" name="full_name" type="text" value="{{ old('full_name', $session->full_name) }}" required aria-required="true" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
                                 @error('full_name')
                                     <p class="mt-1 text-sm text-red-600" role="alert">{{ $message }}</p>
                                 @enderror

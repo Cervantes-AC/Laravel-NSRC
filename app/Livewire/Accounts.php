@@ -51,7 +51,7 @@ class Accounts extends Component
 
         $users = $query->orderByDesc('created_at')->paginate($this->perPage);
 
-        return view('livewire.accounts', ['users' => $users])
+        return view('livewire.accounts', ['accounts' => $users])
             ->layout('components.layouts.app');
     }
 }

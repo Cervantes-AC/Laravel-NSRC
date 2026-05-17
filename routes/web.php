@@ -46,6 +46,7 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('ad
     Route::post('settings/security', [SettingsController::class, 'updateSecurity'])->name('settings.security');
     Route::post('settings/backup', [SettingsController::class, 'updateBackup'])->name('settings.backup');
     Route::post('settings/notifications', [SettingsController::class, 'updateNotifications'])->name('settings.notifications');
+    Route::post('settings/update', [SettingsController::class, 'update'])->name('settings.update');
 
     // Audit Logs
     Route::get('audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
@@ -55,6 +56,7 @@ Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('ad
     Route::get('import', [ImportController::class, 'index'])->name('import.index');
     Route::post('import/preview', [ImportController::class, 'preview'])->name('import.preview');
     Route::post('import/process', [ImportController::class, 'process'])->name('import.process');
+    Route::post('import/sync-google-sheets', [ImportController::class, 'syncGoogleSheets'])->name('import.sync-google-sheets');
     Route::get('import/template', [ImportController::class, 'downloadTemplate'])->name('import.template');
 
     // Backup
@@ -77,6 +79,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/reports', [ReportsController::class, 'index'])->name('reports.index');
     Route::post('/reports/generate', [ReportsController::class, 'generate'])->name('reports.generate');
     Route::get('/reports/export', [ReportsController::class, 'export'])->name('reports.export');
+    Route::get('/reports/insights', [ReportsController::class, 'index'])->name('reports.insights.view');
+    Route::post('/reports/insights', [ReportsController::class, 'getInsights'])->name('reports.insights');
+    Route::post('/reports/provider/switch', [ReportsController::class, 'switchProvider'])->name('reports.provider.switch');
+    Route::post('/reports/api-key/switch', [ReportsController::class, 'switchApiKey'])->name('reports.api-key.switch');
 });
 
 Route::middleware('auth')->group(function () {

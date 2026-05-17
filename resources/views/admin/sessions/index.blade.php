@@ -47,7 +47,7 @@
                             <tbody class="bg-white divide-y divide-gray-200">
                                 @forelse($sessions ?? [] as $session)
                                     <tr>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $session->user->full_name ?? __('N/A') }}</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $session->full_name }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $session->date->format('M d, Y') }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $session->time_in ? $session->time_in->format('h:i A') : __('N/A') }}</td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $session->time_out ? $session->time_out->format('h:i A') : __('N/A') }}</td>

@@ -81,7 +81,7 @@
         </table>
     </div>
 
-    @if(method_exists($logs ?? [], 'links'))
+    @if(is_object($logs) && method_exists($logs, 'links'))
         <div class="mt-4">
             {{ $logs->links() }}
         </div>
