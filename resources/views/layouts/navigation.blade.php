@@ -15,6 +15,37 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+
+                    @if(Auth::user()->role === 'admin')
+                        <x-nav-link :href="route('admin.sessions.index')" :active="request()->routeIs('admin.sessions.*')">
+                            {{ __('Sessions') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('admin.personnel.index')" :active="request()->routeIs('admin.personnel.*')">
+                            {{ __('Personnel') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('admin.accounts.index')" :active="request()->routeIs('admin.accounts.*')">
+                            {{ __('Accounts') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('admin.audit-logs.index')" :active="request()->routeIs('admin.audit-logs.*')">
+                            {{ __('Audit Logs') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('admin.settings.index')" :active="request()->routeIs('admin.settings.*')">
+                            {{ __('Settings') }}
+                        </x-nav-link>
+                    @endif
+
+                    @if(Auth::user()->role === 'member')
+                        <x-nav-link :href="route('member.attendance')" :active="request()->routeIs('member.attendance')">
+                            {{ __('My Attendance') }}
+                        </x-nav-link>
+                        <x-nav-link :href="route('member.performance')" :active="request()->routeIs('member.performance')">
+                            {{ __('My Performance') }}
+                        </x-nav-link>
+                    @endif
+
+                    <x-nav-link :href="route('reports.index')" :active="request()->routeIs('reports.*')">
+                        {{ __('Reports') }}
+                    </x-nav-link>
                 </div>
             </div>
 
@@ -69,6 +100,37 @@
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
+            </x-responsive-nav-link>
+
+            @if(Auth::user()->role === 'admin')
+                <x-responsive-nav-link :href="route('admin.sessions.index')" :active="request()->routeIs('admin.sessions.*')">
+                    {{ __('Sessions') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.personnel.index')" :active="request()->routeIs('admin.personnel.*')">
+                    {{ __('Personnel') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.accounts.index')" :active="request()->routeIs('admin.accounts.*')">
+                    {{ __('Accounts') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.audit-logs.index')" :active="request()->routeIs('admin.audit-logs.*')">
+                    {{ __('Audit Logs') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('admin.settings.index')" :active="request()->routeIs('admin.settings.*')">
+                    {{ __('Settings') }}
+                </x-responsive-nav-link>
+            @endif
+
+            @if(Auth::user()->role === 'member')
+                <x-responsive-nav-link :href="route('member.attendance')" :active="request()->routeIs('member.attendance')">
+                    {{ __('My Attendance') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('member.performance')" :active="request()->routeIs('member.performance')">
+                    {{ __('My Performance') }}
+                </x-responsive-nav-link>
+            @endif
+
+            <x-responsive-nav-link :href="route('reports.index')" :active="request()->routeIs('reports.*')">
+                {{ __('Reports') }}
             </x-responsive-nav-link>
         </div>
 
