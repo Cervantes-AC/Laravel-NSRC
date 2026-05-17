@@ -20,7 +20,7 @@
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-6 text-gray-900">
                             <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('Upload File') }}</h3>
-                            <form method="POST" action="{{ route('admin.import.store') }}" enctype="multipart/form-data" class="space-y-6">
+                            <form method="POST" action="{{ route('admin.import.process') }}" enctype="multipart/form-data" class="space-y-6">
                                 @csrf
 
                                 <div>

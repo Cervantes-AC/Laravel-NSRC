@@ -18,7 +18,7 @@ class AIProviderSwitcher extends Component
     public function mount(ReportService $reportService)
     {
         $this->reportService = $reportService;
-        $this->currentProvider = $reportService->getCurrentProvider();
+        $this->currentProvider = session('ai_provider', config('ai.provider', 'groq'));
     }
 
     public function switchProvider(string $provider)

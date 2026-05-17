@@ -42,6 +42,9 @@ class User extends Authenticatable
         'emergency_contact_number',
         'avatar',
         'serial_number',
+        'failed_login_attempts',
+        'locked_until',
+        'last_login_at',
     ];
 
     /**
@@ -65,6 +68,8 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'birthdate' => 'date',
+            'locked_until' => 'datetime',
+            'last_login_at' => 'datetime',
         ];
     }
 

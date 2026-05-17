@@ -26,7 +26,6 @@ class Ranking extends Component
 
     public function render()
     {
-        return view('livewire.ranking', ['rankings' => $this->rankings])
-            ->layout('components.layouts.app');
+        return view('livewire.ranking', ['rankings' => $this->rankings]);
     }
 }

@@ -11,19 +11,19 @@ AI_PROVIDER=groq
 ### Groq API Keys
 ```env
 # Primary Groq API key
-GROQ_API_KEY_1=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
+GROQ_API_KEY_1=your_groq_key_1
 
 # Backup Groq API key (for rate limit fallback)
-GROQ_API_KEY_2=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
+GROQ_API_KEY_2=your_groq_key_2
 ```
 
 ### OpenRouter API Keys
 ```env
 # Primary OpenRouter API key
-OPENROUTER_API_KEY_1=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
+OPENROUTER_API_KEY_1=your_openrouter_key_1
 
 # Backup OpenRouter API key (for rate limit fallback)
-OPENROUTER_API_KEY_2=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
+OPENROUTER_API_KEY_2=your_openrouter_key_2
 ```
 
 ## Configuration File (config/ai.php)

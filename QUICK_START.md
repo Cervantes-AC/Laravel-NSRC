@@ -6,10 +6,10 @@
 Your `.env` file already has the API keys configured:
 ```env
 AI_PROVIDER=groq
-GROQ_API_KEY_1=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
-GROQ_API_KEY_2=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
-OPENROUTER_API_KEY_1=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
-OPENROUTER_API_KEY_2=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
+GROQ_API_KEY_1=your_groq_key_1
+GROQ_API_KEY_2=your_groq_key_2
+OPENROUTER_API_KEY_1=your_openrouter_key_1
+OPENROUTER_API_KEY_2=your_openrouter_key_2
 ```
 
 ### Step 2: Clear Cache (if needed)

@@ -9,7 +9,7 @@ class DutySessionPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->role === 'admin' || true;
+        return in_array($user->role, ['admin', 'member'], true);
     }
 
     public function view(User $user, DutySession $session): bool

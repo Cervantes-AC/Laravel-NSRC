@@ -14,45 +14,29 @@ class SessionsController extends Controller
 {
     public function index(Request $request)
     {
-        $query = DutySession::query();
+        $this->authorize('viewAny', DutySession::class);
 
-        if ($request->filled('status')) {
-            $query->where('status', $request->status);
-        }
-
-        if ($request->filled('sector')) {
-            $query->where('sector', $request->sector);
-        }
-
-        if ($request->filled('date_from')) {
-            $query->whereDate('date', '>=', $request->date_from);
-        }
-
-        if ($request->filled('date_to')) {
-            $query->whereDate('date', '<=', $request->date_to);
-        }
-
-        if ($request->filled('search')) {
-            $query->where('full_name', 'like', '%' . $request->search . '%');
-        }
-
-        $sessions = $query->latest()->paginate(15);
-
-        return view('admin.sessions.index', compact('sessions'));
+        return view('admin.sessions.index');
     }
 
     public function show(DutySession $session)
     {
+        $this->authorize('view', $session);
+
         return view('admin.sessions.show', compact('session'));
     }
 
     public function create()
     {
+        $this->authorize('create', DutySession::class);
+
         return view('admin.sessions.create');
     }
 
     public function store(StoreDutySessionRequest $request)
     {
+        $this->authorize('create', DutySession::class);
+
         DutySession::create($request->validated());
 
         return redirect()->route('admin.sessions.index')->with('success', 'Duty session created successfully.');
@@ -60,11 +44,15 @@ class SessionsController extends Controller
 
     public function edit(DutySession $session)
     {
+        $this->authorize('update', $session);
+
         return view('admin.sessions.edit', compact('session'));
     }
 
     public function update(UpdateDutySessionRequest $request, DutySession $session)
     {
+        $this->authorize('update', $session);
+
         $session->update($request->validated());
 
         return redirect()->route('admin.sessions.index')->with('success', 'Duty session updated successfully.');
@@ -72,6 +60,8 @@ class SessionsController extends Controller
 
     public function destroy(DutySession $session)
     {
+        $this->authorize('delete', $session);
+
         $session->delete();
 
         AuditLog::create([
@@ -91,6 +81,7 @@ class SessionsController extends Controller
     public function restore($id)
     {
         $session = DutySession::withTrashed()->findOrFail($id);
+        $this->authorize('restore', $session);
         $session->restore();
 
         AuditLog::create([

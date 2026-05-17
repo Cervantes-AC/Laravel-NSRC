@@ -11,8 +11,11 @@ class NotificationCenter extends Component
 
     public int $unreadCount = 0;
 
-    public function mount(): void
+    public bool $fullPage = false;
+
+    public function mount(bool $fullPage = false): void
     {
+        $this->fullPage = $fullPage;
         $this->loadNotifications();
     }
 
@@ -65,7 +68,10 @@ class NotificationCenter extends Component
 
     public function render()
     {
-        return view('livewire.notification-center')
-            ->layout('components.layouts.app');
+        $view = view('livewire.notification-center');
+
+        return $this->fullPage
+            ? $view->layout('components.layouts.app')
+            : $view;
     }
 }

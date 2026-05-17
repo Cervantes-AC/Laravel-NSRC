@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ config('app.name', 'NSRC-AMS') }} — Attendance Management System</title>
+    <link rel="icon" type="image/png" href="{{ asset(config('app.logo', 'images/nsrc-logo.png')) }}">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet" />
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -14,9 +15,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
                 <div class="flex items-center gap-3">
-                    <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                    </div>
+                    <x-application-logo class="h-10 w-10" />
                     <span class="text-xl font-bold text-gray-900">NSRC<span class="text-blue-600">AMS</span></span>
                 </div>
                 <nav class="flex items-center gap-4">
@@ -116,10 +115,10 @@
                     </div>
                     <div class="p-6 bg-gray-50 rounded-2xl border border-gray-100">
                         <div class="w-12 h-12 bg-cyan-100 rounded-xl flex items-center justify-center mb-4">
-                            <svg class="w-6 h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                            <svg class="w-6 h-6 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
                         </div>
-                        <h3 class="text-lg font-semibold text-gray-900 mb-2">AI-Powered Assistant</h3>
-                        <p class="text-gray-600">Intelligent AI assistant with multiple modes for data queries and conversational support.</p>
+                        <h3 class="text-lg font-semibold text-gray-900 mb-2">Rankings & Performance</h3>
+                        <p class="text-gray-600">Leaderboards and performance metrics to recognize top contributors and track progress.</p>
                     </div>
                 </div>
             </div>

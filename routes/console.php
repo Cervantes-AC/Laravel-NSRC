@@ -1,8 +1,23 @@
 <?php
 
-use Illuminate\Foundation\Inspiring;
-use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Schedule;
 
-Artisan::command('inspire', function () {
-    $this->comment(Inspiring::quote());
-})->purpose('Display an inspiring quote');
+Schedule::command('attendance:sync-google-sheets')
+    ->hourly()
+    ->withoutOverlapping()
+    ->runInBackground();
+
+Schedule::command('backup:run --type=database')
+    ->weeklyOn(1, '2:00')
+    ->withoutOverlapping()
+    ->runInBackground();
+
+Schedule::command('backup:run --type=files')
+    ->sundays()->at('3:00')
+    ->withoutOverlapping()
+    ->runInBackground();
+
+Schedule::command('backup:run --type=full')
+    ->monthlyOn(1, '4:00')
+    ->withoutOverlapping()
+    ->runInBackground();

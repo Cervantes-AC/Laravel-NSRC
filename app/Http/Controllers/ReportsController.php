@@ -18,6 +18,11 @@ class ReportsController extends Controller
         return view('reports.index');
     }
 
+    public function insightsPage()
+    {
+        return view('reports.insights');
+    }
+
     public function generate(Request $request)
     {
         $filters = $request->validate([

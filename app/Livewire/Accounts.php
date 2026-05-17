@@ -12,46 +12,95 @@ class Accounts extends Component
 
     public string $search = '';
 
-    public string $status = '';
+    public string $statusFilter = '';
 
     public int $perPage = 25;
 
+    public string $bulkAction = '';
+
+    public bool $selectAll = false;
+
+    /** @var array<int, int|string> */
+    public array $selectedAccounts = [];
+
+    public function updatingSearch(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatingStatusFilter(): void
+    {
+        $this->resetPage();
+    }
+
+    public function updatedSelectAll(bool $value): void
+    {
+        if ($value) {
+            $this->selectedAccounts = User::query()
+                ->when($this->statusFilter, fn ($q) => $q->where('status', $this->statusFilter))
+                ->pluck('id')
+                ->map(fn ($id) => (string) $id)
+                ->all();
+        } else {
+            $this->selectedAccounts = [];
+        }
+    }
+
     public function approve(int $userId): void
     {
-        $user = User::findOrFail($userId);
-        $user->update(['status' => 'active']);
+        User::findOrFail($userId)->update(['status' => 'active']);
     }
 
     public function reject(int $userId): void
     {
-        $user = User::findOrFail($userId);
-        $user->update(['status' => 'rejected']);
+        User::findOrFail($userId)->update(['status' => 'rejected']);
     }
 
     public function suspend(int $userId): void
     {
-        $user = User::findOrFail($userId);
-        $user->update(['status' => 'suspended']);
+        User::findOrFail($userId)->update(['status' => 'suspended']);
+    }
+
+    public function executeBulkAction(): void
+    {
+        if ($this->bulkAction === '' || empty($this->selectedAccounts)) {
+            return;
+        }
+
+        $ids = array_map('intval', $this->selectedAccounts);
+        $status = match ($this->bulkAction) {
+            'approve' => 'active',
+            'suspend' => 'suspended',
+            'reject' => 'rejected',
+            default => null,
+        };
+
+        if ($status) {
+            User::whereIn('id', $ids)->update(['status' => $status]);
+        }
+
+        $this->selectedAccounts = [];
+        $this->selectAll = false;
+        $this->bulkAction = '';
     }
 
     public function render()
     {
         $query = User::query();
 
-        if ($this->search) {
+        if ($this->search !== '') {
             $query->where(function ($q) {
                 $q->where('full_name', 'like', '%' . $this->search . '%')
                     ->orWhere('email', 'like', '%' . $this->search . '%');
             });
         }
 
-        if ($this->status) {
-            $query->where('status', $this->status);
+        if ($this->statusFilter !== '') {
+            $query->where('status', $this->statusFilter);
         }
 
-        $users = $query->orderByDesc('created_at')->paginate($this->perPage);
+        $accounts = $query->orderByDesc('created_at')->paginate($this->perPage);
 
-        return view('livewire.accounts', ['accounts' => $users])
-            ->layout('components.layouts.app');
+        return view('livewire.accounts', compact('accounts'));
     }
 }

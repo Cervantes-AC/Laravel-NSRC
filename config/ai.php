@@ -23,7 +23,7 @@ return [
         'api_key_1' => env('GROQ_API_KEY_1'),
         'api_key_2' => env('GROQ_API_KEY_2'),
         'endpoint' => 'https://api.groq.com/openai/v1/chat/completions',
-        'model' => 'mixtral-8x7b-32768',
+        'model' => env('GROQ_MODEL', 'llama-3.3-70b-versatile'),
     ],
 
     /*
@@ -36,7 +36,7 @@ return [
         'api_key_1' => env('OPENROUTER_API_KEY_1'),
         'api_key_2' => env('OPENROUTER_API_KEY_2'),
         'endpoint' => 'https://openrouter.ai/api/v1/chat/completions',
-        'model' => 'mistralai/mistral-7b-instruct',
+        'model' => env('OPENROUTER_MODEL', 'mistralai/mistral-7b-instruct'),
     ],
 
     /*

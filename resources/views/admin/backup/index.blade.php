@@ -9,17 +9,17 @@
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-6 text-gray-900">
                             <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('Run Backup') }}</h3>
-                            <form method="POST" action="{{ route('admin.backup.store') }}" class="space-y-6">
+                            <form method="POST" action="{{ route('admin.backup.run') }}" class="space-y-6">
                                 @csrf
 
                                 <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-3">{{ __('Backup Type') }}</label>
-                                    @error('backup_type')
+                                    @error('type')
                                         <p class="mb-2 text-sm text-red-600" role="alert">{{ $message }}</p>
                                     @enderror
                                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                         <label for="type-database" class="relative flex items-center justify-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-indigo-500 transition has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-50">
-                                            <input id="type-database" type="radio" name="backup_type" value="database" class="sr-only" aria-label="{{ __('Database backup') }}" />
+                                            <input id="type-database" type="radio" name="type" value="database" class="sr-only" aria-label="{{ __('Database backup') }}" />
                                             <div class="text-center">
                                                 <svg class="mx-auto h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
@@ -30,7 +30,7 @@
                                         </label>
 
                                         <label for="type-files" class="relative flex items-center justify-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-indigo-500 transition has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-50">
-                                            <input id="type-files" type="radio" name="backup_type" value="files" class="sr-only" aria-label="{{ __('Files backup') }}" />
+                                            <input id="type-files" type="radio" name="type" value="files" class="sr-only" aria-label="{{ __('Files backup') }}" />
                                             <div class="text-center">
                                                 <svg class="mx-auto h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
@@ -41,7 +41,7 @@
                                         </label>
 
                                         <label for="type-full" class="relative flex items-center justify-center p-4 border-2 border-gray-200 rounded-lg cursor-pointer hover:border-indigo-500 transition has-[:checked]:border-indigo-600 has-[:checked]:bg-indigo-50">
-                                            <input id="type-full" type="radio" name="backup_type" value="full" class="sr-only" aria-label="{{ __('Full backup') }}" />
+                                            <input id="type-full" type="radio" name="type" value="full" class="sr-only" aria-label="{{ __('Full backup') }}" />
                                             <div class="text-center">
                                                 <svg class="mx-auto h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
@@ -86,7 +86,7 @@
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
-                                        @forelse($backups ?? [] as $backup)
+                                        @forelse($backupLogs ?? [] as $backup)
                                             <tr>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $backup->created_at->format('M d, Y h:i A') }}</td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm">
@@ -134,7 +134,7 @@
                                         </div>
                                         <div class="flex justify-between">
                                             <dt class="text-gray-500">{{ __('Total Backups') }}</dt>
-                                            <dd class="text-gray-900 font-medium">{{ count($backups ?? []) }}</dd>
+                                            <dd class="text-gray-900 font-medium">{{ $backupLogs?->total() ?? count($backupLogs ?? []) }}</dd>
                                         </div>
                                         <div class="flex justify-between">
                                             <dt class="text-gray-500">{{ __('Total Size') }}</dt>

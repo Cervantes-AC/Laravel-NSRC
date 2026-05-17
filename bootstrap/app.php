@@ -16,10 +16,12 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => \App\Http\Middleware\CheckRole::class,
             'throttle.custom' => \App\Http\Middleware\RateLimitMiddleware::class,
             'security.headers' => \App\Http\Middleware\SecurityHeadersMiddleware::class,
+            'session.timeout' => \App\Http\Middleware\SessionTimeoutMiddleware::class,
         ]);
 
         $middleware->web(append: [
             \App\Http\Middleware\SecurityHeadersMiddleware::class,
+            \App\Http\Middleware\SessionTimeoutMiddleware::class,
         ]);
     })
     ->withSchedule(function (Schedule $schedule): void {
@@ -36,6 +38,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'daily' => $event->daily(),
             default => $event->hourly(),
         };
+
+        $schedule->command('backup:run --type=database')->weeklyOn(0, '02:00');
+        $schedule->command('backup:run --type=files')->weeklyOn(0, '03:00');
+        $schedule->command('backup:run --type=full')->monthlyOn(1, '04:00');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

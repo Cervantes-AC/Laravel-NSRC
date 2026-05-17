@@ -74,7 +74,7 @@
         </table>
     </div>
 
-    @if(is_object($accounts) && method_exists($accounts, 'links'))
+    @if($accounts instanceof \Illuminate\Contracts\Pagination\Paginator)
         <div class="mt-4">
             {{ $accounts->links() }}
         </div>

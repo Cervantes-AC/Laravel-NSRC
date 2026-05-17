@@ -13,7 +13,7 @@ class LogUserLogin
             'user_id'    => $event->user->id,
             'full_name'  => $event->user->full_name ?? $event->user->name,
             'type'       => 'SECURITY',
-            'action'     => 'User Logged In',
+            'action'     => 'LOGIN',
             'details'    => "User {$event->user->name} ({$event->user->email}) logged in.",
             'ip_address' => request()->ip(),
             'user_agent' => request()->userAgent(),

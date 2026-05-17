@@ -47,7 +47,7 @@ class NameNormalizationService
         return $this->calculateSimilarity($name1, $name2) >= $threshold;
     }
 
-    public function getCanonicalName(Collection $sessions, string $name): string
+    public function getCanonicalName(Collection $sessions, string $name, float $threshold = 50.0): string
     {
         $bestMatch = $name;
         $highestScore = 0.0;
@@ -65,7 +65,11 @@ class NameNormalizationService
 
             if ($score > $highestScore) {
                 $highestScore = $score;
+            }
+
+            if ($score >= $threshold) {
                 $bestMatch = $sessionName;
+                break;
             }
         }
 

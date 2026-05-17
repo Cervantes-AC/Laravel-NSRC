@@ -57,4 +57,9 @@ class NotificationService
             'data' => ['message' => $reminder, 'type' => 'reminder'],
         ]);
     }
+
+    public function sendSecurityAlert(User $user, string $alert): void
+    {
+        $this->sendCriticalAlert($user, $alert);
+    }
 }
