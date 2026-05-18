@@ -7,6 +7,8 @@ use App\Models\AuditLog;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules;
 
 class AccountsController extends Controller
 {
@@ -68,6 +70,45 @@ class AccountsController extends Controller
         ]);
 
         return redirect()->route('admin.accounts.index')->with('success', 'Account suspended successfully.');
+    }
+
+    public function edit(User $user)
+    {
+        return view('admin.accounts.edit', compact('user'));
+    }
+
+    public function update(Request $request, User $user)
+    {
+        $validated = $request->validate([
+            'full_name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'role' => ['required', 'in:admin,member'],
+            'status' => ['required', 'in:active,inactive,suspended,pending,rejected'],
+            'school_id' => ['nullable', 'string', 'max:255'],
+            'personal_contact_number' => ['nullable', 'string', 'max:255'],
+            'current_address' => ['nullable', 'string', 'max:255'],
+            'home_address' => ['nullable', 'string', 'max:255'],
+            'password' => ['nullable', 'confirmed', Rules\Password::defaults()],
+        ]);
+
+        if (empty($validated['password'])) {
+            unset($validated['password']);
+        }
+
+        $user->update($validated);
+
+        AuditLog::create([
+            'user_id' => Auth::id(),
+            'full_name' => Auth::user()?->full_name ?? 'System',
+            'type' => 'REGISTRY',
+            'action' => 'UPDATE_ACCOUNT',
+            'details' => "Updated account for: {$user->full_name} (ID: {$user->id})",
+            'ip_address' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+            'timestamp' => now(),
+        ]);
+
+        return redirect()->route('admin.accounts.index')->with('success', 'Account updated successfully.');
     }
 
     public function bulkAction(Request $request)

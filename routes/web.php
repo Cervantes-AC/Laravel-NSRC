@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\SessionsController as AdminSessionsController;
 use App\Http\Controllers\Admin\AccountsController;
 use App\Http\Controllers\Admin\AnnouncementController;
 use App\Http\Controllers\Admin\UserManagementController;
+use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Member\DashboardController as MemberDashboardController;
 use App\Http\Controllers\Api\MemberAttendanceController;
 use App\Http\Controllers\Member\PerformanceController as MemberPerformanceController;
@@ -93,6 +94,8 @@ Route::middleware(['auth', 'role:admin', 'throttle.custom'])->prefix('admin')->n
     Route::resource('sessions', AdminSessionsController::class);
 
     Route::get('accounts', [AccountsController::class, 'index'])->name('accounts.index');
+    Route::get('accounts/{user}/edit', [AccountsController::class, 'edit'])->name('accounts.edit');
+    Route::patch('accounts/{user}', [AccountsController::class, 'update'])->name('accounts.update');
     Route::post('accounts/{user}/approve', [AccountsController::class, 'approve'])->name('accounts.approve');
     Route::post('accounts/{user}/reject', [AccountsController::class, 'reject'])->name('accounts.reject');
     Route::post('accounts/{user}/suspend', [AccountsController::class, 'suspend'])->name('accounts.suspend');
@@ -113,12 +116,19 @@ Route::middleware(['auth', 'role:admin', 'throttle.custom'])->prefix('admin')->n
     Route::get('export/accounts', [\App\Http\Controllers\ExportController::class, 'accounts'])->name('export.accounts');
     Route::get('export/sessions', [\App\Http\Controllers\ExportController::class, 'sessions'])->name('export.sessions');
     Route::get('export/personnel', [\App\Http\Controllers\ExportController::class, 'personnel'])->name('export.personnel');
+    Route::get('export/attendance', [\App\Http\Controllers\ExportController::class, 'attendance'])->name('export.attendance');
 
     Route::get('backup', [BackupController::class, 'index'])->name('backup.index');
     Route::post('backup/run', [BackupController::class, 'runBackup'])->name('backup.run');
     Route::get('backup/download/{id}', [BackupController::class, 'download'])->name('backup.download');
+    Route::post('backup/resend-email/{id}', [BackupController::class, 'resendEmail'])->name('backup.resend-email');
+    Route::post('backup/toggle-email', [BackupController::class, 'toggleEmailNotifications'])->name('backup.toggle-email');
 
     Route::post('attendance/sync', [AttendanceController::class, 'sync'])->name('attendance.sync');
+
+    Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
+    Route::post('settings/site', [SettingsController::class, 'updateSite'])->name('settings.update-site');
+    Route::post('settings/security', [SettingsController::class, 'updateSecurity'])->name('settings.update-security');
 });
 
 Route::middleware(['auth', 'role:admin', 'throttle.custom'])->prefix('api/admin')->name('api.admin.')->group(function () {

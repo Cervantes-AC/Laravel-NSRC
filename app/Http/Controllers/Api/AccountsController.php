@@ -15,6 +15,9 @@ class AccountsController extends Controller
     {
         $search = $request->input('search', '');
         $statusFilter = $request->input('statusFilter', '');
+        $roleFilter = $request->input('roleFilter', '');
+        $sortBy = $request->input('sortBy', 'created_at');
+        $sortDirection = $request->input('sortDirection', 'desc');
         $perPage = (int) $request->input('perPage', 25);
         $page = (int) $request->input('page', 1);
 
@@ -31,6 +34,17 @@ class AccountsController extends Controller
             $query->where('status', $statusFilter);
         }
 
+        if ($roleFilter !== '') {
+            $query->where('role', $roleFilter);
+        }
+
+        $allowedSortColumns = ['full_name', 'email', 'role', 'status', 'created_at', 'last_login_at'];
+        if (in_array($sortBy, $allowedSortColumns)) {
+            $query->orderBy($sortBy, $sortDirection === 'asc' ? 'asc' : 'desc');
+        } else {
+            $query->orderByDesc('created_at');
+        }
+
         $total = (clone $query)->count();
         $totalPages = max(1, (int) ceil($total / $perPage));
 
@@ -43,7 +57,11 @@ class AccountsController extends Controller
                 'email' => $u->email,
                 'role' => $u->role,
                 'status' => $u->status,
+                'avatar' => $u->avatar,
                 'created_at' => $u->created_at->format('M d, Y'),
+                'last_login_at' => $u->last_login_at ? $u->last_login_at->diffForHumans() : 'Never',
+                'email_verified_at' => $u->email_verified_at ? $u->email_verified_at->format('M d, Y') : 'Unverified',
+                'two_factor_enabled' => $u->two_factor_enabled ?? false,
             ]);
 
         return response()->json([
@@ -51,6 +69,13 @@ class AccountsController extends Controller
             'totalPages' => $totalPages,
             'currentPage' => $page,
             'total' => $total,
+            'stats' => [
+                'total' => User::count(),
+                'active' => User::where('status', 'active')->count(),
+                'pending' => User::where('status', 'pending')->count(),
+                'suspended' => User::where('status', 'suspended')->count(),
+                'rejected' => User::where('status', 'rejected')->count(),
+            ],
         ]);
     }
 

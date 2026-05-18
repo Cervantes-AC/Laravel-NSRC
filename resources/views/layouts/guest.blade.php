@@ -64,4 +64,19 @@
             </div>
         </div>
     </body>
+    <script>
+        // Ensure CSRF token is refreshed on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.querySelector('form[method="POST"]');
+            if (form) {
+                form.addEventListener('submit', function(e) {
+                    const token = document.querySelector('meta[name="csrf-token"]')?.content;
+                    const csrfInput = form.querySelector('input[name="_token"]');
+                    if (csrfInput && token) {
+                        csrfInput.value = token;
+                    }
+                });
+            }
+        });
+    </script>
 </html>

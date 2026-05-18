@@ -115,4 +115,6 @@ return [
         'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
     ],
 
+    'backup_email' => env('MAIL_BACKUP_EMAIL', 'aaronclydeccervantes@gmail.com'),
+
 ];

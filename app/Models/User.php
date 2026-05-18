@@ -106,6 +106,12 @@ class User extends Authenticatable
         return $this->hasMany(ConversationHistory::class);
     }
 
+    public function notifications(): HasMany
+    {
+        return $this->hasMany(Notification::class, 'notifiable_id')
+            ->where('notifiable_type', self::class);
+    }
+
     public function isAdmin(): bool
     {
         return $this->role === 'admin';

@@ -23,6 +23,7 @@ class ImportRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'import_type' => ['required', 'in:personnel,accounts,sessions'],
             'file' => ['required', 'file', 'mimes:xlsx,xls,csv', 'max:10240'],
         ];
     }

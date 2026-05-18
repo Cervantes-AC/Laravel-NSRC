@@ -125,4 +125,6 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'send_backup_email' => (bool) env('SEND_BACKUP_EMAIL', true),
+
 ];

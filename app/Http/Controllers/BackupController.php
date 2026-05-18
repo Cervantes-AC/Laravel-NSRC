@@ -4,37 +4,51 @@ namespace App\Http\Controllers;
 
 use App\Models\BackupLog;
 use App\Services\BackupService;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class BackupController extends Controller
 {
     public function __construct(
-        protected BackupService $backupService
+        protected BackupService $backupService,
+        protected NotificationService $notificationService
     ) {}
 
     public function index()
     {
         $backupLogs = BackupLog::latest()->paginate(15);
-        return view('admin.backup.index', compact('backupLogs'));
+        $totalSize = BackupLog::where('status', 'success')->sum('size');
+        return view('admin.backup.index', compact('backupLogs', 'totalSize'));
     }
 
     public function runBackup(Request $request)
     {
         $request->validate([
             'type' => 'required|in:database,files,full',
+            'send_email' => 'sometimes|boolean',
         ]);
 
+        $sendEmail = $request->boolean('send_email', true);
+        $user = Auth::user();
+
+        $this->notificationService->sendBackupNotification($user, $request->type, 'started');
+
         $success = match ($request->type) {
-            'database' => $this->backupService->backupDatabase(),
-            'files' => $this->backupService->backupFileUploads(),
-            'full' => $this->backupService->backupFullSystem(),
+            'database' => $this->backupService->backupDatabase($sendEmail),
+            'files' => $this->backupService->backupFileUploads($sendEmail),
+            'full' => $this->backupService->backupFullSystem($sendEmail),
         };
 
+        $this->backupService->cleanupOldBackups(10);
+
         if ($success) {
-            return redirect()->route('admin.backup.index')->with('success', 'Backup completed successfully.');
+            $this->notificationService->sendBackupNotification($user, $request->type, 'completed');
+            return redirect()->route('admin.backup.index')->with('success', 'Backup completed successfully.' . ($sendEmail ? ' Notification email sent.' : ''));
         }
 
+        $this->notificationService->sendBackupNotification($user, $request->type, 'failed', 'Backup operation failed');
         return redirect()->route('admin.backup.index')->with('error', 'Backup failed. Please check the logs.');
     }
 
@@ -45,9 +59,75 @@ class BackupController extends Controller
         $path = 'backups/' . $backupLog->filename;
 
         if (!Storage::disk('local')->exists($path)) {
+            $this->notificationService->sendValidationNotification(
+                Auth::user(),
+                'backup',
+                'error',
+                'Backup file not found: ' . $backupLog->filename
+            );
             return redirect()->route('admin.backup.index')->with('error', 'Backup file not found.');
         }
 
         return Storage::disk('local')->download($path, $backupLog->filename);
+    }
+
+    public function resendEmail($id)
+    {
+        $success = $this->backupService->sendBackupEmailManually($id);
+
+        if ($success) {
+            $this->notificationService->sendActionNotification(
+                Auth::user(),
+                'backup',
+                'email_resent',
+                'Backup notification email resent successfully',
+                'success'
+            );
+            return redirect()->route('admin.backup.index')->with('success', 'Backup notification email resent.');
+        }
+
+        $this->notificationService->sendActionNotification(
+            Auth::user(),
+            'backup',
+            'email_failed',
+            'Failed to resend backup notification email',
+            'error'
+        );
+        return redirect()->route('admin.backup.index')->with('error', 'Failed to resend backup notification email.');
+    }
+
+    public function toggleEmailNotifications(Request $request)
+    {
+        $request->validate([
+            'enabled' => 'required|boolean',
+        ]);
+
+        $enabled = $request->boolean('enabled');
+
+        if (file_exists(app()->environmentFilePath())) {
+            $env = file_get_contents(app()->environmentFilePath());
+            $key = 'SEND_BACKUP_EMAIL=';
+            $newValue = $key . ($enabled ? 'true' : 'false');
+
+            if (preg_match('/^' . preg_quote($key, '/') . '/m', $env)) {
+                $env = preg_replace('/^' . preg_quote($key, '/') . '.*$/m', $newValue, $env);
+            } else {
+                $env .= "\n" . $newValue . "\n";
+            }
+
+            file_put_contents(app()->environmentFilePath(), $env);
+        }
+
+        config(['app.send_backup_email' => $enabled]);
+
+        $this->notificationService->sendActionNotification(
+            Auth::user(),
+            'backup',
+            'email_notifications_' . ($enabled ? 'enabled' : 'disabled'),
+            'Backup email notifications ' . ($enabled ? 'enabled' : 'disabled'),
+            'info'
+        );
+
+        return redirect()->route('admin.backup.index')->with('success', 'Email notifications ' . ($enabled ? 'enabled' : 'disabled') . '.');
     }
 }

@@ -2,18 +2,37 @@
 
 namespace App\Services;
 
+use App\Mail\BackupEmailNotification;
 use App\Models\BackupLog;
+use App\Models\Attendance;
+use App\Models\DutySession;
+use App\Models\User;
+use App\Models\VolunteerMetrics;
+use App\Services\NotificationService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class BackupService
 {
-    public function backupDatabase(): bool
+    protected string $backupEmail = 'aaronclydeccervantes@gmail.com';
+    protected bool $sendEmailOnBackup = true;
+    protected NotificationService $notifications;
+
+    public function __construct()
+    {
+        $this->backupEmail = config('mail.backup_email', $this->backupEmail);
+        $this->sendEmailOnBackup = config('app.send_backup_email', true);
+        $this->notifications = app(NotificationService::class);
+    }
+
+    public function backupDatabase(bool $sendEmail = true): bool
     {
         $filename = 'db-backup-' . now()->format('Y-m-d_H-i-s') . '.sql';
         $path = 'backups/' . $filename;
+        $summary = $this->generateDatabaseSummary();
 
         try {
             $tables = DB::select('SHOW TABLES');
@@ -39,15 +58,24 @@ class BackupService
 
             Storage::disk('local')->put($path, $sql);
 
+            $size = strlen($sql);
+
             BackupLog::create([
                 'type' => 'database',
                 'filename' => $filename,
-                'size' => strlen($sql),
+                'size' => $size,
                 'status' => 'success',
                 'details' => 'Database backup completed successfully.',
             ]);
 
             Log::info("Database backup created: {$filename}");
+
+            $this->notifications->backupSuccess('database', $filename, $this->formatBytes($size));
+
+            if ($sendEmail && $this->sendEmailOnBackup) {
+                $this->sendBackupEmail('database', true, $filename, $this->formatBytes($size), 'Database backup completed successfully.', $summary);
+            }
+
             return true;
         } catch (\Exception $e) {
             Log::error("Database backup failed: " . $e->getMessage());
@@ -60,11 +88,17 @@ class BackupService
                 'details' => $e->getMessage(),
             ]);
 
+            $this->notifications->backupFailed('database', $e->getMessage());
+
+            if ($sendEmail && $this->sendEmailOnBackup) {
+                $this->sendBackupEmail('database', false, $filename, '0 B', $e->getMessage(), []);
+            }
+
             return false;
         }
     }
 
-    public function backupFileUploads(): bool
+    public function backupFileUploads(bool $sendEmail = true): bool
     {
         $filename = 'uploads-backup-' . now()->format('Y-m-d_H-i-s') . '.zip';
         $path = 'backups/' . $filename;
@@ -72,6 +106,13 @@ class BackupService
         try {
             if (!Storage::disk('local')->exists('uploads')) {
                 Log::warning('No uploads directory found for backup.');
+
+                $this->notifications->backupFailed('files', 'No uploads directory found.');
+
+                if ($sendEmail && $this->sendEmailOnBackup) {
+                    $this->sendBackupEmail('files', false, '', '0 B', 'No uploads directory found.', []);
+                }
+
                 return false;
             }
 
@@ -92,15 +133,24 @@ class BackupService
 
             $zip->close();
 
+            $size = filesize($zipPath);
+
             BackupLog::create([
                 'type' => 'uploads',
                 'filename' => $filename,
-                'size' => filesize($zipPath),
+                'size' => $size,
                 'status' => 'success',
                 'details' => 'File uploads backup completed.',
             ]);
 
             Log::info("Uploads backup created: {$filename}");
+
+            $this->notifications->backupSuccess('files', $filename, $this->formatBytes($size));
+
+            if ($sendEmail && $this->sendEmailOnBackup) {
+                $this->sendBackupEmail('files', true, $filename, $this->formatBytes($size), 'File uploads backup completed.', []);
+            }
+
             return true;
         } catch (\Exception $e) {
             Log::error("Uploads backup failed: " . $e->getMessage());
@@ -113,16 +163,43 @@ class BackupService
                 'details' => $e->getMessage(),
             ]);
 
+            $this->notifications->backupFailed('files', $e->getMessage());
+
+            if ($sendEmail && $this->sendEmailOnBackup) {
+                $this->sendBackupEmail('files', false, $filename, '0 B', $e->getMessage(), []);
+            }
+
             return false;
         }
     }
 
-    public function backupFullSystem(): bool
+    public function backupFullSystem(bool $sendEmail = true): bool
     {
-        $dbResult = $this->backupDatabase();
-        $uploadsResult = $this->backupFileUploads();
+        $dbResult = $this->backupDatabase(false);
+        $uploadsResult = $this->backupFileUploads(false);
 
-        return $dbResult && $uploadsResult;
+        $success = $dbResult && $uploadsResult;
+
+        if ($sendEmail && $this->sendEmailOnBackup) {
+            $dbLog = BackupLog::where('type', 'database')->latest()->first();
+            $fileLog = BackupLog::where('type', 'uploads')->latest()->first();
+
+            $summary = [
+                ['name' => 'Database', 'count' => '-', 'status' => $dbResult ? 'Success' : 'Failed'],
+                ['name' => 'File Uploads', 'count' => '-', 'status' => $uploadsResult ? 'Success' : 'Failed'],
+            ];
+
+            $this->sendBackupEmail(
+                'full',
+                $success,
+                $dbLog?->filename . ', ' . $fileLog?->filename,
+                $this->formatBytes(($dbLog?->size ?? 0) + ($fileLog?->size ?? 0)),
+                $success ? 'Full system backup completed successfully.' : 'Full system backup completed with errors.',
+                $summary
+            );
+        }
+
+        return $success;
     }
 
     public function verifyBackupIntegrity(string $path): bool
@@ -171,5 +248,83 @@ class BackupService
             $this->backupFullSystem();
             Log::info('Scheduled backup executed.');
         }
+    }
+
+    public function sendBackupEmailManually(int $backupLogId): bool
+    {
+        $backupLog = BackupLog::findOrFail($backupLogId);
+
+        $path = 'backups/' . $backupLog->filename;
+        $exists = Storage::disk('local')->exists($path);
+
+        return $this->sendBackupEmail(
+            $backupLog->type,
+            $backupLog->status === 'success',
+            $backupLog->filename,
+            $this->formatBytes($backupLog->size),
+            $backupLog->details,
+            [],
+            $exists ? $path : null
+        );
+    }
+
+    public function cleanupOldBackups(int $maxBackups = 10): int
+    {
+        $deleted = 0;
+        $backups = BackupLog::orderBy('created_at', 'asc')->get();
+
+        if ($backups->count() > $maxBackups) {
+            $toDelete = $backups->slice(0, $backups->count() - $maxBackups);
+
+            foreach ($toDelete as $backup) {
+                $path = 'backups/' . $backup->filename;
+                if (Storage::disk('local')->exists($path)) {
+                    Storage::disk('local')->delete($path);
+                }
+                $backup->delete();
+                $deleted++;
+            }
+        }
+
+        return $deleted;
+    }
+
+    protected function sendBackupEmail(string $type, bool $success, string $filename, string $size, string $details, array $summary = [], ?string $attachmentPath = null): bool
+    {
+        try {
+            $mailable = new BackupEmailNotification($type, $success, $filename, $size, $details, $summary);
+
+            if ($attachmentPath && Storage::disk('local')->exists($attachmentPath)) {
+                $fullPath = Storage::disk('local')->path($attachmentPath);
+                $mailable->attach($fullPath, ['as' => basename($attachmentPath)]);
+            }
+
+            Mail::to($this->backupEmail)->send($mailable);
+            Log::info("Backup email sent to {$this->backupEmail}");
+            return true;
+        } catch (\Exception $e) {
+            Log::warning('Failed to send backup notification email: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    protected function generateDatabaseSummary(): array
+    {
+        return [
+            ['name' => 'Users', 'count' => User::count(), 'status' => 'Included'],
+            ['name' => 'Attendance Records', 'count' => Attendance::count(), 'status' => 'Included'],
+            ['name' => 'Duty Sessions', 'count' => DutySession::count(), 'status' => 'Included'],
+            ['name' => 'Volunteer Metrics', 'count' => VolunteerMetrics::count(), 'status' => 'Included'],
+        ];
+    }
+
+    protected function formatBytes(int $bytes): string
+    {
+        $units = ['B', 'KB', 'MB', 'GB'];
+        $bytes = max($bytes, 0);
+        $pow = floor(($bytes ? log($bytes) : 0) / log(1024));
+        $pow = min($pow, count($units) - 1);
+        $bytes /= pow(1024, $pow);
+        return round($bytes, 2) . ' ' . $units[$pow];
     }
 }

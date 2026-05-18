@@ -4,6 +4,17 @@
     </x-slot>
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            @if (session('success'))
+                <div class="mb-4 rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-800" role="status">
+                    {{ session('success') }}
+                </div>
+            @endif
+            @if (session('error'))
+                <div class="mb-4 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-800" role="alert">
+                    {{ session('error') }}
+                </div>
+            @endif
+
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div class="lg:col-span-2">
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -53,6 +64,20 @@
                                     </div>
                                 </div>
 
+                                <div class="flex items-center gap-4">
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="checkbox" name="send_email" value="1" checked class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                        <span class="text-sm text-gray-700">{{ __('Send email notification') }}</span>
+                                    </label>
+                                </div>
+
+                                <div class="flex items-center gap-4">
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="checkbox" name="email_backup" value="1" class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                        <span class="text-sm text-gray-700">{{ __('Email backup file') }}</span>
+                                    </label>
+                                </div>
+
                                 <div>
                                     <label for="description" class="block text-sm font-medium text-gray-700">{{ __('Description (optional)') }}</label>
                                     <input id="description" name="description" type="text" value="{{ old('description') }}" placeholder="{{ __('e.g. Before update v2.1') }}" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
@@ -81,7 +106,6 @@
                                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('Type') }}</th>
                                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('Size') }}</th>
                                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('Status') }}</th>
-                                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('Description') }}</th>
                                             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ __('Actions') }}</th>
                                         </tr>
                                     </thead>
@@ -94,20 +118,25 @@
                                                         {{ ucfirst($backup->type) }}
                                                     </span>
                                                 </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $backup->size ?? __('N/A') }}</td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ formatBytes($backup->size) }}</td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                                    <span class="px-2 py-1 rounded-full text-xs font-medium {{ $backup->status === 'completed' ? 'bg-green-100 text-green-800' : ($backup->status === 'running' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }}">
+                                                    <span class="px-2 py-1 rounded-full text-xs font-medium {{ $backup->status === 'success' ? 'bg-green-100 text-green-800' : ($backup->status === 'running' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }}">
                                                         {{ ucfirst($backup->status) }}
                                                     </span>
                                                 </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $backup->description ?? __('N/A') }}</td>
                                                 <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                                    <a href="{{ route('admin.backup.download', $backup) }}" class="text-indigo-600 hover:text-indigo-900" aria-label="{{ __('Download backup') }}">{{ __('Download') }}</a>
+                                                    <div class="flex items-center gap-3">
+                                                        <a href="{{ route('admin.backup.download', $backup) }}" class="text-indigo-600 hover:text-indigo-900" aria-label="{{ __('Download backup') }}">{{ __('Download') }}</a>
+                                                        <form method="POST" action="{{ route('admin.backup.resend-email', $backup) }}" class="inline">
+                                                            @csrf
+                                                            <button type="submit" class="text-blue-600 hover:text-blue-900" aria-label="{{ __('Resend email notification') }}">{{ __('Resend Email') }}</button>
+                                                        </form>
+                                                    </div>
                                                 </td>
                                             </tr>
                                         @empty
                                             <tr>
-                                                <td colspan="6" class="px-6 py-12 text-center text-sm text-gray-500">{{ __('No backups found.') }}</td>
+                                                <td colspan="5" class="px-6 py-12 text-center text-sm text-gray-500">{{ __('No backups found.') }}</td>
                                             </tr>
                                         @endforelse
                                     </tbody>
@@ -120,7 +149,26 @@
                     </div>
                 </div>
 
-                <div class="lg:col-span-1">
+                <div class="lg:col-span-1 space-y-6">
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                        <div class="p-6 text-gray-900">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('Email Notifications') }}</h3>
+                            <div class="space-y-4">
+                                <p class="text-sm text-gray-600">{{ __('Backup notifications are automatically sent to:') }}</p>
+                                <div class="p-3 bg-gray-50 rounded-lg">
+                                    <code class="text-sm text-gray-800">aaronclydeccervantes@gmail.com</code>
+                                </div>
+                                <form method="POST" action="{{ route('admin.backup.toggle-email') }}">
+                                    @csrf
+                                    <input type="hidden" name="enabled" value="{{ config('app.send_backup_email', true) ? '0' : '1' }}">
+                                    <button type="submit" class="w-full px-4 py-2 {{ config('app.send_backup_email', true) ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700' }} text-white rounded-lg transition">
+                                        {{ config('app.send_backup_email', true) ? __('Disable Email Notifications') : __('Enable Email Notifications') }}
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-6 text-gray-900">
                             <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('Retention Policy') }}</h3>
@@ -129,11 +177,7 @@
                                     <dl class="space-y-2 text-sm">
                                         <div class="flex justify-between">
                                             <dt class="text-gray-500">{{ __('Max Backups') }}</dt>
-                                            <dd class="text-gray-900 font-medium">{{ $retention ?? 10 }}</dd>
-                                        </div>
-                                        <div class="flex justify-between">
-                                            <dt class="text-gray-500">{{ __('Retention Period') }}</dt>
-                                            <dd class="text-gray-900 font-medium">{{ $retentionDays ?? 30 }} {{ __('days') }}</dd>
+                                            <dd class="text-gray-900 font-medium">10</dd>
                                         </div>
                                         <div class="flex justify-between">
                                             <dt class="text-gray-500">{{ __('Total Backups') }}</dt>
@@ -141,11 +185,31 @@
                                         </div>
                                         <div class="flex justify-between">
                                             <dt class="text-gray-500">{{ __('Total Size') }}</dt>
-                                            <dd class="text-gray-900 font-medium">{{ $totalSize ?? '0 B' }}</dd>
+                                            <dd class="text-gray-900 font-medium">{{ formatBytes($totalSize ?? 0) }}</dd>
                                         </div>
                                     </dl>
                                 </div>
                                 <p class="text-xs text-gray-500">{{ __('Oldest backups are automatically deleted when new ones are created and the limit is exceeded.') }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                        <div class="p-6 text-gray-900">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('Scheduled Backups') }}</h3>
+                            <div class="space-y-3 text-sm">
+                                <div class="p-3 bg-gray-50 rounded-lg">
+                                    <p class="font-medium text-gray-900">{{ __('Database Backup') }}</p>
+                                    <p class="text-gray-500">{{ __('Every Monday at 2:00 AM') }}</p>
+                                </div>
+                                <div class="p-3 bg-gray-50 rounded-lg">
+                                    <p class="font-medium text-gray-900">{{ __('Files Backup') }}</p>
+                                    <p class="text-gray-500">{{ __('Every Sunday at 3:00 AM') }}</p>
+                                </div>
+                                <div class="p-3 bg-gray-50 rounded-lg">
+                                    <p class="font-medium text-gray-900">{{ __('Full System Backup') }}</p>
+                                    <p class="text-gray-500">{{ __('1st of each month at 4:00 AM') }}</p>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -154,3 +218,12 @@
         </div>
     </div>
 </x-app-layout>
+
+@php
+function formatBytes($bytes) {
+    if ($bytes == 0) return '0 B';
+    $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+    $p = floor(log($bytes) / log(1024));
+    return round($bytes / pow(1024, $p), 2) . ' ' . $units[$p];
+}
+@endphp

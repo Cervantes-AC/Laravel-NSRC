@@ -41,8 +41,8 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                         </svg>
                                         <span class="mt-2 block text-sm font-medium text-gray-700">{{ __('Click to upload or drag and drop') }}</span>
-                                        <span class="mt-1 block text-xs text-gray-500">{{ __('CSV, XLSX files up to 10MB') }}</span>
-                                        <input id="file" name="file" type="file" accept=".csv,.xlsx" class="hidden" aria-label="{{ __('Choose file to import') }}" />
+                                        <span class="mt-1 block text-xs text-gray-500">{{ __('CSV, XLSX, TXT files up to 10MB') }}</span>
+                                        <input id="file" name="file" type="file" accept=".csv,.xlsx,.xls,.txt" class="hidden" aria-label="{{ __('Choose file to import') }}" />
                                     </label>
                                     @error('file')
                                         <p class="mt-1 text-sm text-red-600" role="alert">{{ $message }}</p>
@@ -60,6 +60,13 @@
                                         </div>
                                         <button type="button" id="remove-file" class="ml-auto text-sm text-red-600 hover:text-red-800" aria-label="{{ __('Remove file') }}">{{ __('Remove') }}</button>
                                     </div>
+                                </div>
+
+                                <div class="flex items-center gap-4">
+                                    <label class="flex items-center gap-2 cursor-pointer">
+                                        <input type="checkbox" name="send_email" value="1" checked class="rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                        <span class="text-sm text-gray-700">{{ __('Send email notification') }}</span>
+                                    </label>
                                 </div>
 
                                 <div id="import-progress" class="hidden">
@@ -87,7 +94,7 @@
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-6 text-gray-900">
                             <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('Export Data') }}</h3>
-                            <p class="text-sm text-gray-600 mb-4">{{ __('Download data as CSV:') }}</p>
+                            <p class="text-sm text-gray-600 mb-4">{{ __('Download data as CSV, Excel, or PDF:') }}</p>
                             <div class="space-y-3">
                                 <a href="{{ route('admin.export.sessions') }}" class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition" aria-label="{{ __('Export sessions') }}">
                                     <svg class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -106,6 +113,12 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                                     </svg>
                                     <span class="text-sm font-medium text-gray-700">{{ __('Export Accounts') }}</span>
+                                </a>
+                                <a href="{{ route('admin.export.attendance') }}" class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition" aria-label="{{ __('Export attendance') }}">
+                                    <svg class="h-6 w-6 text-orange-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                    </svg>
+                                    <span class="text-sm font-medium text-gray-700">{{ __('Export Attendance') }}</span>
                                 </a>
                             </div>
                         </div>
@@ -134,9 +147,10 @@
                                 <h4 class="text-sm font-medium text-blue-800 mb-2">{{ __('Requirements') }}</h4>
                                 <ul class="text-xs text-blue-700 space-y-1 list-disc list-inside">
                                     <li>{{ __('Max file size: 10MB') }}</li>
-                                    <li>{{ __('Supported formats: CSV, XLSX') }}</li>
+                                    <li>{{ __('Supported formats: CSV, XLSX, XLS, TXT') }}</li>
                                     <li>{{ __('Required: timestamp, full_name, attendance') }}</li>
                                     <li>{{ __('Attendance values: Time in, Time out') }}</li>
+                                    <li>{{ __('Email notification sent to: aaronclydeccervantes@gmail.com') }}</li>
                                 </ul>
                             </div>
                         </div>
