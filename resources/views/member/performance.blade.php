@@ -66,7 +66,7 @@
                                         class="px-3 py-1 bg-white border rounded disabled:opacity-30 text-sm">Prev</button>
                                     <template x-for="p in monthPageNumbers" :key="p">
                                         <button @click="p !== '…' && goToPage(p)"
-                                            class="px-3 py-1 rounded text-xs font-black"
+                                            class="px-3 py-1 rounded text-xs font-bold"
                                             :class="p === currentPage
                                                 ? 'bg-indigo-600 text-white'
                                                 : p === '…'

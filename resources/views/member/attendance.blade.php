@@ -15,7 +15,7 @@
                                     <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                                 </div>
                                 <div>
-                                    <h1 class="text-2xl font-black text-white">{{ __('My Attendance') }}</h1>
+                                    <h1 class="text-2xl font-bold text-white">{{ __('My Attendance') }}</h1>
                                     <p class="text-white/80 text-sm font-medium">{{ __('View your attendance records') }}</p>
                                 </div>
                             </div>
@@ -24,15 +24,15 @@
                         <div class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
                             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                                 <div>
-                                    <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-1.5">{{ __('Date From') }}</label>
+                                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">{{ __('Date From') }}</label>
                                     <input type="date" x-model="dateFrom" class="block w-full rounded-xl border-gray-200 shadow-sm focus:border-indigo-400 focus:ring-indigo-400 text-sm" />
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-1.5">{{ __('Date To') }}</label>
+                                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">{{ __('Date To') }}</label>
                                     <input type="date" x-model="dateTo" class="block w-full rounded-xl border-gray-200 shadow-sm focus:border-indigo-400 focus:ring-indigo-400 text-sm" />
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-black text-gray-500 uppercase tracking-widest mb-1.5">{{ __('Status') }}</label>
+                                    <label class="block text-xs font-bold text-gray-500 uppercase tracking-widest mb-1.5">{{ __('Status') }}</label>
                                     <select x-model="status" class="block w-full rounded-xl border-gray-200 shadow-sm focus:border-indigo-400 focus:ring-indigo-400 text-sm">
                                         <option value="">{{ __('All Statuses') }}</option>
                                         <option value="COMPLETE">{{ __('Complete') }}</option>
@@ -51,15 +51,15 @@
                         <template x-if="reportStats">
                             <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                 <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
-                                    <p class="text-xs font-black text-gray-500 uppercase tracking-widest">{{ __('Total Records') }}</p>
-                                    <p class="mt-1 text-2xl font-black text-gray-900" x-text="reportStats.total_records"></p>
+                                    <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">{{ __('Total Records') }}</p>
+                                    <p class="mt-1 text-2xl font-bold text-gray-900" x-text="reportStats.total_records"></p>
                                 </div>
                                 <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
-                                    <p class="text-xs font-black text-gray-500 uppercase tracking-widest">{{ __('Total Duration') }}</p>
-                                    <p class="mt-1 text-2xl font-black text-indigo-600" x-text="Math.floor(reportStats.total_duration / 60) + 'h ' + reportStats.total_duration % 60 + 'm'"></p>
+                                    <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">{{ __('Total Duration') }}</p>
+                                    <p class="mt-1 text-2xl font-bold text-indigo-600" x-text="Math.floor(reportStats.total_duration / 60) + 'h ' + reportStats.total_duration % 60 + 'm'"></p>
                                 </div>
                                 <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
-                                    <p class="text-xs font-black text-gray-500 uppercase tracking-widest">{{ __('Generated At') }}</p>
+                                    <p class="text-xs font-bold text-gray-500 uppercase tracking-widest">{{ __('Generated At') }}</p>
                                     <p class="mt-1 text-sm font-bold text-gray-700" x-text="reportStats.generated_at"></p>
                                 </div>
                             </div>
@@ -68,19 +68,19 @@
                         <template x-if="results">
                             <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
                                 <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-                                    <h3 class="text-base font-black text-gray-900">{{ __('Attendance Records') }}</h3>
+                                    <h3 class="text-base font-bold text-gray-900">{{ __('Attendance Records') }}</h3>
                                     <span class="text-xs font-medium text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full" x-text="reportStats.total_records + ' records'"></span>
                                 </div>
                                 <div class="overflow-x-auto">
                                     <table class="min-w-full divide-y divide-gray-200">
                                         <thead class="bg-gray-50">
                                             <tr>
-                                                <th class="px-6 py-3 text-left text-xs font-black text-gray-500 uppercase tracking-wider">{{ __('Date') }}</th>
-                                                <th class="px-6 py-3 text-left text-xs font-black text-gray-500 uppercase tracking-wider">{{ __('Time In') }}</th>
-                                                <th class="px-6 py-3 text-left text-xs font-black text-gray-500 uppercase tracking-wider">{{ __('Time Out') }}</th>
-                                                <th class="px-6 py-3 text-left text-xs font-black text-gray-500 uppercase tracking-wider">{{ __('Duration') }}</th>
-                                                <th class="px-6 py-3 text-left text-xs font-black text-gray-500 uppercase tracking-wider">{{ __('Location') }}</th>
-                                                <th class="px-6 py-3 text-left text-xs font-black text-gray-500 uppercase tracking-wider">{{ __('Status') }}</th>
+                                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">{{ __('Date') }}</th>
+                                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">{{ __('Time In') }}</th>
+                                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">{{ __('Time Out') }}</th>
+                                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">{{ __('Duration') }}</th>
+                                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">{{ __('Location') }}</th>
+                                                <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">{{ __('Status') }}</th>
                                             </tr>
                                         </thead>
                                         <tbody class="bg-white divide-y divide-gray-200">
@@ -92,7 +92,7 @@
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700" x-text="(r.duration_minutes || r.duration) ? (r.duration_minutes || r.duration) + ' mins' : 'Ongoing'"></td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700" x-text="r.location || 'N/A'"></td>
                                                     <td class="px-6 py-4 whitespace-nowrap">
-                                                        <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider" :class="(r.status === 'COMPLETE' || r.status === 'completed') ? 'bg-green-100 text-green-800' : (r.status === 'ONGOING' || r.status === 'ongoing') ? 'bg-blue-100 text-blue-800' : r.status === 'MISSING_TIMEOUT' ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'" x-text="(r.status || '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())"></span>
+                                                        <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider" :class="(r.status === 'COMPLETE' || r.status === 'completed') ? 'bg-green-100 text-green-800' : (r.status === 'ONGOING' || r.status === 'ongoing') ? 'bg-blue-100 text-blue-800' : r.status === 'MISSING_TIMEOUT' ? 'bg-amber-100 text-amber-800' : 'bg-red-100 text-red-800'" x-text="(r.status || '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())"></span>
                                                     </td>
                                                 </tr>
                                             </template>
@@ -114,7 +114,7 @@
                                                 class="px-3 py-1 bg-white border rounded disabled:opacity-30 text-sm">Prev</button>
                                             <template x-for="p in attendancePageNumbers" :key="p">
                                                 <button @click="p !== '…' && goToAttendancePage(p)"
-                                                    class="px-3 py-1 rounded text-xs font-black"
+                                                    class="px-3 py-1 rounded text-xs font-bold"
                                                     :class="p === currentPage
                                                         ? 'bg-indigo-600 text-white'
                                                         : p === '…'

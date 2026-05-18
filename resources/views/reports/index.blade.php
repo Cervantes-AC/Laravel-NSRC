@@ -20,7 +20,7 @@
                                 </svg>
                             </div>
                             <div>
-                                <h1 class="text-2xl font-black text-white tracking-tight">{{ __('Reports & Analytics') }}</h1>
+                                <h1 class="text-2xl font-bold text-white tracking-tight">{{ __('Reports & Analytics') }}</h1>
                                 <p class="text-white/75 text-sm font-medium mt-0.5">{{ __('Generate, filter, and export attendance reports') }}</p>
                             </div>
                         </div>
@@ -72,7 +72,7 @@
                 {{-- Quick Filter Presets --}}
                 <div class="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
                     <div class="flex items-center justify-between mb-3">
-                        <h3 class="text-xs font-black text-gray-500 uppercase tracking-widest">Quick Date Filters</h3>
+                        <h3 class="text-xs font-bold text-gray-500 uppercase tracking-widest">Quick Date Filters</h3>
                         <span class="text-[10px] text-gray-400 font-medium">Click to apply</span>
                     </div>
                     <div class="flex flex-wrap gap-2">
@@ -120,7 +120,7 @@
                             <svg class="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"/>
                             </svg>
-                            <h3 class="text-sm font-black text-gray-700 uppercase tracking-widest">Advanced Filters</h3>
+                            <h3 class="text-sm font-bold text-gray-700 uppercase tracking-widest">Advanced Filters</h3>
                         </div>
                         <svg class="w-5 h-5 text-gray-400 transition-transform" :class="filtersOpen ? 'rotate-180' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
@@ -242,8 +242,8 @@
                                 </div>
                                 <span class="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">TOTAL</span>
                             </div>
-                            <p class="text-xs font-black text-gray-400 uppercase tracking-widest">Records</p>
-                            <p class="text-2xl font-black text-gray-900 leading-none mt-1" x-text="reportStats.total_records.toLocaleString()"></p>
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Records</p>
+                            <p class="text-2xl font-bold text-gray-900 leading-none mt-1" x-text="reportStats.total_records.toLocaleString()"></p>
                         </div>
                         <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
                             <div class="flex items-center justify-between mb-2">
@@ -254,8 +254,8 @@
                                 </div>
                                 <span class="text-[10px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">DURATION</span>
                             </div>
-                            <p class="text-xs font-black text-gray-400 uppercase tracking-widest">Total Hours</p>
-                            <p class="text-2xl font-black text-blue-600 leading-none mt-1">
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Total Hours</p>
+                            <p class="text-2xl font-bold text-blue-600 leading-none mt-1">
                                 <span x-text="Math.floor(reportStats.total_duration / 60)"></span><span class="text-base">h</span>
                                 <span x-text="reportStats.total_duration % 60"></span><span class="text-base">m</span>
                             </p>
@@ -269,8 +269,8 @@
                                 </div>
                                 <span class="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">RATE</span>
                             </div>
-                            <p class="text-xs font-black text-gray-400 uppercase tracking-widest">Completion</p>
-                            <p class="text-2xl font-black text-emerald-600 leading-none mt-1" x-text="completionRate + '%'"></p>
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Completion</p>
+                            <p class="text-2xl font-bold text-emerald-600 leading-none mt-1" x-text="completionRate + '%'"></p>
                         </div>
                         <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
                             <div class="flex items-center justify-between mb-2">
@@ -281,8 +281,8 @@
                                 </div>
                                 <span class="text-[10px] font-bold text-violet-600 bg-violet-50 px-2 py-0.5 rounded-full">AVG</span>
                             </div>
-                            <p class="text-xs font-black text-gray-400 uppercase tracking-widest">Per Session</p>
-                            <p class="text-2xl font-black text-violet-600 leading-none mt-1"><span x-text="avgDuration"></span><span class="text-base">m</span></p>
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-widest">Per Session</p>
+                            <p class="text-2xl font-bold text-violet-600 leading-none mt-1"><span x-text="avgDuration"></span><span class="text-base">m</span></p>
                         </div>
                     </div>
                 </template>
@@ -292,7 +292,7 @@
                     <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
                         <div class="px-6 py-4 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                             <div>
-                                <h3 class="text-base font-black text-gray-900">Report Results</h3>
+                                <h3 class="text-base font-bold text-gray-900">Report Results</h3>
                                 <p class="text-xs text-gray-500 mt-0.5" x-text="reportTypes[reportType]?.label + ' · ' + filteredRecords.length + ' records shown'"></p>
                             </div>
                             <div class="flex items-center gap-2">
@@ -316,15 +316,15 @@
                             <table class="min-w-full divide-y divide-gray-100">
                                 <thead class="bg-gray-50">
                                     <tr>
-                                        <th class="px-5 py-3 text-left text-xs font-black text-gray-500 uppercase tracking-wider w-10">#</th>
-                                        <th class="px-5 py-3 text-left text-xs font-black text-gray-500 uppercase tracking-wider">Name</th>
-                                        <th class="px-5 py-3 text-left text-xs font-black text-gray-500 uppercase tracking-wider">Date</th>
-                                        <th class="px-5 py-3 text-left text-xs font-black text-gray-500 uppercase tracking-wider">Time In</th>
-                                        <th class="px-5 py-3 text-left text-xs font-black text-gray-500 uppercase tracking-wider">Time Out</th>
-                                        <th class="px-5 py-3 text-left text-xs font-black text-gray-500 uppercase tracking-wider">Duration</th>
-                                        <th class="px-5 py-3 text-left text-xs font-black text-gray-500 uppercase tracking-wider">Location</th>
-                                        <th class="px-5 py-3 text-left text-xs font-black text-gray-500 uppercase tracking-wider">Sector</th>
-                                        <th class="px-5 py-3 text-left text-xs font-black text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th class="px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider w-10">#</th>
+                                        <th class="px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Name</th>
+                                        <th class="px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Date</th>
+                                        <th class="px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Time In</th>
+                                        <th class="px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Time Out</th>
+                                        <th class="px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Duration</th>
+                                        <th class="px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Location</th>
+                                        <th class="px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Sector</th>
+                                        <th class="px-5 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-100">
@@ -346,7 +346,7 @@
                                                     x-text="r.sector || '—'"></span>
                                             </td>
                                             <td class="px-5 py-3.5 whitespace-nowrap">
-                                                <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider"
+                                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider"
                                                     :class="{
                                                         'bg-green-100 text-green-800':  r.status === 'COMPLETE'  || r.status === 'completed',
                                                         'bg-blue-100 text-blue-800':    r.status === 'ONGOING'   || r.status === 'ongoing',
@@ -388,7 +388,7 @@
                                     </button>
                                     <template x-for="p in visiblePages" :key="p">
                                         <button @click="tablePage = p"
-                                            class="w-8 h-8 rounded-lg text-xs font-black transition"
+                                            class="w-8 h-8 rounded-lg text-xs font-bold transition"
                                             :class="tablePage === p ? 'bg-indigo-600 text-white' : 'border border-gray-200 text-gray-600 hover:border-indigo-300'"
                                             x-text="p"></button>
                                     </template>

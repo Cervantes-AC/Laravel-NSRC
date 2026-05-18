@@ -1,62 +1,87 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ __('Settings') }}</h2>
+        <div class="flex justify-between items-center">
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ __('System Settings') }}</h2>
+            <span class="text-sm text-gray-500">Manage all site configurations</span>
+        </div>
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+            {{-- Success Message --}}
             @if(session('success'))
-                <div class="rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-800" role="alert">
+                <div class="mb-6 rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-800 flex items-center gap-3" role="alert">
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
                     {{ session('success') }}
                 </div>
             @endif
 
+            {{-- Tab Navigation --}}
             <div x-data="{ activeTab: 'site' }" class="space-y-6">
-                {{-- Tabs --}}
                 <div class="bg-white border border-gray-200 rounded-2xl shadow-sm overflow-hidden">
-                    <div class="border-b border-gray-200">
-                        <nav class="flex -mb-px">
-                            <button @click="activeTab = 'site'" :class="activeTab === 'site' ? 'border-orange-500 text-orange-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'" class="w-1/2 py-4 px-1 text-center border-b-2 font-medium text-sm transition">
-                                Site Settings (10)
+                    <div class="border-b border-gray-200 bg-gray-50">
+                        <nav class="flex flex-wrap -mb-px">
+                            <button @click="activeTab = 'site'" :class="activeTab === 'site' ? 'border-orange-500 text-orange-600 bg-white' : 'border-transparent text-gray-600 hover:text-gray-800 hover:border-gray-300'" class="px-4 py-3 border-b-2 font-medium text-sm transition whitespace-nowrap">
+                                <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                Site Settings
                             </button>
-                            <button @click="activeTab = 'security'" :class="activeTab === 'security' ? 'border-orange-500 text-orange-600' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'" class="w-1/2 py-4 px-1 text-center border-b-2 font-medium text-sm transition">
-                                Security (15)
+                            <button @click="activeTab = 'security'" :class="activeTab === 'security' ? 'border-orange-500 text-orange-600 bg-white' : 'border-transparent text-gray-600 hover:text-gray-800 hover:border-gray-300'" class="px-4 py-3 border-b-2 font-medium text-sm transition whitespace-nowrap">
+                                <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+                                Security
+                            </button>
+                            <button @click="activeTab = 'email'" :class="activeTab === 'email' ? 'border-orange-500 text-orange-600 bg-white' : 'border-transparent text-gray-600 hover:text-gray-800 hover:border-gray-300'" class="px-4 py-3 border-b-2 font-medium text-sm transition whitespace-nowrap">
+                                <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                                Email
+                            </button>
+                            <button @click="activeTab = 'backup'" :class="activeTab === 'backup' ? 'border-orange-500 text-orange-600 bg-white' : 'border-transparent text-gray-600 hover:text-gray-800 hover:border-gray-300'" class="px-4 py-3 border-b-2 font-medium text-sm transition whitespace-nowrap">
+                                <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                                Backup
+                            </button>
+                            <button @click="activeTab = 'notification'" :class="activeTab === 'notification' ? 'border-orange-500 text-orange-600 bg-white' : 'border-transparent text-gray-600 hover:text-gray-800 hover:border-gray-300'" class="px-4 py-3 border-b-2 font-medium text-sm transition whitespace-nowrap">
+                                <svg class="w-4 h-4 inline mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+                                Notifications
                             </button>
                         </nav>
                     </div>
 
                     {{-- Site Settings Tab --}}
-                    <div x-show="activeTab === 'site'" class="p-6">
-                        <form method="POST" action="{{ route('admin.settings.update-site') }}">
+                    <div x-show="activeTab === 'site'" class="p-6 space-y-6">
+                        <form method="POST" action="{{ route('admin.settings.update-site') }}" class="space-y-6">
                             @csrf
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Site Name</label>
-                                    <input type="text" name="site_name" value="{{ $siteSettings['site_name']->value ?? 'NSRC AMS' }}" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500" required>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Site Name *</label>
+                                    <input type="text" name="site_name" value="{{ $siteSettings['site_name']->value ?? 'NSRC AMS' }}" class="w-full px-4 py-2 rounded-lg border border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500" required>
+                                    <p class="text-xs text-gray-500 mt-1">The name displayed throughout the application</p>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-2">Site Description</label>
-                                    <input type="text" name="site_description" value="{{ $siteSettings['site_description']->value ?? '' }}" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500">
+                                    <input type="text" name="site_description" value="{{ $siteSettings['site_description']->value ?? '' }}" class="w-full px-4 py-2 rounded-lg border border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500">
+                                    <p class="text-xs text-gray-500 mt-1">Brief description of your site</p>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-2">Site URL</label>
-                                    <input type="url" name="site_url" value="{{ $siteSettings['site_url']->value ?? '' }}" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500" placeholder="https://example.com">
+                                    <input type="url" name="site_url" value="{{ $siteSettings['site_url']->value ?? '' }}" class="w-full px-4 py-2 rounded-lg border border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500" placeholder="https://example.com">
+                                    <p class="text-xs text-gray-500 mt-1">Your site's public URL</p>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-2">Admin Email</label>
-                                    <input type="email" name="admin_email" value="{{ $siteSettings['admin_email']->value ?? '' }}" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500">
+                                    <input type="email" name="admin_email" value="{{ $siteSettings['admin_email']->value ?? '' }}" class="w-full px-4 py-2 rounded-lg border border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500">
+                                    <p class="text-xs text-gray-500 mt-1">Primary admin contact email</p>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-2">Support Email</label>
-                                    <input type="email" name="support_email" value="{{ $siteSettings['support_email']->value ?? '' }}" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500">
+                                    <input type="email" name="support_email" value="{{ $siteSettings['support_email']->value ?? '' }}" class="w-full px-4 py-2 rounded-lg border border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500">
+                                    <p class="text-xs text-gray-500 mt-1">Support team contact email</p>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-semibold text-gray-700 mb-2">Contact Phone</label>
-                                    <input type="text" name="contact_phone" value="{{ $siteSettings['contact_phone']->value ?? '' }}" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500">
+                                    <input type="text" name="contact_phone" value="{{ $siteSettings['contact_phone']->value ?? '' }}" class="w-full px-4 py-2 rounded-lg border border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500">
+                                    <p class="text-xs text-gray-500 mt-1">Main contact phone number</p>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Timezone</label>
-                                    <select name="timezone" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500" required>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Timezone *</label>
+                                    <select name="timezone" class="w-full px-4 py-2 rounded-lg border border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500" required>
                                         @php
                                             $timezones = ['Asia/Manila' => 'Asia/Manila (PHT)', 'UTC' => 'UTC', 'America/New_York' => 'America/New_York (EST)', 'America/Chicago' => 'America/Chicago (CST)', 'America/Denver' => 'America/Denver (MST)', 'America/Los_Angeles' => 'America/Los_Angeles (PST)', 'Europe/London' => 'Europe/London (GMT)', 'Europe/Paris' => 'Europe/Paris (CET)', 'Asia/Tokyo' => 'Asia/Tokyo (JST)', 'Asia/Shanghai' => 'Asia/Shanghai (CST)', 'Australia/Sydney' => 'Australia/Sydney (AEST)'];
                                             $currentTimezone = $siteSettings['timezone']->value ?? 'Asia/Manila';
@@ -67,8 +92,8 @@
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Date Format</label>
-                                    <select name="date_format" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500" required>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Date Format *</label>
+                                    <select name="date_format" class="w-full px-4 py-2 rounded-lg border border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500" required>
                                         @php $currentDateFormat = $siteSettings['date_format']->value ?? 'Y-m-d'; @endphp
                                         <option value="Y-m-d" {{ $currentDateFormat === 'Y-m-d' ? 'selected' : '' }}>YYYY-MM-DD</option>
                                         <option value="m/d/Y" {{ $currentDateFormat === 'm/d/Y' ? 'selected' : '' }}>MM/DD/YYYY</option>
@@ -77,16 +102,16 @@
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Time Format</label>
-                                    <select name="time_format" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500" required>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Time Format *</label>
+                                    <select name="time_format" class="w-full px-4 py-2 rounded-lg border border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500" required>
                                         @php $currentTimeFormat = $siteSettings['time_format']->value ?? 'H:i'; @endphp
                                         <option value="H:i" {{ $currentTimeFormat === 'H:i' ? 'selected' : '' }}>24-hour (HH:MM)</option>
                                         <option value="h:i A" {{ $currentTimeFormat === 'h:i A' ? 'selected' : '' }}>12-hour (HH:MM AM/PM)</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Language</label>
-                                    <select name="language" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500" required>
+                                    <label class="block text-sm font-semibold text-gray-700 mb-2">Language *</label>
+                                    <select name="language" class="w-full px-4 py-2 rounded-lg border border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500" required>
                                         @php $currentLanguage = $siteSettings['language']->value ?? 'en'; @endphp
                                         <option value="en" {{ $currentLanguage === 'en' ? 'selected' : '' }}>English</option>
                                         <option value="fil" {{ $currentLanguage === 'fil' ? 'selected' : '' }}>Filipino</option>
@@ -96,122 +121,26 @@
                                     </select>
                                 </div>
                             </div>
-                            <div class="mt-6 flex justify-end">
+
+                            {{-- Maintenance Mode --}}
+                            <div class="border-t pt-6">
+                                <h3 class="text-base font-semibold text-gray-900 mb-4">Maintenance Mode</h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center">
+                                        <input type="hidden" name="maintenance_mode" value="0">
+                                        <input type="checkbox" name="maintenance_mode" value="1" id="maintenance_mode" {{ ($siteSettings['maintenance_mode']->value ?? '0') === '1' ? 'checked' : '' }} class="rounded border-gray-300 text-orange-600 shadow-sm focus:ring-orange-500">
+                                        <label for="maintenance_mode" class="ml-3 text-sm font-semibold text-gray-700">Enable Maintenance Mode</label>
+                                    </div>
+                                    <div>
+                                        <label class="block text-sm font-semibold text-gray-700 mb-2">Maintenance Message</label>
+                                        <textarea name="maintenance_message" rows="3" class="w-full px-4 py-2 rounded-lg border border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500" placeholder="System is under maintenance...">{{ $siteSettings['maintenance_message']->value ?? '' }}</textarea>
+                                        <p class="text-xs text-gray-500 mt-1">Message shown to users when maintenance mode is enabled</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-end gap-3 pt-6 border-t">
                                 <button type="submit" class="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-lg shadow-sm transition">Save Site Settings</button>
                             </div>
                         </form>
                     </div>
-
-                    {{-- Security Settings Tab --}}
-                    <div x-show="activeTab === 'security'" class="p-6">
-                        <form method="POST" action="{{ route('admin.settings.update-security') }}">
-                            @csrf
-                            <div class="space-y-8">
-                                {{-- Password Requirements --}}
-                                <div>
-                                    <h3 class="text-base font-semibold text-gray-900 mb-4">Password Requirements</h3>
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div>
-                                            <label class="block text-sm font-semibold text-gray-700 mb-2">Minimum Length</label>
-                                            <input type="number" name="password_min_length" value="{{ $securitySettings['password_min_length']->value ?? 8 }}" min="6" max="128" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500" required>
-                                        </div>
-                                        <div class="flex items-center pt-6">
-                                            <input type="hidden" name="password_require_uppercase" value="0">
-                                            <input type="checkbox" name="password_require_uppercase" value="1" id="pwd_uppercase" {{ ($securitySettings['password_require_uppercase']->value ?? '0') === '1' ? 'checked' : '' }} class="rounded border-gray-300 text-orange-600 shadow-sm focus:ring-orange-500">
-                                            <label for="pwd_uppercase" class="ml-2 text-sm font-semibold text-gray-700">Require Uppercase Letters</label>
-                                        </div>
-                                        <div class="flex items-center pt-6">
-                                            <input type="hidden" name="password_require_lowercase" value="0">
-                                            <input type="checkbox" name="password_require_lowercase" value="1" id="pwd_lowercase" {{ ($securitySettings['password_require_lowercase']->value ?? '0') === '1' ? 'checked' : '' }} class="rounded border-gray-300 text-orange-600 shadow-sm focus:ring-orange-500">
-                                            <label for="pwd_lowercase" class="ml-2 text-sm font-semibold text-gray-700">Require Lowercase Letters</label>
-                                        </div>
-                                        <div class="flex items-center pt-6">
-                                            <input type="hidden" name="password_require_numbers" value="0">
-                                            <input type="checkbox" name="password_require_numbers" value="1" id="pwd_numbers" {{ ($securitySettings['password_require_numbers']->value ?? '0') === '1' ? 'checked' : '' }} class="rounded border-gray-300 text-orange-600 shadow-sm focus:ring-orange-500">
-                                            <label for="pwd_numbers" class="ml-2 text-sm font-semibold text-gray-700">Require Numbers</label>
-                                        </div>
-                                        <div class="flex items-center pt-6">
-                                            <input type="hidden" name="password_require_special" value="0">
-                                            <input type="checkbox" name="password_require_special" value="1" id="pwd_special" {{ ($securitySettings['password_require_special']->value ?? '0') === '1' ? 'checked' : '' }} class="rounded border-gray-300 text-orange-600 shadow-sm focus:ring-orange-500">
-                                            <label for="pwd_special" class="ml-2 text-sm font-semibold text-gray-700">Require Special Characters</label>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {{-- Session & Login --}}
-                                <div>
-                                    <h3 class="text-base font-semibold text-gray-900 mb-4">Session & Login</h3>
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div>
-                                            <label class="block text-sm font-semibold text-gray-700 mb-2">Session Lifetime (minutes)</label>
-                                            <input type="number" name="session_lifetime" value="{{ $securitySettings['session_lifetime']->value ?? 120 }}" min="10" max="525600" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500" required>
-                                        </div>
-                                        <div class="flex items-center pt-6">
-                                            <input type="hidden" name="two_factor_enabled" value="0">
-                                            <input type="checkbox" name="two_factor_enabled" value="1" id="two_factor" {{ ($securitySettings['two_factor_enabled']->value ?? '0') === '1' ? 'checked' : '' }} class="rounded border-gray-300 text-orange-600 shadow-sm focus:ring-orange-500">
-                                            <label for="two_factor" class="ml-2 text-sm font-semibold text-gray-700">Enable Two-Factor Authentication</label>
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm font-semibold text-gray-700 mb-2">Max Login Attempts</label>
-                                            <input type="number" name="max_login_attempts" value="{{ $securitySettings['max_login_attempts']->value ?? 5 }}" min="1" max="100" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500" required>
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm font-semibold text-gray-700 mb-2">Lockout Duration (minutes)</label>
-                                            <input type="number" name="lockout_duration" value="{{ $securitySettings['lockout_duration']->value ?? 15 }}" min="1" max="1440" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500" required>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {{-- Rate Limiting --}}
-                                <div>
-                                    <h3 class="text-base font-semibold text-gray-900 mb-4">Rate Limiting</h3>
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                        <div class="flex items-center pt-6">
-                                            <input type="hidden" name="enable_rate_limiting" value="0">
-                                            <input type="checkbox" name="enable_rate_limiting" value="1" id="rate_limiting" {{ ($securitySettings['enable_rate_limiting']->value ?? '0') === '1' ? 'checked' : '' }} class="rounded border-gray-300 text-orange-600 shadow-sm focus:ring-orange-500">
-                                            <label for="rate_limiting" class="ml-2 text-sm font-semibold text-gray-700">Enable Rate Limiting</label>
-                                        </div>
-                                        <div></div>
-                                        <div>
-                                            <label class="block text-sm font-semibold text-gray-700 mb-2">Max Attempts per Window</label>
-                                            <input type="number" name="rate_limit_max_attempts" value="{{ $securitySettings['rate_limit_max_attempts']->value ?? 60 }}" min="1" max="1000" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500" required>
-                                        </div>
-                                        <div>
-                                            <label class="block text-sm font-semibold text-gray-700 mb-2">Decay Window (minutes)</label>
-                                            <input type="number" name="rate_limit_decay_minutes" value="{{ $securitySettings['rate_limit_decay_minutes']->value ?? 1 }}" min="1" max="120" class="w-full rounded-lg border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500" required>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {{-- Security Headers --}}
-                                <div>
-                                    <h3 class="text-base font-semibold text-gray-900 mb-4">Security Headers</h3>
-                                    <div class="space-y-4">
-                                        <div class="flex items-center">
-                                            <input type="hidden" name="enable_hsts" value="0">
-                                            <input type="checkbox" name="enable_hsts" value="1" id="hsts" {{ ($securitySettings['enable_hsts']->value ?? '0') === '1' ? 'checked' : '' }} class="rounded border-gray-300 text-orange-600 shadow-sm focus:ring-orange-500">
-                                            <label for="hsts" class="ml-2 text-sm font-semibold text-gray-700">Enable HSTS (HTTP Strict Transport Security)</label>
-                                        </div>
-                                        <div class="flex items-center">
-                                            <input type="hidden" name="enable_csp" value="0">
-                                            <input type="checkbox" name="enable_csp" value="1" id="csp" {{ ($securitySettings['enable_csp']->value ?? '0') === '1' ? 'checked' : '' }} class="rounded border-gray-300 text-orange-600 shadow-sm focus:ring-orange-500">
-                                            <label for="csp" class="ml-2 text-sm font-semibold text-gray-700">Enable CSP (Content Security Policy)</label>
-                                        </div>
-                                        <div class="flex items-center">
-                                            <input type="hidden" name="enable_x_frame_options" value="0">
-                                            <input type="checkbox" name="enable_x_frame_options" value="1" id="x_frame" {{ ($securitySettings['enable_x_frame_options']->value ?? '0') === '1' ? 'checked' : '' }} class="rounded border-gray-300 text-orange-600 shadow-sm focus:ring-orange-500">
-                                            <label for="x_frame" class="ml-2 text-sm font-semibold text-gray-700">Enable X-Frame-Options (Clickjacking Protection)</label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="mt-6 flex justify-end">
-                                <button type="submit" class="px-6 py-2.5 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-lg shadow-sm transition">Save Security Settings</button>
-                            </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</x-app-layout>

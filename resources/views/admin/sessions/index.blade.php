@@ -1,37 +1,37 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ __('Attendance') }}</h2>
+        <h2 class="text-xl font-semibold text-slate-800 leading-tight">{{ __('Attendance') }}</h2>
     </x-slot>
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+    <div class="py-8">
+        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6 space-y-6">
                 <div x-data="sessionsTable" class="space-y-6">
                     <div x-show="syncMessage" x-text="syncMessage" class="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800"></div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                        <div class="rounded-xl border border-gray-200 bg-white p-4">
-                            <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Filtered Sessions</p>
-                            <p class="mt-1 text-2xl font-black text-gray-900" x-text="numberFormat(filteredCount)"></p>
+                        <div class="rounded-xl border border-slate-200 bg-white p-4">
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Filtered Sessions</p>
+                            <p class="mt-1 text-2xl font-bold text-slate-900" x-text="numberFormat(filteredCount)"></p>
                         </div>
-                        <div class="rounded-xl border border-gray-200 bg-white p-4">
-                            <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Completed</p>
-                            <p class="mt-1 text-2xl font-black text-green-600" x-text="numberFormat(completeCount)"></p>
+                        <div class="rounded-xl border border-slate-200 bg-white p-4">
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Completed</p>
+                            <p class="mt-1 text-2xl font-bold text-green-600" x-text="numberFormat(completeCount)"></p>
                         </div>
-                        <div class="rounded-xl border border-gray-200 bg-white p-4">
-                            <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">Logged Hours</p>
-                            <p class="mt-1 text-2xl font-black text-indigo-600" x-text="(totalMinutes / 60).toFixed(1)"></p>
+                        <div class="rounded-xl border border-slate-200 bg-white p-4">
+                            <p class="text-xs font-semibold uppercase tracking-wider text-slate-500">Logged Hours</p>
+                            <p class="mt-1 text-2xl font-bold text-indigo-600" x-text="(totalMinutes / 60).toFixed(1)"></p>
                         </div>
                     </div>
 
                     <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 flex-1">
                             <div>
-                                <label class="block text-xs font-medium text-gray-600">Search</label>
-                                <input type="search" x-model="search" @input.debounce.300ms="applyFilters()" placeholder="Personnel name..." class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                                <label class="block text-xs font-medium text-slate-600">Search</label>
+                                <input type="search" x-model="search" @input.debounce.300ms="applyFilters()" placeholder="Personnel name..." class="mt-1 w-full rounded-lg border-slate-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
                             </div>
                             <div>
-                                <label class="block text-xs font-medium text-gray-600">Status</label>
-                                <select x-model="status" @change="applyFilters()" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <label class="block text-xs font-medium text-slate-600">Status</label>
+                                <select x-model="status" @change="applyFilters()" class="mt-1 w-full rounded-lg border-slate-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                     <option value="">All Statuses</option>
                                     <option value="COMPLETE">Complete</option>
                                     <option value="ONGOING">Ongoing</option>
@@ -40,8 +40,8 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-xs font-medium text-gray-600">Sector</label>
-                                <select x-model="sector" @change="applyFilters()" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <label class="block text-xs font-medium text-slate-600">Sector</label>
+                                <select x-model="sector" @change="applyFilters()" class="mt-1 w-full rounded-lg border-slate-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                     <option value="">All Sectors</option>
                                     <template x-for="s in sectors" :key="s">
                                         <option :value="s" x-text="s"></option>
@@ -49,8 +49,8 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-xs font-medium text-gray-600">Location</label>
-                                <select x-model="location" @change="applyFilters()" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <label class="block text-xs font-medium text-slate-600">Location</label>
+                                <select x-model="location" @change="applyFilters()" class="mt-1 w-full rounded-lg border-slate-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                     <option value="">All Locations</option>
                                     <template x-for="l in locations" :key="l">
                                         <option :value="l" x-text="l"></option>
@@ -58,8 +58,8 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-xs font-medium text-gray-600">Duration</label>
-                                <select x-model="duration" @change="applyFilters()" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <label class="block text-xs font-medium text-slate-600">Duration</label>
+                                <select x-model="duration" @change="applyFilters()" class="mt-1 w-full rounded-lg border-slate-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                     <option value="">Any Duration</option>
                                     <option value="completed_hours">With logged hours</option>
                                     <option value="under_4h">Under 4 hours</option>
@@ -69,8 +69,8 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-xs font-medium text-gray-600">Integrity</label>
-                                <select x-model="integrity" @change="applyFilters()" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <label class="block text-xs font-medium text-slate-600">Integrity</label>
+                                <select x-model="integrity" @change="applyFilters()" class="mt-1 w-full rounded-lg border-slate-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                     <option value="">Any Score</option>
                                     <option value="high">90% and above</option>
                                     <option value="medium">70% to 89%</option>
@@ -78,22 +78,22 @@
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-xs font-medium text-gray-600">From</label>
-                                <input type="date" x-model="dateFrom" @change="applyFilters()" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                                <label class="block text-xs font-medium text-slate-600">From</label>
+                                <input type="date" x-model="dateFrom" @change="applyFilters()" class="mt-1 w-full rounded-lg border-slate-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
                             </div>
                             <div>
-                                <label class="block text-xs font-medium text-gray-600">To</label>
-                                <input type="date" x-model="dateTo" @change="applyFilters()" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                                <label class="block text-xs font-medium text-slate-600">To</label>
+                                <input type="date" x-model="dateTo" @change="applyFilters()" class="mt-1 w-full rounded-lg border-slate-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
                             </div>
                         </div>
                         <div class="flex items-center gap-2 flex-wrap">
-                            <select x-model="perPage" @change="applyFilters()" class="rounded-lg border-gray-300 text-sm shadow-sm">
+                            <select x-model="perPage" @change="applyFilters()" class="rounded-lg border-slate-300 text-sm shadow-sm">
                                 <option value="10">10</option>
                                 <option value="25">25</option>
                                 <option value="50">50</option>
                                 <option value="100">100</option>
                             </select>
-                            <button @click="clearFilters()" class="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg">Clear</button>
+                            <button @click="clearFilters()" class="px-3 py-2 text-sm bg-slate-100 hover:bg-slate-200 rounded-lg">Clear</button>
                             <button @click="exportCSV()" class="px-3 py-2 text-sm bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded-lg">Export CSV</button>
                             <button @click="processLocal()" :disabled="syncing" class="px-3 py-2 text-sm bg-amber-100 hover:bg-amber-200 text-amber-700 rounded-lg disabled:opacity-50">
                                 <span x-text="syncing ? 'Processing...' : 'Process Local'"></span>
@@ -107,46 +107,46 @@
                     {{-- Error message --}}
                     <div x-show="errorMessage" x-text="errorMessage" class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"></div>
 
-                    <div x-show="loading" class="text-center py-8 text-gray-500">Loading...</div>
+                    <div x-show="loading" class="text-center py-8 text-slate-500">Loading...</div>
 
                     <template x-if="!loading">
-                        <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                        <div class="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
                             <div class="overflow-x-auto">
                                 <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-gray-50">
+                                    <thead class="bg-slate-50">
                                         <tr>
-                                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Name</th>
-                                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Date</th>
-                                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Time In</th>
-                                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Time Out</th>
-                                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Duration</th>
-                                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Location / Sector</th>
-                                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
-                                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Integrity</th>
-                                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Actions</th>
+                                            <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Name</th>
+                                            <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Date</th>
+                                            <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Time In</th>
+                                            <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Time Out</th>
+                                            <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Duration</th>
+                                            <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Location / Sector</th>
+                                            <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Status</th>
+                                            <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Integrity</th>
+                                            <th class="px-4 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Actions</th>
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
                                         <template x-for="s in sessions" :key="s.id">
-                                            <tr class="hover:bg-gray-50 transition-colors">
+                                            <tr class="hover:bg-slate-50 transition-colors">
                                                 <td class="px-4 py-3 whitespace-nowrap">
                                                     <div>
-                                                        <p class="text-sm font-semibold text-gray-900" x-text="s.full_name"></p>
-                                                        <p class="text-xs text-gray-500" x-text="s.school_id || 'No linked account'"></p>
+                                                        <p class="text-sm font-semibold text-slate-900" x-text="s.full_name"></p>
+                                                        <p class="text-xs text-slate-500" x-text="s.school_id || 'No linked account'"></p>
                                                     </div>
                                                 </td>
-                                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700" x-text="s.date"></td>
-                                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700" x-text="s.time_in || '-'"></td>
-                                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700" x-text="s.time_out || '-'"></td>
-                                                <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900" x-text="s.duration_minutes ? s.duration_minutes + ' min' : 'Ongoing'"></td>
-                                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                                                <td class="px-4 py-3 whitespace-nowrap text-sm text-slate-700" x-text="s.date"></td>
+                                                <td class="px-4 py-3 whitespace-nowrap text-sm text-slate-700" x-text="s.time_in || '-'"></td>
+                                                <td class="px-4 py-3 whitespace-nowrap text-sm text-slate-700" x-text="s.time_out || '-'"></td>
+                                                <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-slate-900" x-text="s.duration_minutes ? s.duration_minutes + ' min' : 'Ongoing'"></td>
+                                                <td class="px-4 py-3 whitespace-nowrap text-sm text-slate-700">
                                                     <div>
                                                         <p x-text="s.location || '-'"></p>
-                                                        <p class="text-xs text-gray-500" x-text="s.sector || 'General'"></p>
+                                                        <p class="text-xs text-slate-500" x-text="s.sector || 'General'"></p>
                                                     </div>
                                                 </td>
                                                 <td class="px-4 py-3 whitespace-nowrap">
-                                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider"
+                                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider"
                                                         :class="s.status === 'COMPLETE'
                                                             ? 'bg-green-100 text-green-800'
                                                             : s.status === 'ONGOING'
@@ -157,7 +157,7 @@
                                                         x-text="s.status">
                                                     </span>
                                                 </td>
-                                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700" x-text="Math.round(s.integrity_score || 0) + '%'"></td>
+                                                <td class="px-4 py-3 whitespace-nowrap text-sm text-slate-700" x-text="Math.round(s.integrity_score || 0) + '%'"></td>
                                                 <td class="px-4 py-3 whitespace-nowrap text-sm">
                                                     <a :href="s.view_url" class="text-indigo-600 hover:text-indigo-800 font-medium">View</a>
                                                 </td>
@@ -166,8 +166,8 @@
                                         <template x-if="sessions.length === 0">
                                             <tr>
                                                 <td colspan="9" class="px-6 py-12 text-center">
-                                                    <p class="text-sm font-semibold text-gray-700">No attendance summaries match your filters.</p>
-                                                    <p class="mt-1 text-xs text-gray-500">Clear filters or run MySQL sync to refresh generated attendance records.</p>
+                                                    <p class="text-sm font-semibold text-slate-700">No attendance summaries match your filters.</p>
+                                                    <p class="mt-1 text-xs text-slate-500">Clear filters or run MySQL sync to refresh generated attendance records.</p>
                                                 </td>
                                             </tr>
                                         </template>
@@ -193,7 +193,7 @@
                                 </button>
                                 <template x-for="p in pageNumbers" :key="p">
                                     <button @click="p !== '…' && goToPage(p)"
-                                        class="w-8 h-8 rounded-lg text-xs font-black transition-all"
+                                        class="w-8 h-8 rounded-lg text-xs font-bold transition-all"
                                         :class="p === currentPage
                                             ? 'bg-blue-600 text-white shadow-md'
                                             : p === '…'

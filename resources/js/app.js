@@ -3,11 +3,29 @@ import Alpine from 'alpinejs';
 
 window.Alpine = Alpine;
 
-Alpine.data('appShell', ({ timeoutMinutes = 60, warningMinutes = 5 } = {}) => ({
+Alpine.data('appShell', ({ timeoutMinutes = 60, warningMinutes = 5, toggleBreakpoint = 1024 } = {}) => ({
     sidebarOpen: false,
     sessionWarningVisible: false,
     sessionWarningCountdown: warningMinutes * 60,
     sessionWarningTimer: null,
+    shouldShowToggle: true,
+    toggleBreakpoint: toggleBreakpoint, // Configurable breakpoint in pixels
+    
+    init() {
+        this.updateToggleVisibility();
+        window.addEventListener('resize', () => this.updateToggleVisibility());
+    },
+    
+    updateToggleVisibility() {
+        // Show toggle if window width is less than breakpoint
+        this.shouldShowToggle = window.innerWidth < this.toggleBreakpoint;
+        
+        // Auto-close sidebar when resizing to larger screens
+        if (!this.shouldShowToggle && this.sidebarOpen) {
+            this.sidebarOpen = false;
+        }
+    },
+    
     initSessionWarning() {
         if (!timeoutMinutes || timeoutMinutes <= warningMinutes) return;
 
@@ -405,6 +423,66 @@ Alpine.data('notificationCenter', (fullPage = false) => ({
             stream.close();
             window.setTimeout(() => this.startRealtimeStream(), 30000);
         };
+    },
+    getNotificationIcon(type) {
+        const iconMap = {
+            'backup_completed': '✅',
+            'backup_failed': '❌',
+            'backup_started': '🔄',
+            'export_completed': '📤',
+            'export_failed': '❌',
+            'export_scheduled': '⏰',
+            'export_started': '🔄',
+            'import_completed': '📥',
+            'import_failed': '❌',
+            'import_started': '🔄',
+            'validation_started': '🔍',
+            'validation_passed': '✓',
+            'validation_error': '⚠️',
+            'validation_warning': '⚠️',
+            'action_started': '🔄',
+            'action_completed': '✅',
+            'action_failed': '❌',
+            'system_notification': 'ℹ️',
+            'warning_alert': '⚠️',
+            'critical_alert': '🚨',
+            'reminder': '⏰',
+            'failure_notification': '❌',
+            'batch_failure_notification': '❌',
+        };
+        return iconMap[type] || '📢';
+    },
+    getNotificationColor(type, data) {
+        const level = data?.level || 'info';
+        const colorMap = {
+            'error': 'bg-red-50 border-red-200 text-red-800',
+            'critical': 'bg-red-50 border-red-200 text-red-800',
+            'warning': 'bg-amber-50 border-amber-200 text-amber-800',
+            'success': 'bg-green-50 border-green-200 text-green-800',
+            'info': 'bg-blue-50 border-blue-200 text-blue-800',
+        };
+        return colorMap[level] || colorMap['info'];
+    },
+    getNotificationTitle(notification) {
+        return notification.data?.title || this.formatNotificationType(notification.type);
+    },
+    formatNotificationType(type) {
+        return type.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    },
+    formatTimestamp(timestamp) {
+        if (!timestamp) return '';
+        const date = new Date(timestamp);
+        const now = new Date();
+        const diffMs = now - date;
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+
+        if (diffMins < 1) return 'Just now';
+        if (diffMins < 60) return `${diffMins}m ago`;
+        if (diffHours < 24) return `${diffHours}h ago`;
+        if (diffDays < 7) return `${diffDays}d ago`;
+        return date.toLocaleDateString();
     }
 }));
 

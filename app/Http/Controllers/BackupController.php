@@ -33,7 +33,18 @@ class BackupController extends Controller
         $sendEmail = $request->boolean('send_email', true);
         $user = Auth::user();
 
-        $this->notificationService->sendBackupNotification($user, $request->type, 'started');
+        $validationErrors = $this->validateBackupPreconditions($request->type);
+        if (!empty($validationErrors)) {
+            $this->notificationService->sendValidationNotification(
+                $user,
+                'backup',
+                'error',
+                implode('. ', $validationErrors)
+            );
+            return redirect()->route('admin.backup.index')->with('error', implode('. ', $validationErrors));
+        }
+
+        $this->notificationService->sendActionNotification($user, 'backup', 'started', "Starting {$request->type} backup...", 'info');
 
         $success = match ($request->type) {
             'database' => $this->backupService->backupDatabase($sendEmail),
@@ -50,6 +61,36 @@ class BackupController extends Controller
 
         $this->notificationService->sendBackupNotification($user, $request->type, 'failed', 'Backup operation failed');
         return redirect()->route('admin.backup.index')->with('error', 'Backup failed. Please check the logs.');
+    }
+
+    protected function validateBackupPreconditions(string $type): array
+    {
+        $errors = [];
+
+        $disk = \Illuminate\Support\Facades\Storage::disk('local');
+        $backupsPath = $disk->path('backups');
+        
+        if (!is_dir($backupsPath)) {
+            @mkdir($backupsPath, 0755, true);
+        }
+
+        $freeSpace = @disk_free_space($backupsPath);
+        if ($freeSpace !== false) {
+            $freeMB = $freeSpace / 1024 / 1024;
+            if ($freeMB < 100) {
+                $errors[] = "Insufficient disk space. Only " . round($freeMB, 2) . " MB available. At least 100 MB required.";
+            }
+        }
+
+        $recentBackup = \App\Models\BackupLog::where('status', 'success')
+            ->where('created_at', '>', now()->subMinutes(5))
+            ->first();
+        
+        if ($recentBackup) {
+            $errors[] = "A backup was recently completed (" . $recentBackup->created_at->diffForHumans() . "). Please wait before running another backup.";
+        }
+
+        return $errors;
     }
 
     public function download($id)

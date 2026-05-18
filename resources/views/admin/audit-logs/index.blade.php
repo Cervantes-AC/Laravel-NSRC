@@ -87,7 +87,7 @@
                                     <button @click="currentPage = Math.max(1, currentPage - 1); loadLogs()" :disabled="currentPage === 1" class="px-3 py-1 bg-white border rounded disabled:opacity-30">Prev</button>
                                     <template x-for="p in totalPages" :key="p">
                                         <template x-if="totalPages <= 7 || p === 1 || p === totalPages || (p >= currentPage - 1 && p <= currentPage + 1)">
-                                            <button @click="currentPage = p; loadLogs()" class="px-3 py-1 rounded text-xs font-black" :class="currentPage === p ? 'bg-indigo-600 text-white' : 'bg-white border'" x-text="p"></button>
+                                            <button @click="currentPage = p; loadLogs()" class="px-3 py-1 rounded text-xs font-bold" :class="currentPage === p ? 'bg-indigo-600 text-white' : 'bg-white border'" x-text="p"></button>
                                         </template>
                                     </template>
                                     <button @click="currentPage = Math.min(totalPages, currentPage + 1); loadLogs()" :disabled="currentPage === totalPages" class="px-3 py-1 bg-white border rounded disabled:opacity-30">Next</button>

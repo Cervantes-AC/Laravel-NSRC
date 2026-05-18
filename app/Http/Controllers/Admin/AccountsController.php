@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\AccountApproved;
+use App\Mail\AccountRejected;
 use App\Models\AuditLog;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules;
 
@@ -33,11 +36,16 @@ class AccountsController extends Controller
             'timestamp' => now(),
         ]);
 
+        if ($user->email_notifications_enabled ?? true) {
+            Mail::to($user->email)->send(new AccountApproved($user));
+        }
+
         return redirect()->route('admin.accounts.index')->with('success', 'Account approved successfully.');
     }
 
     public function reject(User $user)
     {
+        $reason = request()->input('reason');
         $user->update(['status' => 'rejected']);
 
         AuditLog::create([
@@ -50,6 +58,10 @@ class AccountsController extends Controller
             'user_agent' => request()->userAgent(),
             'timestamp' => now(),
         ]);
+
+        if ($user->email_notifications_enabled ?? true) {
+            Mail::to($user->email)->send(new AccountRejected($user, $reason));
+        }
 
         return redirect()->route('admin.accounts.index')->with('success', 'Account rejected successfully.');
     }

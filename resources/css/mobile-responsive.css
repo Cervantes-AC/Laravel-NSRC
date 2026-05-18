@@ -1,0 +1,260 @@
+/* Mobile-First Responsive Utilities */
+
+/* Touch-Friendly Spacing */
+@layer components {
+    /* Minimum touch target size (44x44px) */
+    .touch-target {
+        @apply min-h-[44px] min-w-[44px];
+    }
+
+    /* Mobile-first responsive padding */
+    .px-responsive {
+        @apply px-4 sm:px-6 lg:px-8;
+    }
+
+    .py-responsive {
+        @apply py-4 sm:py-6 lg:py-8;
+    }
+
+    .p-responsive {
+        @apply p-4 sm:p-6 lg:p-8;
+    }
+
+    /* Mobile-first responsive text sizes */
+    .text-responsive-sm {
+        @apply text-xs sm:text-sm;
+    }
+
+    .text-responsive-base {
+        @apply text-sm sm:text-base;
+    }
+
+    .text-responsive-lg {
+        @apply text-base sm:text-lg;
+    }
+
+    .text-responsive-xl {
+        @apply text-lg sm:text-xl;
+    }
+
+    .text-responsive-2xl {
+        @apply text-xl sm:text-2xl;
+    }
+
+    .text-responsive-3xl {
+        @apply text-2xl sm:text-3xl lg:text-4xl;
+    }
+
+    /* Mobile-first responsive gaps */
+    .gap-responsive {
+        @apply gap-3 sm:gap-4 lg:gap-6;
+    }
+
+    /* Mobile-first responsive grid */
+    .grid-responsive-2 {
+        @apply grid grid-cols-1 sm:grid-cols-2 gap-4;
+    }
+
+    .grid-responsive-3 {
+        @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4;
+    }
+
+    .grid-responsive-4 {
+        @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4;
+    }
+
+    /* Mobile-first responsive buttons */
+    .btn-responsive {
+        @apply px-4 py-2.5 sm:px-3 sm:py-2 min-h-[44px] min-w-[44px] text-sm font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+    }
+
+    .btn-responsive-lg {
+        @apply px-6 py-3 sm:px-4 sm:py-2.5 min-h-[48px] min-w-[48px] text-base font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2;
+    }
+
+    /* Mobile-first responsive forms */
+    .form-input-responsive {
+        @apply w-full px-4 py-2.5 sm:py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all;
+    }
+
+    .form-label-responsive {
+        @apply block text-sm sm:text-xs font-medium text-slate-700 mb-2;
+    }
+
+    /* Mobile-first responsive containers */
+    .container-responsive {
+        @apply mx-auto px-4 sm:px-6 lg:px-8;
+    }
+
+    /* Mobile-first responsive flex */
+    .flex-responsive {
+        @apply flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4;
+    }
+
+    /* Mobile-first responsive sections */
+    .section-responsive {
+        @apply py-6 sm:py-8 lg:py-12;
+    }
+
+    /* Mobile-first responsive headers */
+    .header-responsive {
+        @apply text-2xl sm:text-3xl lg:text-4xl font-bold;
+    }
+
+    /* Mobile-first responsive cards */
+    .card-responsive {
+        @apply bg-white border border-slate-200 rounded-lg sm:rounded-xl p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow;
+    }
+
+    /* Mobile-first responsive tables */
+    .table-responsive {
+        @apply w-full overflow-x-auto;
+    }
+
+    .table-responsive-cell {
+        @apply px-4 py-3 sm:px-6 sm:py-4 text-sm;
+    }
+
+    /* Mobile-first responsive modals */
+    .modal-responsive {
+        @apply fixed inset-0 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 w-full sm:w-auto max-w-md max-h-[90vh] overflow-y-auto;
+    }
+
+    /* Mobile-first responsive navigation */
+    .nav-responsive {
+        @apply flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4;
+    }
+
+    /* Mobile-first responsive breadcrumbs */
+    .breadcrumb-responsive {
+        @apply flex flex-wrap items-center gap-2 text-xs sm:text-sm;
+    }
+
+    /* Mobile-first responsive badges */
+    .badge-responsive {
+        @apply inline-block px-2.5 py-1 sm:px-3 sm:py-1.5 text-xs sm:text-sm font-medium rounded-full;
+    }
+
+    /* Mobile-first responsive alerts */
+    .alert-responsive {
+        @apply p-4 sm:p-6 rounded-lg sm:rounded-xl text-sm sm:text-base;
+    }
+
+    /* Mobile-first responsive pagination */
+    .pagination-responsive {
+        @apply flex flex-wrap items-center justify-center gap-1 sm:gap-2;
+    }
+
+    .pagination-item-responsive {
+        @apply px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm min-h-[36px] min-w-[36px] flex items-center justify-center;
+    }
+}
+
+/* Mobile-specific improvements */
+@media (max-width: 640px) {
+    /* Improve touch targets on mobile */
+    button, a[role="button"], input[type="button"], input[type="submit"] {
+        @apply min-h-[44px] min-w-[44px];
+    }
+
+    /* Improve form inputs on mobile */
+    input, textarea, select {
+        @apply text-base; /* Prevents zoom on iOS */
+        @apply min-h-[44px];
+    }
+
+    /* Improve readability on mobile */
+    body {
+        @apply text-base;
+    }
+
+    /* Improve spacing on mobile */
+    .space-y-responsive {
+        @apply space-y-3;
+    }
+
+    /* Stack flex items on mobile */
+    .flex-responsive-stack {
+        @apply flex flex-col gap-3;
+    }
+
+    /* Full-width buttons on mobile */
+    .btn-full-mobile {
+        @apply w-full;
+    }
+
+    /* Hide overflow on mobile */
+    .overflow-hidden-mobile {
+        @apply overflow-hidden;
+    }
+}
+
+/* Tablet improvements */
+@media (min-width: 640px) and (max-width: 1024px) {
+    /* Optimize spacing for tablets */
+    .space-y-tablet {
+        @apply space-y-4;
+    }
+
+    /* Tablet-specific grid */
+    .grid-tablet-2 {
+        @apply grid grid-cols-2 gap-4;
+    }
+
+    .grid-tablet-3 {
+        @apply grid grid-cols-3 gap-4;
+    }
+}
+
+/* Landscape mobile improvements */
+@media (max-height: 500px) and (orientation: landscape) {
+    /* Reduce vertical spacing in landscape */
+    .py-responsive {
+        @apply py-2 sm:py-3;
+    }
+
+    /* Reduce header size in landscape */
+    .header-responsive {
+        @apply text-xl sm:text-2xl;
+    }
+
+    /* Reduce padding in landscape */
+    .p-responsive {
+        @apply p-2 sm:p-3;
+    }
+}
+
+/* High DPI screens (retina) */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+    /* Ensure crisp text on retina displays */
+    body {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+}
+
+/* Accessibility improvements */
+@media (prefers-reduced-motion: reduce) {
+    /* Disable animations for users who prefer reduced motion */
+    * {
+        @apply !transition-none !animate-none;
+    }
+}
+
+/* Dark mode support (optional) */
+@media (prefers-color-scheme: dark) {
+    /* Add dark mode styles if needed */
+}
+
+/* Print styles */
+@media print {
+    /* Hide navigation and interactive elements */
+    .no-print {
+        @apply hidden;
+    }
+
+    /* Optimize for printing */
+    body {
+        @apply bg-white text-black;
+    }
+}

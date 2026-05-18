@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\UserPreference;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,20 +22,22 @@ class ProfileController extends Controller
         $user = $request->user();
         $qrCode = null;
 
-        // Generate QR code if 2FA is not enabled
+        // Generate QR code URL if 2FA is not enabled
         if (!$user->two_factor_enabled) {
             $google2fa = new Google2FA();
             $secret = $google2fa->generateSecretKey();
-            $qrCode = $google2fa->getQRCodeInline(
+            $qrCodeUrl = $google2fa->getQRCodeUrl(
                 config('app.name'),
                 $user->email,
                 $secret
             );
+
+            session(['two_factor_secret' => $secret]);
         }
 
         return view('profile.edit', [
             'user' => $user,
-            'qrCode' => $qrCode,
+            'qrCodeUrl' => $qrCodeUrl ?? null,
         ]);
     }
 
@@ -126,6 +129,22 @@ class ProfileController extends Controller
             $codes[] = strtoupper(bin2hex(random_bytes(4)));
         }
         return $codes;
+    }
+
+    /**
+     * Update email notification preferences.
+     */
+    public function updateEmailNotifications(Request $request): RedirectResponse
+    {
+        $validated = $request->validate([
+            'email_notifications' => 'required|boolean',
+        ]);
+
+        $preferences = $request->user()->preferences ?: new UserPreference(['user_id' => $request->user()->id]);
+        $preferences->email_notifications = $validated['email_notifications'];
+        $preferences->save();
+
+        return Redirect::route('profile.edit')->with('status', 'notification-preferences-updated');
     }
 
     /**

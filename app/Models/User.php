@@ -112,6 +112,16 @@ class User extends Authenticatable
             ->where('notifiable_type', self::class);
     }
 
+    public function preferences(): HasOne
+    {
+        return $this->hasOne(UserPreference::class);
+    }
+
+    public function getEmailNotificationsEnabledAttribute(): bool
+    {
+        return $this->preferences?->email_notifications ?? true;
+    }
+
     public function isAdmin(): bool
     {
         return $this->role === 'admin';

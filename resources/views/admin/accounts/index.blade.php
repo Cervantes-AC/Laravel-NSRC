@@ -16,7 +16,7 @@
                                         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 12H9m6 0a6 6 0 11-12 0 6 6 0 0112 0z"></path></svg>
                                     </div>
                                     <div>
-                                        <h1 class="text-3xl sm:text-4xl font-black tracking-tight text-slate-900">Accounts</h1>
+                                        <h1 class="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900">Accounts</h1>
                                         <p class="text-sm text-slate-600 font-bold mt-1"><span x-text="stats.total"></span> total accounts</p>
                                     </div>
                                 </div>
@@ -27,34 +27,34 @@
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
                             <div class="bg-white border border-slate-200 rounded-xl px-5 py-4 shadow-sm hover:shadow-md transition-all">
                                 <div class="flex items-center justify-between mb-2">
-                                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Total</p>
+                                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Total</p>
                                     <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                                 </div>
-                                <p class="text-2xl font-black text-slate-900 leading-none" x-text="stats.total"></p>
+                                <p class="text-2xl font-bold text-slate-900 leading-none" x-text="stats.total"></p>
                                 <p class="text-[10px] text-slate-500 font-medium mt-1">registered accounts</p>
                             </div>
                             <div class="bg-white border border-green-200 rounded-xl px-5 py-4 shadow-sm hover:shadow-md transition-all">
                                 <div class="flex items-center justify-between mb-2">
-                                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Active</p>
+                                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Active</p>
                                     <svg class="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                 </div>
-                                <p class="text-2xl font-black text-green-600 leading-none" x-text="stats.active"></p>
+                                <p class="text-2xl font-bold text-green-600 leading-none" x-text="stats.active"></p>
                                 <p class="text-[10px] text-slate-500 font-medium mt-1">active users</p>
                             </div>
                             <div class="bg-white border border-yellow-200 rounded-xl px-5 py-4 shadow-sm hover:shadow-md transition-all">
                                 <div class="flex items-center justify-between mb-2">
-                                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Pending</p>
+                                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Pending</p>
                                     <svg class="w-4 h-4 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                 </div>
-                                <p class="text-2xl font-black text-yellow-600 leading-none" x-text="stats.pending"></p>
+                                <p class="text-2xl font-bold text-yellow-600 leading-none" x-text="stats.pending"></p>
                                 <p class="text-[10px] text-slate-500 font-medium mt-1">awaiting approval</p>
                             </div>
                             <div class="bg-white border border-red-200 rounded-xl px-5 py-4 shadow-sm hover:shadow-md transition-all">
                                 <div class="flex items-center justify-between mb-2">
-                                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Suspended</p>
+                                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Suspended</p>
                                     <svg class="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
                                 </div>
-                                <p class="text-2xl font-black text-red-600 leading-none" x-text="stats.suspended"></p>
+                                <p class="text-2xl font-bold text-red-600 leading-none" x-text="stats.suspended"></p>
                                 <p class="text-[10px] text-slate-500 font-medium mt-1">suspended accounts</p>
                             </div>
                         </div>
@@ -73,17 +73,17 @@
                                         class="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 outline-none transition-all shadow-sm hover:border-slate-300" />
                                 </div>
                                 <div class="flex gap-1.5">
-                                    <button @click="statusFilter = ''; applyFilters()" class="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border" :class="statusFilter === '' ? 'bg-blue-100 text-blue-700 border-blue-200' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700'">All</button>
-                                    <button @click="statusFilter = 'active'; applyFilters()" class="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border" :class="statusFilter === 'active' ? 'bg-green-100 text-green-700 border-green-200' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700'">Active</button>
-                                    <button @click="statusFilter = 'pending'; applyFilters()" class="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border" :class="statusFilter === 'pending' ? 'bg-yellow-100 text-yellow-700 border-yellow-200' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700'">Pending</button>
-                                    <button @click="statusFilter = 'suspended'; applyFilters()" class="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border" :class="statusFilter === 'suspended' ? 'bg-red-100 text-red-700 border-red-200' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700'">Suspended</button>
+                                    <button @click="statusFilter = ''; applyFilters()" class="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border" :class="statusFilter === '' ? 'bg-blue-100 text-blue-700 border-blue-200' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700'">All</button>
+                                    <button @click="statusFilter = 'active'; applyFilters()" class="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border" :class="statusFilter === 'active' ? 'bg-green-100 text-green-700 border-green-200' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700'">Active</button>
+                                    <button @click="statusFilter = 'pending'; applyFilters()" class="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border" :class="statusFilter === 'pending' ? 'bg-yellow-100 text-yellow-700 border-yellow-200' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700'">Pending</button>
+                                    <button @click="statusFilter = 'suspended'; applyFilters()" class="px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border" :class="statusFilter === 'suspended' ? 'bg-red-100 text-red-700 border-red-200' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700'">Suspended</button>
                                 </div>
                             </div>
                             <div class="flex items-center gap-2">
-                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Sort:</span>
-                                <button @click="toggleSort('full_name')" class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border" :class="sortBy === 'full_name' ? 'bg-blue-50 text-blue-600 border-blue-200' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700'">Name <span x-text="sortBy === 'full_name' ? (sortDirection === 'asc' ? '↑' : '↓') : ''"></span></button>
-                                <button @click="toggleSort('created_at')" class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border" :class="sortBy === 'created_at' ? 'bg-blue-50 text-blue-600 border-blue-200' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700'">Date <span x-text="sortBy === 'created_at' ? (sortDirection === 'asc' ? '↑' : '↓') : ''"></span></button>
-                                <button @click="toggleSort('last_login_at')" class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border" :class="sortBy === 'last_login_at' ? 'bg-blue-50 text-blue-600 border-blue-200' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700'">Last Login <span x-text="sortBy === 'last_login_at' ? (sortDirection === 'asc' ? '↑' : '↓') : ''"></span></button>
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Sort:</span>
+                                <button @click="toggleSort('full_name')" class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border" :class="sortBy === 'full_name' ? 'bg-blue-50 text-blue-600 border-blue-200' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700'">Name <span x-text="sortBy === 'full_name' ? (sortDirection === 'asc' ? '↑' : '↓') : ''"></span></button>
+                                <button @click="toggleSort('created_at')" class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border" :class="sortBy === 'created_at' ? 'bg-blue-50 text-blue-600 border-blue-200' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700'">Date <span x-text="sortBy === 'created_at' ? (sortDirection === 'asc' ? '↑' : '↓') : ''"></span></button>
+                                <button @click="toggleSort('last_login_at')" class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-wider transition-all border" :class="sortBy === 'last_login_at' ? 'bg-blue-50 text-blue-600 border-blue-200' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700'">Last Login <span x-text="sortBy === 'last_login_at' ? (sortDirection === 'asc' ? '↑' : '↓') : ''"></span></button>
                             </div>
                         </div>
 
@@ -129,7 +129,7 @@
                                 <div class="w-20 h-20 bg-slate-100 rounded-2xl flex items-center justify-center mb-6">
                                     <svg class="w-10 h-10 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                                 </div>
-                                <p class="text-base font-black text-slate-700 uppercase tracking-widest mb-2">No accounts found</p>
+                                <p class="text-base font-bold text-slate-700 uppercase tracking-widest mb-2">No accounts found</p>
                                 <p class="text-sm text-slate-500 max-w-md">Try adjusting your search or filter criteria.</p>
                             </div>
                         </template>
@@ -162,7 +162,7 @@
                                                 </td>
                                                 <td class="px-6 py-4 whitespace-nowrap">
                                                     <div class="flex items-center gap-3">
-                                                        <div class="w-9 h-9 rounded-lg flex items-center justify-center font-black text-xs border"
+                                                        <div class="w-9 h-9 rounded-lg flex items-center justify-center font-bold text-xs border"
                                                             :class="getAvatarColor(a.full_name)"
                                                             x-text="getInitials(a.full_name)"></div>
                                                         <span class="text-sm font-medium text-gray-900" x-text="a.full_name"></span>
@@ -226,7 +226,7 @@
                                         class="px-3 py-1 bg-white border rounded disabled:opacity-30">Prev</button>
                                     <template x-for="p in pageNumbers" :key="p">
                                         <button @click="p !== '…' && goToPage(p)"
-                                            class="px-3 py-1 rounded text-xs font-black"
+                                            class="px-3 py-1 rounded text-xs font-bold"
                                             :class="p === currentPage
                                                 ? 'bg-indigo-600 text-white'
                                                 : p === '…'
@@ -246,7 +246,7 @@
                             <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" @click.self="closeDetailModal()">
                                 <div class="bg-white rounded-2xl shadow-2xl max-w-lg w-full max-h-[80vh] overflow-y-auto p-8">
                                     <div class="flex items-center justify-between mb-6">
-                                        <h3 class="text-xl font-black text-gray-900">Account Details</h3>
+                                        <h3 class="text-xl font-bold text-gray-900">Account Details</h3>
                                         <button @click="closeDetailModal()" class="p-2 rounded-lg hover:bg-gray-100 transition">
                                             <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                                         </button>
@@ -254,7 +254,7 @@
                                     <template x-if="selectedAccount">
                                         <div class="space-y-6">
                                             <div class="flex items-center gap-4">
-                                                <div class="w-16 h-16 rounded-xl flex items-center justify-center font-black text-xl border"
+                                                <div class="w-16 h-16 rounded-xl flex items-center justify-center font-bold text-xl border"
                                                     :class="getAvatarColor(selectedAccount.full_name)"
                                                     x-text="getInitials(selectedAccount.full_name)"></div>
                                                 <div>
@@ -264,11 +264,11 @@
                                             </div>
                                             <div class="grid grid-cols-2 gap-4">
                                                 <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
-                                                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Role</p>
+                                                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Role</p>
                                                     <p class="text-sm font-bold text-slate-900 mt-1" x-text="selectedAccount.role ? selectedAccount.role.charAt(0).toUpperCase() + selectedAccount.role.slice(1) : 'Member'"></p>
                                                 </div>
                                                 <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
-                                                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Status</p>
+                                                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Status</p>
                                                     <p class="text-sm font-bold mt-1" :class="{
                                                         'text-green-600': selectedAccount.status === 'active',
                                                         'text-yellow-600': selectedAccount.status === 'pending',
@@ -277,19 +277,19 @@
                                                     }" x-text="selectedAccount.status ? selectedAccount.status.charAt(0).toUpperCase() + selectedAccount.status.slice(1) : 'Unknown'"></p>
                                                 </div>
                                                 <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
-                                                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Registered</p>
+                                                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Registered</p>
                                                     <p class="text-sm font-bold text-slate-900 mt-1" x-text="selectedAccount.created_at"></p>
                                                 </div>
                                                 <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
-                                                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Last Login</p>
+                                                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Last Login</p>
                                                     <p class="text-sm font-bold text-slate-900 mt-1" x-text="selectedAccount.last_login_at"></p>
                                                 </div>
                                                 <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
-                                                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest">Email Verified</p>
+                                                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Email Verified</p>
                                                     <p class="text-sm font-bold mt-1" :class="selectedAccount.email_verified_at !== 'Unverified' ? 'text-green-600' : 'text-red-600'" x-text="selectedAccount.email_verified_at"></p>
                                                 </div>
                                                 <div class="p-3 bg-slate-50 rounded-lg border border-slate-200">
-                                                    <p class="text-[10px] font-black text-slate-500 uppercase tracking-widest">2FA Enabled</p>
+                                                    <p class="text-[10px] font-bold text-slate-500 uppercase tracking-widest">2FA Enabled</p>
                                                     <p class="text-sm font-bold mt-1" :class="selectedAccount.two_factor_enabled ? 'text-green-600' : 'text-slate-600'" x-text="selectedAccount.two_factor_enabled ? 'Yes' : 'No'"></p>
                                                 </div>
                                             </div>
@@ -326,7 +326,7 @@
                                             </svg>
                                         </div>
                                         <div>
-                                            <h3 class="text-lg font-black text-gray-900" x-text="confirmTitle"></h3>
+                                            <h3 class="text-lg font-bold text-gray-900" x-text="confirmTitle"></h3>
                                             <p class="text-sm text-gray-500" x-text="confirmMessage"></p>
                                         </div>
                                     </div>

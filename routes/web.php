@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\PersonnelController;
 use App\Http\Controllers\Admin\SessionsController as AdminSessionsController;
@@ -42,6 +43,11 @@ Route::middleware(['auth'])->prefix('api')->name('api.')->group(function () {
 
     Route::post('/ai/provider/switch', [\App\Http\Controllers\Api\AIProviderController::class, 'switchProvider'])->name('ai.provider.switch');
     Route::post('/ai/api-key/switch', [\App\Http\Controllers\Api\AIProviderController::class, 'switchApiKey'])->name('ai.api-key.switch');
+    Route::get('/ai-model/current', [\App\Http\Controllers\AIModelController::class, 'current'])->name('ai-model.current');
+    Route::get('/ai-model', [\App\Http\Controllers\AIModelController::class, 'index'])->name('ai-model.index');
+    Route::post('/ai-model/update', [\App\Http\Controllers\AIModelController::class, 'update'])->name('ai-model.update');
+    Route::get('/ai-model/tier/{tier}', [\App\Http\Controllers\AIModelController::class, 'byTier'])->name('ai-model.by-tier');
+    Route::get('/ai-model/provider/{provider}', [\App\Http\Controllers\AIModelController::class, 'byProvider'])->name('ai-model.by-provider');
 });
 
 Route::middleware(['auth', 'role:admin'])->prefix('api')->name('api.')->group(function () {
@@ -129,6 +135,10 @@ Route::middleware(['auth', 'role:admin', 'throttle.custom'])->prefix('admin')->n
     Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
     Route::post('settings/site', [SettingsController::class, 'updateSite'])->name('settings.update-site');
     Route::post('settings/security', [SettingsController::class, 'updateSecurity'])->name('settings.update-security');
+    Route::post('settings/email', [SettingsController::class, 'updateEmail'])->name('settings.update-email');
+    Route::post('settings/backup', [SettingsController::class, 'updateBackup'])->name('settings.update-backup');
+    Route::post('settings/notification', [SettingsController::class, 'updateNotification'])->name('settings.update-notification');
+    Route::post('settings/reset', [SettingsController::class, 'resetToDefaults'])->name('settings.reset');
 });
 
 Route::middleware(['auth', 'role:admin', 'throttle.custom'])->prefix('api/admin')->name('api.admin.')->group(function () {
@@ -163,6 +173,24 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::post('/profile/enable-2fa', [ProfileController::class, 'enableTwoFactor'])->name('profile.enable-2fa');
     Route::delete('/profile/disable-2fa', [ProfileController::class, 'disableTwoFactor'])->name('profile.disable-2fa');
+    Route::patch('/profile/email-notifications', [ProfileController::class, 'updateEmailNotifications'])->name('profile.email-notifications');
+
+    // Notification routes
+    Route::prefix('notifications')->name('notifications.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\NotificationController::class, 'index'])->name('index');
+        Route::get('/failures', [\App\Http\Controllers\NotificationController::class, 'failures'])->name('failures');
+        Route::get('/{notification}', [\App\Http\Controllers\NotificationController::class, 'show'])->name('show');
+        Route::post('/{notification}/read', [\App\Http\Controllers\NotificationController::class, 'markAsRead'])->name('mark-as-read');
+        Route::post('/read-all', [\App\Http\Controllers\NotificationController::class, 'markAllAsRead'])->name('mark-all-as-read');
+        Route::post('/{notification}/acknowledge', [\App\Http\Controllers\NotificationController::class, 'acknowledge'])->name('acknowledge');
+        Route::post('/acknowledge-all-critical', [\App\Http\Controllers\NotificationController::class, 'acknowledgeAllCritical'])->name('acknowledge-all-critical');
+        Route::delete('/{notification}', [\App\Http\Controllers\NotificationController::class, 'destroy'])->name('destroy');
+        Route::post('/delete-all-read', [\App\Http\Controllers\NotificationController::class, 'deleteAllRead'])->name('delete-all-read');
+        Route::get('/api/unread-count', [\App\Http\Controllers\NotificationController::class, 'unreadCount'])->name('unread-count');
+        Route::get('/api/recent-failures', [\App\Http\Controllers\NotificationController::class, 'recentFailures'])->name('recent-failures');
+        Route::get('/api/critical-alerts', [\App\Http\Controllers\NotificationController::class, 'criticalAlerts'])->name('critical-alerts');
+        Route::get('/export', [\App\Http\Controllers\NotificationController::class, 'export'])->name('export');
+    });
 });
 
 require __DIR__.'/auth.php';

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class SettingsController extends Controller
 {
@@ -12,8 +13,17 @@ class SettingsController extends Controller
     {
         $siteSettings = Setting::where('group', 'site')->get()->keyBy('key');
         $securitySettings = Setting::where('group', 'security')->get()->keyBy('key');
+        $emailSettings = Setting::where('group', 'email')->get()->keyBy('key');
+        $backupSettings = Setting::where('group', 'backup')->get()->keyBy('key');
+        $notificationSettings = Setting::where('group', 'notification')->get()->keyBy('key');
 
-        return view('admin.settings.index', compact('siteSettings', 'securitySettings'));
+        return view('admin.settings.index', compact(
+            'siteSettings',
+            'securitySettings',
+            'emailSettings',
+            'backupSettings',
+            'notificationSettings'
+        ));
     }
 
     public function updateSite(Request $request)
@@ -29,6 +39,8 @@ class SettingsController extends Controller
             'date_format' => 'required|string|max:50',
             'time_format' => 'required|string|max:50',
             'language' => 'required|string|max:10',
+            'maintenance_mode' => 'boolean',
+            'maintenance_message' => 'nullable|string|max:500',
         ]);
 
         foreach ($validated as $key => $value) {
@@ -37,6 +49,8 @@ class SettingsController extends Controller
                 ['value' => $value, 'type' => 'string', 'group' => 'site']
             );
         }
+
+        Log::info('Site settings updated', ['user_id' => auth()->id()]);
 
         return back()->with('success', 'Site settings updated successfully.');
     }
@@ -72,6 +86,91 @@ class SettingsController extends Controller
             }
         }
 
+        Log::info('Security settings updated', ['user_id' => auth()->id()]);
+
         return back()->with('success', 'Security settings updated successfully.');
+    }
+
+    public function updateEmail(Request $request)
+    {
+        $validated = $request->validate([
+            'mail_from_address' => 'required|email|max:255',
+            'mail_from_name' => 'required|string|max:255',
+            'mail_mailer' => 'required|string|in:log,smtp,mailgun,postmark,sendmail',
+            'mail_host' => 'nullable|string|max:255',
+            'mail_port' => 'nullable|integer|min:1|max:65535',
+            'mail_username' => 'nullable|string|max:255',
+            'mail_password' => 'nullable|string|max:255',
+            'mail_encryption' => 'nullable|string|in:tls,ssl',
+            'enable_email_notifications' => 'boolean',
+        ]);
+
+        foreach ($validated as $key => $value) {
+            Setting::where('key', $key)->updateOrCreate(
+                ['key' => $key],
+                ['value' => $value, 'type' => 'string', 'group' => 'email']
+            );
+        }
+
+        Log::info('Email settings updated', ['user_id' => auth()->id()]);
+
+        return back()->with('success', 'Email settings updated successfully.');
+    }
+
+    public function updateBackup(Request $request)
+    {
+        $validated = $request->validate([
+            'backup_enabled' => 'boolean',
+            'backup_frequency' => 'required|string|in:daily,weekly,monthly',
+            'backup_retention_days' => 'required|integer|min:1|max:365',
+            'backup_include_files' => 'boolean',
+            'backup_include_database' => 'boolean',
+            'backup_notification_email' => 'nullable|email|max:255',
+        ]);
+
+        foreach ($validated as $key => $value) {
+            Setting::where('key', $key)->updateOrCreate(
+                ['key' => $key],
+                ['value' => $value, 'type' => 'string', 'group' => 'backup']
+            );
+        }
+
+        Log::info('Backup settings updated', ['user_id' => auth()->id()]);
+
+        return back()->with('success', 'Backup settings updated successfully.');
+    }
+
+    public function updateNotification(Request $request)
+    {
+        $validated = $request->validate([
+            'notification_enabled' => 'boolean',
+            'notification_email_alerts' => 'boolean',
+            'notification_system_alerts' => 'boolean',
+            'notification_retention_days' => 'required|integer|min:1|max:365',
+            'notification_batch_send' => 'boolean',
+            'notification_batch_interval' => 'required|integer|min:1|max:1440',
+        ]);
+
+        foreach ($validated as $key => $value) {
+            Setting::where('key', $key)->updateOrCreate(
+                ['key' => $key],
+                ['value' => $value, 'type' => 'string', 'group' => 'notification']
+            );
+        }
+
+        Log::info('Notification settings updated', ['user_id' => auth()->id()]);
+
+        return back()->with('success', 'Notification settings updated successfully.');
+    }
+
+    public function resetToDefaults(Request $request)
+    {
+        $group = $request->validate(['group' => 'required|string|in:site,security,email,backup,notification'])['group'];
+
+        Setting::where('group', $group)->delete();
+
+        Log::warning("Settings reset to defaults for group: {$group}", ['user_id' => auth()->id()]);
+
+        return back()->with('success', "All {$group} settings have been reset to defaults.");
     }
 }

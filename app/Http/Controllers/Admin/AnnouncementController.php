@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\NewAnnouncement;
 use App\Models\Announcement;
 use App\Models\AuditLog;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
 
@@ -123,6 +125,10 @@ class AnnouncementController extends Controller
                             'type' => 'announcement',
                         ],
                     ]);
+
+                    if ($member->email_notifications_enabled ?? true) {
+                        Mail::to($member->email)->send(new NewAnnouncement($member, $announcement));
+                    }
                 }
             });
 

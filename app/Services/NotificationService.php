@@ -170,7 +170,25 @@ class NotificationService
             ]);
         });
     }
-}
+
+    public function notifyAdmins(string $action, string $title, string $message, array $data = []): void
+    {
+        $notificationData = array_merge([
+            'title' => $title,
+            'message' => $message,
+            'action_type' => $action,
+            'level' => $data['level'] ?? 'info',
+        ], $data);
+
+        User::where('role', 'admin')
+            ->chunkById(100, function ($admins) use ($notificationData): void {
+                foreach ($admins as $admin) {
+                    $admin->notifications()->create([
+                        'id' => (string) Str::uuid(),
+                        'type' => 'action_notification',
+                        'data' => $notificationData,
+                    ]);
+                }
             });
     }
 
@@ -336,7 +354,6 @@ class NotificationService
             ]
         );
     }
-}
 
     /**
      * Send a failure notification with detailed context
@@ -365,7 +382,6 @@ class NotificationService
             'data' => $data,
         ]);
 
-        // Log critical failures to audit log
         if ($severity === 'critical') {
             AuditLog::create([
                 'user_id' => $user->id,

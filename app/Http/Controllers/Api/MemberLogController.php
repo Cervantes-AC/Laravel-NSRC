@@ -3,12 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\DutySessionAlert;
 use App\Models\Attendance;
 use App\Models\AuditLog;
 use App\Models\DutySession;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class MemberLogController extends Controller
 {
@@ -53,6 +55,15 @@ class MemberLogController extends Controller
             'timestamp' => now(),
         ]);
 
+        if ($user->email_notifications_enabled ?? true) {
+            Mail::to($user->email)->send(new DutySessionAlert(
+                $user,
+                'time_in',
+                'You have successfully started a duty session.',
+                "Date: {$session->date}\nTime In: {$session->time_in?->format('h:i A')}\nLocation: {$session->location}"
+            ));
+        }
+
         return response()->json(['success' => true, 'message' => 'Time in recorded successfully.', 'session' => $session]);
     }
 
@@ -92,6 +103,15 @@ class MemberLogController extends Controller
             'user_agent' => $request->userAgent(),
             'timestamp' => now(),
         ]);
+
+        if ($user->email_notifications_enabled ?? true) {
+            Mail::to($user->email)->send(new DutySessionAlert(
+                $user,
+                'time_out',
+                'Your duty session has ended.',
+                "Date: {$session->date}\nTime In: {$session->time_in?->format('h:i A')}\nTime Out: {$session->time_out?->format('h:i A')}\nDuration: {$session->duration_minutes} minutes"
+            ));
+        }
 
         return response()->json(['success' => true, 'message' => 'Time out recorded successfully.', 'session' => $session]);
     }

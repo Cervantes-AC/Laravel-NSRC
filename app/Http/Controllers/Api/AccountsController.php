@@ -3,11 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Mail\AccountApproved;
+use App\Mail\AccountRejected;
 use App\Models\AuditLog;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class AccountsController extends Controller
 {
@@ -95,12 +98,17 @@ class AccountsController extends Controller
             'timestamp' => now(),
         ]);
 
+        if ($user->email_notifications_enabled ?? true) {
+            Mail::to($user->email)->send(new AccountApproved($user));
+        }
+
         return response()->json(['success' => true, 'message' => 'Account approved successfully.', 'status' => 'active']);
     }
 
     public function reject(int $userId): JsonResponse
     {
         $user = User::findOrFail($userId);
+        $reason = request()->input('reason');
         $user->update(['status' => 'rejected']);
 
         AuditLog::create([
@@ -113,6 +121,10 @@ class AccountsController extends Controller
             'user_agent' => request()->userAgent(),
             'timestamp' => now(),
         ]);
+
+        if ($user->email_notifications_enabled ?? true) {
+            Mail::to($user->email)->send(new AccountRejected($user, $reason));
+        }
 
         return response()->json(['success' => true, 'message' => 'Account rejected successfully.', 'status' => 'rejected']);
     }
