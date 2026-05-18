@@ -131,10 +131,10 @@
             @if (Auth::user()->avatar)
                 <img src="{{ asset('storage/'.Auth::user()->avatar) }}" alt="{{ __('Profile avatar') }}" class="h-9 w-9 rounded-lg object-cover ring-2 ring-emerald-400/30">
             @else
-                <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-blue-500 text-white text-sm font-bold">{{ strtoupper(substr(Auth::user()->name, 0, 2)) }}</span>
+                <span class="inline-flex items-center justify-center w-9 h-9 rounded-lg bg-blue-500 text-white text-sm font-bold">{{ strtoupper(substr(Auth::user()->full_name ?? Auth::user()->name, 0, 2)) }}</span>
             @endif
             <div class="flex flex-col min-w-0">
-                <span class="text-sm font-semibold text-white truncate">{{ Auth::user()->name }}</span>
+                <span class="text-sm font-semibold text-white truncate">{{ Auth::user()->full_name ?? Auth::user()->name }}</span>
                 <span class="text-xs font-medium text-slate-400 truncate">{{ ucfirst(Auth::user()->role) }}</span>
             </div>
         </div>

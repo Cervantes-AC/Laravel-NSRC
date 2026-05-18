@@ -50,10 +50,9 @@ const MetricTile: React.FC<MetricTileProps> = ({ icon, label, value, sub, accent
 
 // ─── fmtHours helper ───────────────────────────────────────────────────────────
 const fmtHours = (mins: number): string => {
-  if (mins === 0) return '0h';
-  const h = Math.floor(mins / 60);
-  const m = mins % 60;
-  return m === 0 ? `${h}h` : `${h}h ${m}m`;
+  if (mins === 0) return '0.00h';
+  const totalHours = mins / 60;
+  return totalHours.toFixed(2) + 'h';
 };
 
 // ─── Issue types and helpers (matches Personnel page) ──────────────────────

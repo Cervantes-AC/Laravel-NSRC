@@ -10,7 +10,7 @@
         <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased app-shell" x-data="appShell({ timeoutMinutes: {{ (int) config('attendance.session.timeout_minutes', 60) }}, warningMinutes: 5 })" x-init="initSessionWarning()">
+    <body class="font-sans antialiased app-shell">
         <div class="min-h-screen flex">
             {{-- Mobile backdrop --}}
             <div x-show="sidebarOpen" x-transition:enter="transition-opacity ease-linear duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition-opacity ease-linear duration-300" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 z-40 bg-slate-950/60 backdrop-blur-sm lg:hidden" @click="sidebarOpen = false" style="display: none;"></div>
@@ -38,7 +38,6 @@
                             </div>
                         </div>
                         <div class="flex items-center gap-2">
-                            @auth
                             <div x-data="notificationCenter(false)">
                                 <div @click="open = !open" class="relative p-2 text-gray-500 hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded-lg cursor-pointer" aria-label="Toggle notifications">
                                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -80,12 +79,11 @@
                                     </div>
                                 </div>
                             </div>
-                            @endauth
                             <x-dropdown align="right" width="48">
                                 <x-slot name="trigger">
                                     <button class="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 shadow-sm transition hover:border-slate-300 hover:text-slate-900">
-                                        <span class="hidden sm:inline">{{ Auth::user()->name }}</span>
-                                        <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-100 text-blue-700 text-sm font-bold">{{ strtoupper(substr(Auth::user()->name, 0, 2)) }}</span>
+                                        <span class="hidden sm:inline">{{ Auth::user()->full_name ?? Auth::user()->name }}</span>
+                                        <span class="inline-flex items-center justify-center w-8 h-8 rounded-lg bg-blue-100 text-blue-700 text-sm font-bold">{{ strtoupper(substr(Auth::user()->full_name ?? Auth::user()->name, 0, 2)) }}</span>
                                         <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                                     </button>
                                 </x-slot>
@@ -116,15 +114,6 @@
                 </main>
             </div>
         </div>
-        @auth
-            <div x-show="sessionWarningVisible" x-cloak class="fixed bottom-4 right-4 z-50 w-[min(24rem,calc(100vw-2rem))] rounded-lg border border-amber-200 bg-white p-4 shadow-xl" style="display: none;">
-                <p class="text-sm font-semibold text-amber-900">{{ __('Session expiring soon') }}</p>
-                <p class="mt-1 text-sm text-slate-600">{{ __('You will be signed out in') }} <span class="font-semibold" x-text="sessionWarningCountdown"></span>{{ __(' seconds due to inactivity.') }}</p>
-                <button type="button" @click="keepSessionAlive()" class="mt-3 rounded-md bg-amber-600 px-3 py-2 text-sm font-semibold text-white hover:bg-amber-700">
-                    {{ __('Stay signed in') }}
-                </button>
-            </div>
-        @endauth
         @stack('scripts')
     </body>
 </html>

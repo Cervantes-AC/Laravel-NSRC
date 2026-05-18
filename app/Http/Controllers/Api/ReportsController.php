@@ -77,6 +77,8 @@ class ReportsController extends Controller
             'title' => 'Formal Attendance Report',
             'appName' => config('app.name', 'NSRC Attendance Management System'),
             'generatedAt' => now()->format('F j, Y g:i A'),
+            'dateFrom' => $request->input('dateFrom'),
+            'dateTo' => $request->input('dateTo'),
             'rows' => $rows,
             'report' => [
                 'type' => 'Attendance Report',

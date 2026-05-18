@@ -38,6 +38,10 @@ class Announcement extends Model
     public function scopeVisibleToMembers($query)
     {
         return $query->where('status', 'published')
-            ->whereIn('audience', ['members', 'all']);
+            ->whereIn('audience', ['members', 'all'])
+            ->where(function ($q) {
+                $q->whereNull('expires_at')
+                  ->orWhere('expires_at', '>', now());
+            });
     }
 }

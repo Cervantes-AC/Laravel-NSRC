@@ -11,6 +11,7 @@ use App\Services\DataExportService;
 use App\Services\DutyEngine;
 use App\Services\ImportService;
 use App\Services\MetricsService;
+use App\Services\NameNormalizationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -82,7 +83,7 @@ class ImportController extends Controller
             $sessions = $dutyEngine->processDutyLogs($logs);
 
             foreach ($sessions as $session) {
-                $volunteerId = \App\Models\User::where('full_name', $session->full_name)->value('id');
+                $volunteerId = $this->resolveVolunteerId($session->full_name);
                 $session->volunteer_id = $volunteerId;
 
                 $attributes = $session->getAttributes();
@@ -127,5 +128,32 @@ class ImportController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Resolve volunteer ID from full name using exact match, fuzzy match, or skip if not found.
+     * Returns null if no matching volunteer is found.
+     */
+    private function resolveVolunteerId(string $fullName): ?int
+    {
+        // Try exact match first
+        $exact = User::query()
+            ->where('full_name', $fullName)
+            ->value('id');
+
+        if ($exact) {
+            return (int) $exact;
+        }
+
+        // Try fuzzy match with 85% similarity threshold
+        $nameService = app(NameNormalizationService::class);
+        foreach (User::query()->whereNotNull('full_name')->get(['id', 'full_name']) as $user) {
+            if ($nameService->areNamesSimilar($fullName, $user->full_name, 85.0)) {
+                return $user->id;
+            }
+        }
+
+        // No match found - return null (will be handled by MetricsService filter)
+        return null;
     }
 }

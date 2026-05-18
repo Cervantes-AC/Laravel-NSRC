@@ -17,7 +17,9 @@ class MetricsService
 
     public function calculateVolunteerMetrics(Collection $sessions): Collection
     {
-        $grouped = $sessions->groupBy('volunteer_id');
+        // Filter out sessions with null volunteer_id to prevent database errors
+        $validSessions = $sessions->filter(fn ($s) => $s->volunteer_id !== null);
+        $grouped = $validSessions->groupBy('volunteer_id');
         $metrics = collect();
 
         foreach ($grouped as $volunteerId => $volunteerSessions) {

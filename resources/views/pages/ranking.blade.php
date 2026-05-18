@@ -19,7 +19,7 @@
                             </div>
                         </div>
                         <div class="flex items-center gap-3 flex-wrap">
-                            <select x-model="period" @change="loadRankings()" class="bg-white/15 backdrop-blur border-0 text-white text-sm rounded-xl px-3 py-1.5 font-medium">
+                            <select x-model="period" @change="applyFilters()" class="bg-white/15 backdrop-blur border-0 text-white text-sm rounded-xl px-3 py-1.5 font-medium">
                                 <option value="all" class="text-gray-900">{{ __('All Time') }}</option>
                                 <option value="this_week" class="text-gray-900">{{ __('This Week') }}</option>
                                 <option value="this_month" class="text-gray-900">{{ __('This Month') }}</option>
@@ -69,7 +69,7 @@
 
                 <div class="relative">
                     <svg class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                    <input type="text" x-model="search" @input.debounce.300ms="loadRankings()" placeholder="{{ __('Search by name...') }}" class="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-orange-500/30 focus:border-orange-400 outline-none transition-all shadow-sm" />
+                    <input type="text" x-model="search" @input.debounce.300ms="applyFilters()" placeholder="{{ __('Search by name...') }}" class="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-orange-500/30 focus:border-orange-400 outline-none transition-all shadow-sm" />
                 </div>
 
                 <div x-show="loading" class="text-center py-4 text-gray-500">{{ __('Loading...') }}</div>
@@ -110,8 +110,8 @@
                     <div class="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
                         <h3 class="text-base font-black text-gray-900">{{ __('Leaderboard') }}</h3>
                         <div class="flex items-center gap-2">
-                            <span class="text-xs font-medium text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full" x-text="rankings.length + ' volunteers'"></span>
-                            <select x-model="sortBy" @change="loadRankings()" class="text-sm border-gray-200 rounded-lg shadow-sm focus:border-orange-400 focus:ring-orange-400">
+                            <span class="text-xs font-medium text-gray-500 bg-gray-100 px-2.5 py-1 rounded-full" x-text="total + ' volunteers'"></span>
+                            <select x-model="sortBy" @change="applyFilters()" class="text-sm border-gray-200 rounded-lg shadow-sm focus:border-orange-400 focus:ring-orange-400">
                                 <option value="total_hours">{{ __('Total Hours') }}</option>
                                 <option value="total_sessions">{{ __('Total Sessions') }}</option>
                                 <option value="avg_duration">{{ __('Regular Hours') }}</option>
@@ -164,6 +164,32 @@
                             </tbody>
                         </table>
                     </div>
+
+                    <template x-if="totalPages > 1">
+                        <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+                            <div class="text-xs font-bold text-gray-500">
+                                Page <span x-text="currentPage"></span> of <span x-text="totalPages"></span>
+                                &nbsp;(<span x-text="total"></span> total)
+                            </div>
+                            <div class="flex items-center gap-1.5">
+                                <button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1"
+                                    class="px-3 py-1 bg-white border rounded disabled:opacity-30 text-sm">Prev</button>
+                                <template x-for="p in pageNumbers" :key="p">
+                                    <button @click="p !== '…' && goToPage(p)"
+                                        class="px-3 py-1 rounded text-xs font-black"
+                                        :class="p === currentPage
+                                            ? 'bg-orange-600 text-white'
+                                            : p === '…'
+                                                ? 'cursor-default text-gray-400'
+                                                : 'bg-white border text-gray-600 hover:border-gray-400'"
+                                        x-text="p">
+                                    </button>
+                                </template>
+                                <button @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages"
+                                    class="px-3 py-1 bg-white border rounded disabled:opacity-30 text-sm">Next</button>
+                            </div>
+                        </div>
+                    </template>
                 </div>
             </div>
         </div>

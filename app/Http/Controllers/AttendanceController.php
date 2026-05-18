@@ -9,6 +9,7 @@ use App\Models\VolunteerMetrics;
 use App\Services\DutyEngine;
 use App\Services\MetricsService;
 use App\Services\MySQLAttendanceService;
+use App\Services\NameNormalizationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -99,7 +100,8 @@ class AttendanceController extends Controller
                 $updatedCount = 0;
 
                 foreach ($sessions as $session) {
-                    $volunteerId = User::where('full_name', $session->full_name)->value('id');
+                    // Resolve volunteer_id with exact match, fuzzy match, or skip if not found
+                    $volunteerId = $this->resolveVolunteerId($session->full_name);
 
                     $attributes = [
                         'full_name' => $session->full_name,
@@ -158,5 +160,33 @@ class AttendanceController extends Controller
                 'errors' => [$e->getMessage()],
             ], 500);
         }
+    }
+
+    /**
+     * Resolve volunteer ID from full name using exact match, fuzzy match, or skip if not found.
+     * Returns null if no matching volunteer is found.
+     */
+    private function resolveVolunteerId(string $fullName): ?int
+    {
+        // Try exact match first
+        $exact = User::query()
+            ->where('full_name', $fullName)
+            ->value('id');
+
+        if ($exact) {
+            return (int) $exact;
+        }
+
+        // Try fuzzy match with 85% similarity threshold
+        $nameService = app(NameNormalizationService::class);
+        foreach (User::query()->whereNotNull('full_name')->get(['id', 'full_name']) as $user) {
+            if ($nameService->areNamesSimilar($fullName, $user->full_name, 85.0)) {
+                return $user->id;
+            }
+        }
+
+        // No match found - return null (will be handled by MetricsService filter)
+        Log::warning('No volunteer found for attendance record', ['full_name' => $fullName]);
+        return null;
     }
 }

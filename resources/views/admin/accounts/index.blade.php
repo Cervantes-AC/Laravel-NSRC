@@ -360,7 +360,7 @@ document.addEventListener('alpine:init', () => {
 
         // CSV export
         exportCSV() {
-            window.location.href = `{{ route('export.accounts') }}?${this.buildParams()}`;
+            window.location.href = `{{ route('admin.export.accounts') }}?${this.buildParams()}`;
         },
     }));
 });

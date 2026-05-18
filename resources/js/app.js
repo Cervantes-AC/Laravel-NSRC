@@ -548,16 +548,47 @@ Alpine.data('rankingsApp', () => ({
     sortBy: 'total_hours',
     period: 'all',
     showScoringGuide: false,
+    totalPages: 1,
+    currentPage: 1,
+    perPage: 15,
+    total: 0,
     init() {
         this.loadRankings();
     },
     loadRankings() {
         this.loading = true;
-        axios.get('/api/rankings', { params: { sortBy: this.sortBy, search: this.search, period: this.period } })
+        axios.get('/api/rankings', { params: { sortBy: this.sortBy, search: this.search, period: this.period, page: this.currentPage, perPage: this.perPage } })
             .then(res => {
                 this.rankings = res.data.rankings;
-                this.topThree = res.data.topThree;
+                this.topThree = res.data.topThree || [];
+                this.totalPages = res.data.totalPages || 1;
+                this.currentPage = res.data.currentPage || 1;
+                this.total = res.data.total || 0;
             }).finally(() => { this.loading = false; });
+    },
+    applyFilters() {
+        this.currentPage = 1;
+        this.loadRankings();
+    },
+    goToPage(page) {
+        if (page < 1 || page > this.totalPages) return;
+        this.currentPage = page;
+        this.loadRankings();
+    },
+    get pageNumbers() {
+        const pages = [];
+        const total = this.totalPages;
+        const cur = this.currentPage;
+        if (total <= 7) {
+            for (let i = 1; i <= total; i++) pages.push(i);
+            return pages;
+        }
+        pages.push(1);
+        if (cur > 3) pages.push('…');
+        for (let i = Math.max(2, cur - 1); i <= Math.min(total - 1, cur + 1); i++) pages.push(i);
+        if (cur < total - 2) pages.push('…');
+        pages.push(total);
+        return pages;
     },
     toggleScoringGuide() { this.showScoringGuide = !this.showScoringGuide; },
     getAchievements(totalMinutes) {
@@ -569,10 +600,9 @@ Alpine.data('rankingsApp', () => ({
         return [{ label: 'Beginner', icon: '🌱', color: 'text-green-600' }];
     },
     fmtHours(mins) {
-        if (!mins || mins === 0) return '0h';
-        const h = Math.floor(mins / 60);
-        const m = mins % 60;
-        return m === 0 ? `${h}h` : `${h}h ${m}m`;
+        if (!mins || mins === 0) return '0.00h';
+        const totalHours = mins / 60;
+        return totalHours.toFixed(2) + 'h';
     }
 }));
 
@@ -638,10 +668,9 @@ Alpine.data('personnelApp', () => ({
         this.loadPersonnel();
     },
     fmtHours(mins) {
-        if (!mins || mins === 0) return '0h';
-        const h = Math.floor(mins / 60);
-        const m = mins % 60;
-        return m === 0 ? `${h}h` : `${h}h ${m}m`;
+        if (!mins || mins === 0) return '0.00h';
+        const totalHours = mins / 60;
+        return totalHours.toFixed(2) + 'h';
     },
     getInitials(name) {
         return name.split(' ').map(p => p[0]).join('').toUpperCase().substring(0, 2);
