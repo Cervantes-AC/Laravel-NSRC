@@ -17,6 +17,33 @@ use App\Http\Controllers\AuditLogController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
+Route::middleware(['auth', 'verified'])->prefix('api')->name('api.')->group(function () {
+    Route::get('/dashboard/data', [\App\Http\Controllers\Api\DashboardController::class, 'data'])->name('dashboard.data');
+    Route::get('/sessions', [\App\Http\Controllers\Api\SessionsController::class, 'index'])->name('sessions.index');
+    Route::post('/sessions/sync', [\App\Http\Controllers\Api\SessionsController::class, 'sync'])->name('sessions.sync');
+    Route::post('/reports/generate', [\App\Http\Controllers\Api\ReportsController::class, 'generate'])->name('reports.generate');
+    Route::post('/reports/export-csv', [\App\Http\Controllers\Api\ReportsController::class, 'exportCsv'])->name('reports.export-csv');
+    Route::post('/reports/export-pdf', [\App\Http\Controllers\Api\ReportsController::class, 'exportPdf'])->name('reports.export-pdf');
+    Route::get('/notifications', [\App\Http\Controllers\Api\NotificationsController::class, 'index'])->name('notifications.index');
+    Route::post('/notifications/{id}/read', [\App\Http\Controllers\Api\NotificationsController::class, 'markAsRead'])->name('notifications.read');
+    Route::post('/notifications/read-all', [\App\Http\Controllers\Api\NotificationsController::class, 'markAllAsRead'])->name('notifications.read-all');
+    Route::delete('/notifications/{id}', [\App\Http\Controllers\Api\NotificationsController::class, 'destroy'])->name('notifications.destroy');
+    Route::get('/analytics/data', [\App\Http\Controllers\Api\AnalyticsController::class, 'data'])->name('analytics.data');
+    Route::get('/rankings', [\App\Http\Controllers\Api\RankingsController::class, 'index'])->name('rankings.index');
+    Route::get('/personnel', [\App\Http\Controllers\Api\PersonnelController::class, 'index'])->name('personnel.index');
+    Route::get('/personnel/history', [\App\Http\Controllers\Api\PersonnelController::class, 'history'])->name('personnel.history');
+    Route::get('/accounts', [\App\Http\Controllers\Api\AccountsController::class, 'index'])->name('accounts.index');
+    Route::post('/accounts/{id}/approve', [\App\Http\Controllers\Api\AccountsController::class, 'approve'])->name('accounts.approve');
+    Route::post('/accounts/{id}/reject', [\App\Http\Controllers\Api\AccountsController::class, 'reject'])->name('accounts.reject');
+    Route::post('/accounts/{id}/suspend', [\App\Http\Controllers\Api\AccountsController::class, 'suspend'])->name('accounts.suspend');
+    Route::post('/accounts/bulk-action', [\App\Http\Controllers\Api\AccountsController::class, 'bulkAction'])->name('accounts.bulk-action');
+    Route::get('/audit-logs', [\App\Http\Controllers\Api\AuditLogsController::class, 'index'])->name('audit-logs.index');
+    Route::get('/audit-logs/export', [\App\Http\Controllers\Api\AuditLogsController::class, 'export'])->name('audit-logs.export');
+    Route::post('/settings/preferences', [\App\Http\Controllers\Api\SettingsController::class, 'savePreferences'])->name('settings.preferences');
+    Route::post('/ai/provider/switch', [\App\Http\Controllers\Api\AIProviderController::class, 'switchProvider'])->name('ai.provider.switch');
+    Route::post('/ai/api-key/switch', [\App\Http\Controllers\Api\AIProviderController::class, 'switchApiKey'])->name('ai.api-key.switch');
+});
+
 Route::get('/', function () {
     return view('landing');
 });
