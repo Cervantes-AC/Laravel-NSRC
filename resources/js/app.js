@@ -319,7 +319,38 @@ Alpine.data('memberAttendanceApp', () => ({
     status: '',
     results: null,
     reportStats: null,
+    currentPage: 1,
+    perPage: 15,
+    get paginatedRecords() {
+        const records = this.results?.data?.records || this.results?.data || [];
+        const start = (this.currentPage - 1) * this.perPage;
+        return records.slice(start, start + this.perPage);
+    },
+    get totalAttendancePages() {
+        const records = this.results?.data?.records || this.results?.data || [];
+        return Math.max(1, Math.ceil(records.length / this.perPage));
+    },
+    get attendancePageNumbers() {
+        const pages = [];
+        const total = this.totalAttendancePages;
+        const cur = this.currentPage;
+        if (total <= 7) {
+            for (let i = 1; i <= total; i++) pages.push(i);
+            return pages;
+        }
+        pages.push(1);
+        if (cur > 3) pages.push('…');
+        for (let i = Math.max(2, cur - 1); i <= Math.min(total - 1, cur + 1); i++) pages.push(i);
+        if (cur < total - 2) pages.push('…');
+        pages.push(total);
+        return pages;
+    },
+    goToAttendancePage(page) {
+        if (page < 1 || page > this.totalAttendancePages) return;
+        this.currentPage = page;
+    },
     generateReport() {
+        this.currentPage = 1;
         this.loading = true;
         axios.get('/api/member/attendance', {
             params: { dateFrom: this.dateFrom, dateTo: this.dateTo, status: this.status }
@@ -334,6 +365,7 @@ Alpine.data('memberAttendanceApp', () => ({
         this.status = '';
         this.results = null;
         this.reportStats = null;
+        this.currentPage = 1;
     }
 }));
 
@@ -623,6 +655,21 @@ Alpine.data('personnelApp', () => ({
     showFormula: false,
     selectedPersonnelName: null,
     historySessions: [],
+    get pageNumbers() {
+        const pages = [];
+        const total = this.totalPages;
+        const cur = this.currentPage;
+        if (total <= 7) {
+            for (let i = 1; i <= total; i++) pages.push(i);
+            return pages;
+        }
+        pages.push(1);
+        if (cur > 3) pages.push('…');
+        for (let i = Math.max(2, cur - 1); i <= Math.min(total - 1, cur + 1); i++) pages.push(i);
+        if (cur < total - 2) pages.push('…');
+        pages.push(total);
+        return pages;
+    },
     init() {
         this.loadPersonnel();
     },

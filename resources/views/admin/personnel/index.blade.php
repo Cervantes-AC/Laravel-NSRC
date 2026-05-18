@@ -229,6 +229,32 @@
                             </div>
                         </template>
 
+                        <template x-if="totalPages > 1">
+                            <div class="flex items-center justify-between mt-6 px-2">
+                                <div class="text-xs font-bold text-slate-500">
+                                    Page <span x-text="currentPage"></span> of <span x-text="totalPages"></span>
+                                    &nbsp;(<span x-text="totalPersonnel"></span> total)
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1"
+                                        class="px-3 py-1 bg-white border rounded disabled:opacity-30 text-xs font-black">Prev</button>
+                                    <template x-for="p in pageNumbers" :key="p">
+                                        <button @click="p !== '…' && goToPage(p)"
+                                            class="px-3 py-1 rounded text-xs font-black"
+                                            :class="p === currentPage
+                                                ? 'bg-blue-600 text-white'
+                                                : p === '…'
+                                                    ? 'cursor-default text-slate-400'
+                                                    : 'bg-white border text-slate-600 hover:border-slate-400'"
+                                            x-text="p">
+                                        </button>
+                                    </template>
+                                    <button @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages"
+                                        class="px-3 py-1 bg-white border rounded disabled:opacity-30 text-xs font-black">Next</button>
+                                </div>
+                            </div>
+                        </template>
+
                         {{-- History Modal --}}
                         <template x-if="selectedPersonnelName">
                             <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" @click.self="closeHistory()">

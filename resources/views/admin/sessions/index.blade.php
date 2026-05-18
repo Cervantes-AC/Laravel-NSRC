@@ -110,44 +110,70 @@
                     <div x-show="loading" class="text-center py-8 text-gray-500">Loading...</div>
 
                     <template x-if="!loading">
-                        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-                            <template x-for="s in sessions" :key="s.id">
-                                <article class="bg-white border border-gray-200 rounded-xl p-4 shadow-sm hover:shadow-md transition">
-                                    <div class="flex items-start justify-between gap-2">
-                                        <div>
-                                            <h4 class="font-semibold text-gray-900" x-text="s.full_name"></h4>
-                                            <p class="text-xs text-gray-500" x-text="s.school_id || 'No linked account'"></p>
-                                        </div>
-                                        <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider"
-                                            :class="s.status === 'COMPLETE'
-                                                ? 'bg-green-100 text-green-800'
-                                                : s.status === 'ONGOING'
-                                                    ? 'bg-blue-100 text-blue-800'
-                                                    : s.status === 'MISSING_TIMEOUT'
-                                                        ? 'bg-amber-100 text-amber-800'
-                                                        : 'bg-red-100 text-red-800'"
-                                            x-text="s.status">
-                                        </span>
-                                    </div>
-                                    <dl class="mt-3 grid grid-cols-2 gap-2 text-sm">
-                                        <div><dt class="text-gray-500">Date</dt><dd class="font-medium" x-text="s.date"></dd></div>
-                                        <div><dt class="text-gray-500">Duration</dt><dd class="font-medium" x-text="s.duration_minutes ? s.duration_minutes + ' min' : 'Ongoing'"></dd></div>
-                                        <div><dt class="text-gray-500">Time In</dt><dd x-text="s.time_in || '-'"></dd></div>
-                                        <div><dt class="text-gray-500">Time Out</dt><dd x-text="s.time_out || '-'"></dd></div>
-                                        <div class="col-span-2"><dt class="text-gray-500">Location / Sector</dt><dd x-text="(s.location || '-') + ' — ' + (s.sector || 'General')"></dd></div>
-                                        <div><dt class="text-gray-500">Integrity</dt><dd x-text="Math.round(s.integrity_score || 0) + '%'"></dd></div>
-                                    </dl>
-                                    <div class="mt-4 flex gap-3 text-sm">
-                                        <a :href="s.view_url" class="text-indigo-600 hover:text-indigo-800 font-medium">View</a>
-                                    </div>
-                                </article>
-                            </template>
-                            <template x-if="sessions.length === 0">
-                                <div class="col-span-full rounded-xl border border-dashed border-slate-300 bg-slate-50 px-6 py-12 text-center">
-                                    <p class="text-sm font-semibold text-slate-700">No attendance summaries match your filters.</p>
-                                    <p class="mt-1 text-xs text-slate-500">Clear filters or run MySQL sync to refresh generated attendance records.</p>
-                                </div>
-                            </template>
+                        <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                            <div class="overflow-x-auto">
+                                <table class="min-w-full divide-y divide-gray-200">
+                                    <thead class="bg-gray-50">
+                                        <tr>
+                                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Name</th>
+                                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Date</th>
+                                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Time In</th>
+                                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Time Out</th>
+                                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Duration</th>
+                                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Location / Sector</th>
+                                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Status</th>
+                                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Integrity</th>
+                                            <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="bg-white divide-y divide-gray-200">
+                                        <template x-for="s in sessions" :key="s.id">
+                                            <tr class="hover:bg-gray-50 transition-colors">
+                                                <td class="px-4 py-3 whitespace-nowrap">
+                                                    <div>
+                                                        <p class="text-sm font-semibold text-gray-900" x-text="s.full_name"></p>
+                                                        <p class="text-xs text-gray-500" x-text="s.school_id || 'No linked account'"></p>
+                                                    </div>
+                                                </td>
+                                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700" x-text="s.date"></td>
+                                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700" x-text="s.time_in || '-'"></td>
+                                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700" x-text="s.time_out || '-'"></td>
+                                                <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900" x-text="s.duration_minutes ? s.duration_minutes + ' min' : 'Ongoing'"></td>
+                                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700">
+                                                    <div>
+                                                        <p x-text="s.location || '-'"></p>
+                                                        <p class="text-xs text-gray-500" x-text="s.sector || 'General'"></p>
+                                                    </div>
+                                                </td>
+                                                <td class="px-4 py-3 whitespace-nowrap">
+                                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider"
+                                                        :class="s.status === 'COMPLETE'
+                                                            ? 'bg-green-100 text-green-800'
+                                                            : s.status === 'ONGOING'
+                                                                ? 'bg-blue-100 text-blue-800'
+                                                                : s.status === 'MISSING_TIMEOUT'
+                                                                    ? 'bg-amber-100 text-amber-800'
+                                                                    : 'bg-red-100 text-red-800'"
+                                                        x-text="s.status">
+                                                    </span>
+                                                </td>
+                                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-700" x-text="Math.round(s.integrity_score || 0) + '%'"></td>
+                                                <td class="px-4 py-3 whitespace-nowrap text-sm">
+                                                    <a :href="s.view_url" class="text-indigo-600 hover:text-indigo-800 font-medium">View</a>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                        <template x-if="sessions.length === 0">
+                                            <tr>
+                                                <td colspan="9" class="px-6 py-12 text-center">
+                                                    <p class="text-sm font-semibold text-gray-700">No attendance summaries match your filters.</p>
+                                                    <p class="mt-1 text-xs text-gray-500">Clear filters or run MySQL sync to refresh generated attendance records.</p>
+                                                </td>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </template>
 

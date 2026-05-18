@@ -43,20 +43,8 @@ class DutyEngine
 
     public function calculateDuration($timeIn, $timeOut): int
     {
-        if (!$timeIn) {
+        if (!$timeIn || !$timeOut) {
             return 0;
-        }
-
-        // If no time_out, calculate from time_in to end of day (23:59:59)
-        if (!$timeOut) {
-            $start = $timeIn instanceof \DateTimeInterface ? $timeIn : now()->parse($timeIn);
-            $endOfDay = $start->copy()->endOfDay();
-            
-            if ($endOfDay <= $start) {
-                return 0;
-            }
-            
-            return (int) $start->diffInMinutes($endOfDay);
         }
 
         $start = $timeIn instanceof \DateTimeInterface ? $timeIn : now()->parse($timeIn);
@@ -106,7 +94,6 @@ class DutyEngine
 
         if ($timeIn && !$timeOut) {
             // Record exists with time_in but no time_out - mark as MISSING_TIMEOUT
-            // Duration is calculated from time_in to end of day
             return 'MISSING_TIMEOUT';
         }
 

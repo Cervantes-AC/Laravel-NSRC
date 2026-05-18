@@ -28,7 +28,7 @@
                 </div>
             </div>
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg" x-data="{ perPage: 12, currentPage: 1, get paginatedMonths() { const months = @json($metrics['monthly'] ?? []); const start = (this.currentPage - 1) * this.perPage; return months.slice(start, start + this.perPage); }, get totalMonths() { return Math.max(1, Math.ceil((@json($metrics['monthly'] ?? [])).length / this.perPage)); }, get monthPageNumbers() { const pages = []; const total = this.totalMonths; const cur = this.currentPage; if (total <= 7) { for (let i = 1; i <= total; i++) pages.push(i); return pages; } pages.push(1); if (cur > 3) pages.push('…'); for (let i = Math.max(2, cur - 1); i <= Math.min(total - 1, cur + 1); i++) pages.push(i); if (cur < total - 2) pages.push('…'); pages.push(total); return pages; }, goToPage(page) { if (page < 1 || page > this.totalMonths) return; this.currentPage = page; } }">
                 <div class="p-6 text-gray-900">
                     <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('Detailed Breakdown') }}</h3>
 
@@ -44,17 +44,42 @@
                                     </tr>
                                 </thead>
                                 <tbody class="bg-white divide-y divide-gray-200">
-                                    @foreach($metrics['monthly'] as $month)
+                                    <template x-for="month in paginatedMonths" :key="month.label">
                                         <tr>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $month['label'] }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $month['sessions'] }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $month['total_hours'] }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $month['avg_duration'] }} {{ __('min') }}</td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" x-text="month.label"></td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="month.sessions"></td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="month.total_hours"></td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="month.avg_duration + ' min'"></td>
                                         </tr>
-                                    @endforeach
+                                    </template>
                                 </tbody>
                             </table>
                         </div>
+
+                        <template x-if="totalMonths > 1">
+                            <div class="flex items-center justify-between mt-4">
+                                <div class="text-xs font-bold text-gray-500">
+                                    Page <span x-text="currentPage"></span> of <span x-text="totalMonths"></span>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1"
+                                        class="px-3 py-1 bg-white border rounded disabled:opacity-30 text-sm">Prev</button>
+                                    <template x-for="p in monthPageNumbers" :key="p">
+                                        <button @click="p !== '…' && goToPage(p)"
+                                            class="px-3 py-1 rounded text-xs font-black"
+                                            :class="p === currentPage
+                                                ? 'bg-indigo-600 text-white'
+                                                : p === '…'
+                                                    ? 'cursor-default text-gray-400'
+                                                    : 'bg-white border text-gray-600 hover:border-gray-400'"
+                                            x-text="p">
+                                        </button>
+                                    </template>
+                                    <button @click="goToPage(currentPage + 1)" :disabled="currentPage === totalMonths"
+                                        class="px-3 py-1 bg-white border rounded disabled:opacity-30 text-sm">Next</button>
+                                </div>
+                            </div>
+                        </template>
                     @else
                         <p class="text-sm text-gray-500">{{ __('No performance data available yet.') }}</p>
                     @endif

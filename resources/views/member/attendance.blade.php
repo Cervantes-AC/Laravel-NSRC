@@ -84,7 +84,7 @@
                                             </tr>
                                         </thead>
                                         <tbody class="bg-white divide-y divide-gray-200">
-                                            <template x-for="r in (results.data?.records || results.data || [])" :key="r.id || r.date">
+                                            <template x-for="r in paginatedRecords" :key="r.id || r.date">
                                                 <tr class="hover:bg-gray-50 transition-colors">
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700" x-text="r.date || 'N/A'"></td>
                                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700" x-text="r.time_in || 'N/A'"></td>
@@ -102,6 +102,32 @@
                                         </tbody>
                                     </table>
                                 </div>
+
+                                <template x-if="totalAttendancePages > 1">
+                                    <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+                                        <div class="text-xs font-bold text-gray-500">
+                                            Page <span x-text="currentPage"></span> of <span x-text="totalAttendancePages"></span>
+                                            &nbsp;(<span x-text="reportStats.total_records"></span> total)
+                                        </div>
+                                        <div class="flex items-center gap-1.5">
+                                            <button @click="goToAttendancePage(currentPage - 1)" :disabled="currentPage === 1"
+                                                class="px-3 py-1 bg-white border rounded disabled:opacity-30 text-sm">Prev</button>
+                                            <template x-for="p in attendancePageNumbers" :key="p">
+                                                <button @click="p !== '…' && goToAttendancePage(p)"
+                                                    class="px-3 py-1 rounded text-xs font-black"
+                                                    :class="p === currentPage
+                                                        ? 'bg-indigo-600 text-white'
+                                                        : p === '…'
+                                                            ? 'cursor-default text-gray-400'
+                                                            : 'bg-white border text-gray-600 hover:border-gray-400'"
+                                                    x-text="p">
+                                                </button>
+                                            </template>
+                                            <button @click="goToAttendancePage(currentPage + 1)" :disabled="currentPage === totalAttendancePages"
+                                                class="px-3 py-1 bg-white border rounded disabled:opacity-30 text-sm">Next</button>
+                                        </div>
+                                    </div>
+                                </template>
                             </div>
                         </template>
                     </div>

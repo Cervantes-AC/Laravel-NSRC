@@ -117,7 +117,7 @@ class MemberLogController extends Controller
                 'time_in' => $active->time_in?->format('h:i A'),
                 'time_in_raw' => $active->time_in?->toIso8601String(),
                 'date' => $active->date?->format('M d, Y'),
-                'duration' => $active->time_in?->diffInMinutes(now()),
+                'duration' => 0,
             ] : null,
             'todayTotalMinutes' => $todayTotal,
         ]);

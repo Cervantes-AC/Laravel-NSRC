@@ -75,8 +75,7 @@ Route::middleware(['auth', 'throttle.custom'])->group(function () {
         $announcements = \App\Models\Announcement::visibleToMembers()
             ->latest('published_at')
             ->latest()
-            ->take(20)
-            ->get();
+            ->paginate(15);
 
         return view('pages.notifications', compact('announcements'));
     })->name('notifications.index');
