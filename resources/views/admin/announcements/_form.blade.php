@@ -35,7 +35,7 @@
         </div>
     </div>
 
-    <div class="grid gap-4 md:grid-cols-3">
+    <div class="grid gap-4 md:grid-cols-2">
         <div>
             <x-input-label for="audience" :value="__('Audience')" />
             <select id="audience" name="audience" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
@@ -43,18 +43,6 @@
                 <option value="all" @selected(old('audience', $announcement->audience) === 'all')>{{ __('All Users') }}</option>
             </select>
             <x-input-error class="mt-2" :messages="$errors->get('audience')" />
-        </div>
-
-        <div>
-            <x-input-label for="published_at" :value="__('Publish At')" />
-            <x-text-input id="published_at" name="published_at" type="datetime-local" class="mt-1 block w-full" :value="old('published_at', optional($announcement->published_at)->format('Y-m-d\\TH:i'))" />
-            <x-input-error class="mt-2" :messages="$errors->get('published_at')" />
-        </div>
-
-        <div>
-            <x-input-label for="expires_at" :value="__('Expires At')" />
-            <x-text-input id="expires_at" name="expires_at" type="datetime-local" class="mt-1 block w-full" :value="old('expires_at', optional($announcement->expires_at)->format('Y-m-d\\TH:i'))" />
-            <x-input-error class="mt-2" :messages="$errors->get('expires_at')" />
         </div>
     </div>
 

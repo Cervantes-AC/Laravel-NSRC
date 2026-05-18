@@ -94,6 +94,8 @@
                                 <option value="100">100</option>
                             </select>
                             <button @click="clearFilters()" class="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg">Clear</button>
+                            <button @click="exportCSV()" class="px-3 py-2 text-sm bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded-lg">Export CSV</button>
+                            <button @click="processLocal()" class="px-3 py-2 text-sm bg-amber-100 hover:bg-amber-200 text-amber-700 rounded-lg">Process Local</button>
                             <button @click="syncAttendance()" class="px-3 py-2 text-sm bg-indigo-100 hover:bg-indigo-200 text-indigo-700 rounded-lg">Sync MySQL</button>
                         </div>
                     </div>

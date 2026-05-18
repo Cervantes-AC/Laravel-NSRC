@@ -70,7 +70,7 @@
                                                     <template x-if="!n.read_at">
                                                         <button @click="markAsRead(n.id)" class="text-xs text-indigo-600 hover:text-indigo-800">Read</button>
                                                     </template>
-                                                    <button @click="delete(n.id)" class="text-xs text-red-600 hover:text-red-800">Del</button>
+                                                    <button @click="removeNotification(n.id)" class="text-xs text-red-600 hover:text-red-800">Del</button>
                                                 </div>
                                             </div>
                                         </template>

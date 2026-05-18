@@ -56,8 +56,10 @@ class DashboardController extends Controller
         ]);
 
         $weeklyMetrics = [];
+        $hasActiveSession = false;
         if ($user->role === 'member') {
             $weeklyMetrics = $metricsService->getWeeklyMetrics($user->id);
+            $hasActiveSession = DutySession::where('volunteer_id', $user->id)->whereNull('time_out')->exists();
         }
 
         $hour = now()->hour;
@@ -70,6 +72,8 @@ class DashboardController extends Controller
         $userName = $user->full_name ?? $user->name;
         $userInitials = strtoupper(substr($userName, 0, 2));
 
+        $hasActiveSession = $user->role === 'member' && DutySession::where('volunteer_id', $user->id)->whereNull('time_out')->exists();
+
         return response()->json([
             'totalRecords' => DutySession::count(),
             'todayCount' => (int) ($summary['today_count'] ?? 0),
@@ -79,6 +83,7 @@ class DashboardController extends Controller
             'totalUsers' => (int) ($summary['total_users'] ?? 0),
             'completionRate' => (float) ($summary['completion_rate'] ?? 0),
             'avgIntegrityScore' => (float) ($summary['avg_integrity_score'] ?? 0),
+            'hasActiveSession' => $hasActiveSession,
             'weeklyMetrics' => $weeklyMetrics,
             'recentSessions' => $recentSessions,
             'recentActivity' => $recentActivity,

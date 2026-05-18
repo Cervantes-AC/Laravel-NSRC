@@ -40,9 +40,14 @@ class AnnouncementController extends Controller
 
     public function store(Request $request): RedirectResponse
     {
-        $announcement = Announcement::create($this->validated($request) + [
-            'created_by' => Auth::id(),
-        ]);
+        $data = $this->validated($request);
+        $data['created_by'] = Auth::id();
+
+        if ($data['status'] === 'published') {
+            $data['published_at'] = now();
+        }
+
+        $announcement = Announcement::create($data);
 
         $this->notifyMembersIfPublished($announcement);
         $this->audit('CREATE_ANNOUNCEMENT', $announcement);
@@ -58,7 +63,17 @@ class AnnouncementController extends Controller
 
     public function update(Request $request, Announcement $announcement): RedirectResponse
     {
-        $announcement->update($this->validated($request));
+        $data = $this->validated($request);
+
+        if ($data['status'] === 'published' && !$announcement->published_at) {
+            $data['published_at'] = now();
+        }
+
+        if ($data['status'] !== 'published') {
+            $data['published_at'] = null;
+        }
+
+        $announcement->update($data);
 
         $this->notifyMembersIfPublished($announcement);
         $this->audit('UPDATE_ANNOUNCEMENT', $announcement);
@@ -84,8 +99,6 @@ class AnnouncementController extends Controller
             'priority' => ['required', 'in:normal,important,urgent'],
             'status' => ['required', 'in:draft,published,archived'],
             'audience' => ['required', 'in:members,all'],
-            'published_at' => ['nullable', 'date'],
-            'expires_at' => ['nullable', 'date', 'after_or_equal:published_at'],
         ]);
     }
 

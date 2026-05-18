@@ -93,11 +93,6 @@ class User extends Authenticatable
         return $this->hasOne(VolunteerMetrics::class, 'volunteer_id');
     }
 
-    public function preferences(): HasOne
-    {
-        return $this->hasOne(UserPreference::class);
-    }
-
     public function auditLogs(): HasMany
     {
         return $this->hasMany(AuditLog::class);

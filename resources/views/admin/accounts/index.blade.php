@@ -7,6 +7,7 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     <div x-data="accountsApp" class="space-y-4" aria-label="{{ __('Account management') }}">
+                        <div x-show="errorMessage" x-text="errorMessage" class="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800"></div>
                         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                             <div class="flex flex-col sm:flex-row gap-4 flex-1">
                                 <div class="flex-1">
@@ -30,6 +31,7 @@
                                     <option value="reject">{{ __('Reject Selected') }}</option>
                                 </select>
                                 <button @click="executeBulkAction()" class="ml-2 inline-flex items-center px-3 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition">{{ __('Apply') }}</button>
+                                <button @click="exportCSV()" class="ml-2 inline-flex items-center px-3 py-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-700 rounded-lg transition">{{ __('Export CSV') }}</button>
                             </div>
                         </div>
 
@@ -58,9 +60,9 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" x-text="a.full_name"></td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="a.email"></td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="a.role.charAt(0).toUpperCase() + a.role.slice(1)"></td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="a.role ? a.role.charAt(0).toUpperCase() + a.role.slice(1) : 'Member'"></td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                                <span class="px-2 py-1 rounded-full text-xs font-medium" :class="a.status === 'active' ? 'bg-green-100 text-green-800' : a.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : a.status === 'suspended' ? 'bg-orange-100 text-orange-800' : 'bg-red-100 text-red-800'" x-text="a.status.charAt(0).toUpperCase() + a.status.slice(1)"></span>
+                                                <span class="px-2 py-1 rounded-full text-xs font-medium" :class="a.status === 'active' ? 'bg-green-100 text-green-800' : a.status === 'pending' ? 'bg-yellow-100 text-yellow-800' : a.status === 'suspended' ? 'bg-orange-100 text-orange-800' : 'bg-red-100 text-red-800'" x-text="a.status ? a.status.charAt(0).toUpperCase() + a.status.slice(1) : 'Unknown'"></span>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="a.created_at"></td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm space-x-2">

@@ -85,7 +85,10 @@
                                 <button @click="toggleSort('sessions')" class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border" :class="sortBy === 'sessions' ? 'bg-blue-50 text-blue-600 border-blue-200' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700'">Sessions <span x-text="sortBy === 'sessions' ? (sortDirection === 'asc' ? '↑' : '↓') : ''"></span></button>
                                 <button @click="toggleSort('hours')" class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border" :class="sortBy === 'hours' ? 'bg-blue-50 text-blue-600 border-blue-200' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700'">Hours <span x-text="sortBy === 'hours' ? (sortDirection === 'asc' ? '↑' : '↓') : ''"></span></button>
                                 <button @click="toggleSort('issues')" class="flex items-center gap-1 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border" :class="sortBy === 'issues' ? 'bg-blue-50 text-blue-600 border-blue-200' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700'">Issues <span x-text="sortBy === 'issues' ? (sortDirection === 'asc' ? '↑' : '↓') : ''"></span></button>
-                                <div class="pl-2 border-l border-slate-200">
+                                <div class="pl-2 border-l border-slate-200 flex gap-1">
+                                    <button @click="exportCSV()" class="p-2 rounded-lg text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 transition-all border border-transparent hover:border-emerald-200" title="Export CSV">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                                    </button>
                                     <button @click="toggleFormula()" class="p-2 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all border border-transparent hover:border-blue-200" title="How hours are calculated">
                                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                     </button>
@@ -107,9 +110,9 @@
 
                         <template x-if="!loading && personnel.length > 0">
                             <div>
-                                <div :class="viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4' : 'space-y-4'">
-                                    <template x-for="p in personnel" :key="p.id">
-                                        <template x-if="viewMode === 'grid'">
+                                <template x-if="viewMode === 'grid'">
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                                        <template x-for="p in personnel" :key="'g-' + p.id">
                                             <div class="bg-white border shadow-sm rounded-2xl overflow-hidden hover:shadow-md transition-all" :class="p.invalidRecordCount > 0 ? 'border-red-200' : 'border-slate-200'">
                                                 <div class="p-5">
                                                     <div class="flex items-start gap-3 mb-4">
@@ -152,7 +155,11 @@
                                                 </div>
                                             </div>
                                         </template>
-                                        <template x-if="viewMode === 'list'">
+                                    </div>
+                                </template>
+                                <template x-if="viewMode === 'list'">
+                                    <div class="space-y-4">
+                                        <template x-for="p in personnel" :key="'l-' + p.id">
                                             <div class="bg-white border shadow-sm rounded-2xl overflow-hidden hover:shadow-md transition-all" :class="p.invalidRecordCount > 0 ? 'border-red-200' : 'border-slate-200'">
                                                 <div class="p-5 sm:p-6">
                                                     <div class="flex flex-col lg:flex-row lg:items-center gap-5">
@@ -206,7 +213,7 @@
                                                                 <p class="text-[9px] text-slate-500 mt-0.5 font-medium">&lt; 1h</p>
                                                             </div>
                                                             <button @click="viewHistory(p.fullName)" class="bg-slate-50 border border-slate-200 hover:border-blue-200 hover:bg-blue-50 rounded-xl flex flex-col justify-between transition-all text-left p-3">
-                                                                <span class="text-[9px] font-black text-slate-500 group-hover:text-blue-600 uppercase tracking-widest transition-colors">History</span>
+                                                                <span class="text-[9px] font-black text-slate-500 uppercase tracking-widest transition-colors">History</span>
                                                                 <div class="flex items-center justify-between mt-auto pt-2">
                                                                     <span class="text-sm font-black text-slate-900">View</span>
                                                                     <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
@@ -217,26 +224,6 @@
                                                 </div>
                                             </div>
                                         </template>
-                                    </template>
-                                </div>
-
-                                {{-- Pagination --}}
-                                <template x-if="totalPages > 1">
-                                    <div class="flex items-center justify-between px-5 py-3 bg-white border border-slate-200 rounded-xl shadow-sm mt-4">
-                                        <div class="text-xs font-bold text-slate-500">Page <span x-text="currentPage"></span> of <span x-text="totalPages"></span></div>
-                                        <div class="flex items-center gap-1.5">
-                                            <button @click="goToPage(currentPage - 1)" :disabled="currentPage === 1" class="p-2 rounded-lg bg-white border border-slate-200 hover:border-slate-300 disabled:opacity-30 disabled:cursor-not-allowed transition-all">
-                                                <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
-                                            </button>
-                                            <template x-for="p in totalPages" :key="p">
-                                                <template x-if="totalPages <= 7 || p === 1 || p === totalPages || (p >= currentPage - 1 && p <= currentPage + 1)">
-                                                    <button @click="goToPage(p)" class="w-8 h-8 rounded-lg text-xs font-black transition-all" :class="currentPage === p ? 'bg-blue-600 text-white shadow-md' : 'bg-white border border-slate-200 text-slate-600 hover:border-slate-300'" x-text="p"></button>
-                                                </template>
-                                            </template>
-                                            <button @click="goToPage(currentPage + 1)" :disabled="currentPage === totalPages" class="p-2 rounded-lg bg-white border border-slate-200 hover:border-slate-300 disabled:opacity-30 disabled:cursor-not-allowed transition-all">
-                                                <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                                            </button>
-                                        </div>
                                     </div>
                                 </template>
                             </div>

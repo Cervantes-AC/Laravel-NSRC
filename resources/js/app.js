@@ -55,6 +55,24 @@ Alpine.data('dashboard', () => ({
         this.statusFilter = '';
         this.sectorFilter = '';
         this.loadData();
+    },
+    logTimeIn() {
+        axios.post('/api/member/time-in').then(res => {
+            if (res.data.success) {
+                this.loadData();
+            }
+        }).catch(err => {
+            alert(err.response?.data?.message || 'Failed to log time in.');
+        });
+    },
+    logTimeOut() {
+        axios.post('/api/member/time-out').then(res => {
+            if (res.data.success) {
+                this.loadData();
+            }
+        }).catch(err => {
+            alert(err.response?.data?.message || 'Failed to log time out.');
+        });
     }
 }));
 
@@ -79,11 +97,15 @@ Alpine.data('sessionsTable', () => ({
     dateTo: '',
     syncMessage: '',
     init() {
-        this.loadSessions();
+        this.loadSessions().then(() => {
+            if (this.sessions.length === 0 && this.filteredCount === 0) {
+                this.syncMessage = 'No attendance data found. Use "Sync MySQL" to import attendance records.';
+            }
+        });
     },
     loadSessions() {
         this.loading = true;
-        axios.get('/api/sessions', { params: this.getParams() })
+        return axios.get('/api/sessions', { params: this.getParams() })
             .then(res => {
                 this.sessions = res.data.sessions;
                 this.sectors = res.data.sectors;
@@ -116,6 +138,24 @@ Alpine.data('sessionsTable', () => ({
         this.duration = ''; this.integrity = ''; this.dateFrom = ''; this.dateTo = '';
         this.currentPage = 1;
         this.loadSessions();
+    },
+    exportCSV() {
+        if (!this.sessions.length) return;
+        const headers = ['Name','Date','Time In','Time Out','Duration (min)','Status','Location','Sector','Integrity'];
+        const rows = this.sessions.map(s => [s.full_name, s.date, s.time_in || '', s.time_out || '', s.duration_minutes || '', s.status, s.location || '', s.sector || '', s.integrity_score ? Math.round(s.integrity_score) + '%' : '']);
+        const csv = [headers.join(','), ...rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(','))].join('\n');
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = 'attendance_export.csv';
+        document.body.appendChild(a); a.click(); a.remove(); window.URL.revokeObjectURL(url);
+    },
+    processLocal() {
+        this.loading = true;
+        axios.post('/api/sessions/process-local').then(res => {
+            this.syncMessage = res.data.message;
+            this.loadSessions();
+        }).catch(() => { this.syncMessage = 'Local processing failed.'; })
+        .finally(() => { this.loading = false; });
     },
     syncAttendance() {
         this.loading = true;
@@ -179,6 +219,96 @@ Alpine.data('reportsApp', () => ({
     closeFormalTemplate() { this.showFormalTemplate = false; }
 }));
 
+Alpine.data('timeLog', () => ({
+    active: false,
+    processing: false,
+    timeInDisplay: '',
+    elapsed: '0h 0m',
+    message: '',
+    messageType: 'success',
+    statusText: 'No active session',
+    timer: null,
+    init() {
+        this.checkStatus();
+    },
+    checkStatus() {
+        axios.get('/api/member/time-status').then(res => {
+            this.active = res.data.active;
+            if (this.active) {
+                this.timeInDisplay = res.data.time_in;
+                this.elapsed = res.data.elapsed;
+                this.statusText = 'Active since ' + res.data.since;
+                this.startTimer();
+            } else {
+                this.statusText = 'Ready to log time';
+                this.stopTimer();
+            }
+        });
+    },
+    timeIn() {
+        this.processing = true;
+        this.message = '';
+        axios.post('/api/member/time-in').then(res => {
+            this.message = res.data.message;
+            this.messageType = 'success';
+            this.active = true;
+            this.timeInDisplay = res.data.session.time_in;
+            this.elapsed = '0h 0m';
+            this.statusText = 'Active since just now';
+            this.startTimer();
+        }).catch(err => {
+            this.message = err.response?.data?.error || 'Failed to log time in.';
+            this.messageType = 'error';
+        }).finally(() => { this.processing = false; });
+    },
+    timeOut() {
+        this.processing = true;
+        this.message = '';
+        axios.post('/api/member/time-out').then(res => {
+            this.message = res.data.message;
+            this.messageType = 'success';
+            this.active = false;
+            this.stopTimer();
+            this.statusText = 'Ready to log time';
+        }).catch(err => {
+            this.message = err.response?.data?.error || 'Failed to log time out.';
+            this.messageType = 'error';
+        }).finally(() => { this.processing = false; });
+    },
+    startTimer() {
+        this.stopTimer();
+        this.timer = window.setInterval(() => {
+            this.elapsed = this.formatElapsed();
+        }, 60000);
+        this.elapsed = this.formatElapsed();
+    },
+    stopTimer() {
+        if (this.timer) {
+            window.clearInterval(this.timer);
+            this.timer = null;
+        }
+    },
+    formatElapsed() {
+        if (!this.timeInDisplay) return '0h 0m';
+        const now = new Date();
+        const timeParts = this.timeInDisplay.match(/(\d+):(\d+)\s*(AM|PM)/i);
+        if (!timeParts) return '0h 0m';
+        let hours = parseInt(timeParts[1]);
+        const minutes = parseInt(timeParts[2]);
+        const ampm = timeParts[3].toUpperCase();
+        if (ampm === 'PM' && hours !== 12) hours += 12;
+        if (ampm === 'AM' && hours === 12) hours = 0;
+        const timeInDate = new Date();
+        timeInDate.setHours(hours, minutes, 0, 0);
+        const diffMs = now - timeInDate;
+        if (diffMs <= 0) return '0h 0m';
+        const diffMins = Math.floor(diffMs / 60000);
+        const h = Math.floor(diffMins / 60);
+        const m = diffMins % 60;
+        return h + 'h ' + m + 'm';
+    }
+}));
+
 Alpine.data('memberAttendanceApp', () => ({
     loading: false,
     dateFrom: '',
@@ -225,7 +355,7 @@ Alpine.data('notificationCenter', (fullPage = false) => ({
     markAllAsRead() {
         axios.post('/api/notifications/read-all').then(() => this.loadNotifications());
     },
-    delete(id) {
+    removeNotification(id) {
         axios.delete(`/api/notifications/${id}`).then(() => this.loadNotifications());
     },
     startRealtimeStream() {
@@ -240,6 +370,66 @@ Alpine.data('notificationCenter', (fullPage = false) => ({
             stream.close();
             window.setTimeout(() => this.startRealtimeStream(), 30000);
         };
+    }
+}));
+
+Alpine.data('logControl', () => ({
+    logging: false,
+    hasActiveSession: false,
+    activeSince: '',
+    elapsedMinutes: 0,
+    logMessage: '',
+    logSuccess: false,
+    timerInterval: null,
+    init() {
+        this.checkStatus();
+    },
+    checkStatus() {
+        axios.get('/api/member/log-status').then(res => {
+            this.hasActiveSession = res.data.hasActiveSession;
+            if (res.data.activeSession) {
+                this.activeSince = res.data.activeSession.time_in;
+                this.elapsedMinutes = res.data.activeSession.duration || 0;
+            }
+        });
+    },
+    logTimeIn() {
+        this.logging = true;
+        this.logMessage = '';
+        axios.post('/api/member/time-in').then(res => {
+            this.logSuccess = true;
+            this.logMessage = res.data.message;
+            this.hasActiveSession = true;
+            this.activeSince = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            this.elapsedMinutes = 0;
+            if (this.timerInterval) clearInterval(this.timerInterval);
+            this.timerInterval = setInterval(() => { this.elapsedMinutes++; }, 60000);
+            setTimeout(() => { this.logMessage = ''; }, 5000);
+        }).catch(err => {
+            this.logSuccess = false;
+            this.logMessage = err.response?.data?.message || 'Failed to log time in.';
+        }).finally(() => { this.logging = false; });
+    },
+    logTimeOut() {
+        this.logging = true;
+        this.logMessage = '';
+        axios.post('/api/member/time-out').then(res => {
+            this.logSuccess = true;
+            this.logMessage = res.data.message;
+            this.hasActiveSession = false;
+            this.activeSince = '';
+            if (this.timerInterval) clearInterval(this.timerInterval);
+            setTimeout(() => { this.logMessage = ''; }, 5000);
+        }).catch(err => {
+            this.logSuccess = false;
+            this.logMessage = err.response?.data?.message || 'Failed to log time out.';
+        }).finally(() => { this.logging = false; });
+    },
+    fmtDuration(mins) {
+        if (!mins || mins === 0) return '0m';
+        const h = Math.floor(mins / 60);
+        const m = mins % 60;
+        return m === 0 ? `${h}h` : `${h}h ${m}m`;
     }
 }));
 
@@ -452,6 +642,20 @@ Alpine.data('personnelApp', () => ({
     },
     getInitials(name) {
         return name.split(' ').map(p => p[0]).join('').toUpperCase().substring(0, 2);
+    },
+    exportCSV() {
+        if (!this.personnel.length) return;
+        const headers = ['Name','Email','Role','Sessions','Regular (h)','Overtime (h)','Undertime (h)','Issues','Last Active'];
+        const rows = this.personnel.map(p => [
+            p.fullName, p.email, p.role, p.sessionCount,
+            this.fmtHours(p.totalRegularMinutes), this.fmtHours(p.totalOvertimeMinutes),
+            this.fmtHours(p.totalUndertimeMinutes), p.invalidRecordCount, p.lastActive || ''
+        ]);
+        const csv = [headers.join(','), ...rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(','))].join('\n');
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = 'personnel_export.csv';
+        document.body.appendChild(a); a.click(); a.remove(); window.URL.revokeObjectURL(url);
     }
 }));
 
@@ -467,17 +671,34 @@ Alpine.data('accountsApp', () => ({
     bulkAction: '',
     selectAll: false,
     selectedAccounts: [],
+    errorMessage: '',
     init() {
         this.loadAccounts();
     },
     loadAccounts() {
         this.loading = true;
+        this.errorMessage = '';
         axios.get('/api/accounts', { params: { search: this.search, statusFilter: this.statusFilter, perPage: this.perPage, page: this.currentPage } })
             .then(res => {
                 this.accounts = res.data.accounts;
                 this.totalPages = res.data.totalPages;
                 this.currentPage = res.data.currentPage;
                 this.total = res.data.total;
+            }).catch(err => {
+                this.errorMessage = 'Failed to load accounts: ' + (err.response?.data?.message || err.message);
+            }).finally(() => { this.loading = false; });
+    },
+    loadAccounts() {
+        this.loading = true;
+        axios.get('/api/accounts', { params: { search: this.search, statusFilter: this.statusFilter, perPage: this.perPage, page: this.currentPage } })
+            .then(res => {
+                this.accounts = res.data.accounts || [];
+                this.totalPages = res.data.totalPages || 1;
+                this.currentPage = res.data.currentPage || 1;
+                this.total = res.data.total || 0;
+            }).catch(err => {
+                this.accounts = [];
+                console.error('Failed to load accounts:', err);
             }).finally(() => { this.loading = false; });
     },
     toggleSelectAll() {
@@ -505,6 +726,16 @@ Alpine.data('accountsApp', () => ({
         if (!this.bulkAction || !this.selectedAccounts.length) return;
         axios.post('/api/accounts/bulk-action', { ids: this.selectedAccounts, action: this.bulkAction })
             .then(() => { this.selectedAccounts = []; this.selectAll = false; this.bulkAction = ''; this.loadAccounts(); });
+    },
+    exportCSV() {
+        if (!this.accounts.length) return;
+        const headers = ['Name','Email','Role','Status','Registered'];
+        const rows = this.accounts.map(a => [a.full_name, a.email, a.role, a.status, a.created_at]);
+        const csv = [headers.join(','), ...rows.map(r => r.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(','))].join('\n');
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href = url; a.download = 'accounts_export.csv';
+        document.body.appendChild(a); a.click(); a.remove(); window.URL.revokeObjectURL(url);
     }
 }));
 
@@ -539,6 +770,142 @@ Alpine.data('auditLogsApp', () => ({
     },
     exportLogs() {
         axios.get('/api/audit-logs/export', { params: { search: this.search, type: this.type, dateFrom: this.dateFrom, dateTo: this.dateTo } });
+    }
+}));
+
+Alpine.data('timeLog', () => ({
+    loading: false,
+    hasActiveSession: false,
+    activeSession: null,
+    todayTotalMinutes: 0,
+    elapsedMinutes: 0,
+    timerInterval: null,
+    message: '',
+    messageType: '',
+    init() {
+        this.checkStatus();
+    },
+    checkStatus() {
+        axios.get('/api/member/log-status').then(res => {
+            this.hasActiveSession = res.data.hasActiveSession;
+            this.activeSession = res.data.activeSession;
+            this.todayTotalMinutes = res.data.todayTotalMinutes;
+            if (this.hasActiveSession && this.activeSession) {
+                this.startElapsedTimer();
+            }
+        });
+    },
+    startElapsedTimer() {
+        this.calculateElapsed();
+        this.timerInterval = setInterval(() => { this.calculateElapsed(); }, 60000);
+    },
+    calculateElapsed() {
+        if (this.activeSession?.time_in_raw) {
+            const timeIn = new Date(this.activeSession.time_in_raw);
+            this.elapsedMinutes = Math.floor((new Date() - timeIn) / 60000);
+        }
+    },
+    logTimeIn() {
+        this.loading = true;
+        this.message = '';
+        axios.post('/api/member/time-in').then(res => {
+            this.message = res.data.message;
+            this.messageType = 'success';
+            this.checkStatus();
+        }).catch(err => {
+            this.message = err.response?.data?.message || 'Failed to log time in.';
+            this.messageType = 'error';
+        }).finally(() => { this.loading = false; });
+    },
+    logTimeOut() {
+        this.loading = true;
+        this.message = '';
+        axios.post('/api/member/time-out').then(res => {
+            this.message = res.data.message;
+            this.messageType = 'success';
+            this.checkStatus();
+            if (this.timerInterval) {
+                clearInterval(this.timerInterval);
+                this.timerInterval = null;
+            }
+            this.elapsedMinutes = 0;
+        }).catch(err => {
+            this.message = err.response?.data?.message || 'Failed to log time out.';
+            this.messageType = 'error';
+        }).finally(() => { this.loading = false; });
+    },
+    fmtDuration(mins) {
+        if (!mins || mins === 0) return '0m';
+        const h = Math.floor(mins / 60);
+        const m = mins % 60;
+        return h > 0 ? `${h}h ${m}m` : `${m}m`;
+    }
+}));
+
+Alpine.data('logControl', () => ({
+    loading: false,
+    hasActiveSession: false,
+    activeSession: null,
+    activeSince: '',
+    todayTotalMinutes: 0,
+    elapsedMinutes: 0,
+    timerInterval: null,
+    logging: false,
+    logMessage: '',
+    logSuccess: false,
+    init() {
+        this.checkStatus();
+    },
+    checkStatus() {
+        axios.get('/api/member/log-status').then(res => {
+            this.hasActiveSession = res.data.hasActiveSession;
+            this.activeSession = res.data.activeSession;
+            this.activeSince = res.data.activeSession?.time_in || '';
+            this.todayTotalMinutes = res.data.todayTotalMinutes || 0;
+            if (this.hasActiveSession) this.startElapsedTimer();
+        });
+    },
+    startElapsedTimer() {
+        this.calculateElapsed();
+        this.timerInterval = setInterval(() => { this.calculateElapsed(); }, 60000);
+    },
+    calculateElapsed() {
+        if (this.activeSession?.time_in_raw) {
+            const timeIn = new Date(this.activeSession.time_in_raw);
+            this.elapsedMinutes = Math.floor((new Date() - timeIn) / 60000);
+        }
+    },
+    logTimeIn() {
+        this.logging = true;
+        this.logMessage = '';
+        axios.post('/api/member/time-in').then(res => {
+            this.logMessage = res.data.message;
+            this.logSuccess = true;
+            this.checkStatus();
+        }).catch(err => {
+            this.logMessage = err.response?.data?.message || 'Failed to log time in.';
+            this.logSuccess = false;
+        }).finally(() => { this.logging = false; });
+    },
+    logTimeOut() {
+        this.logging = true;
+        this.logMessage = '';
+        axios.post('/api/member/time-out').then(res => {
+            this.logMessage = res.data.message;
+            this.logSuccess = true;
+            this.checkStatus();
+            if (this.timerInterval) { clearInterval(this.timerInterval); this.timerInterval = null; }
+            this.elapsedMinutes = 0;
+        }).catch(err => {
+            this.logMessage = err.response?.data?.message || 'Failed to log time out.';
+            this.logSuccess = false;
+        }).finally(() => { this.logging = false; });
+    },
+    fmtDuration(mins) {
+        if (!mins || mins === 0) return '0m';
+        const h = Math.floor(mins / 60);
+        const m = mins % 60;
+        return h > 0 ? `${h}h ${m}m` : `${m}m`;
     }
 }));
 

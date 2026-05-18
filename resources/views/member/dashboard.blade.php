@@ -32,6 +32,123 @@
                             </div>
                         </div>
 
+                        {{-- Time In / Time Out --}}
+                        <div x-data="timeLog" class="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm">
+                            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                                <div>
+                                    <h3 class="text-base font-black text-gray-900">Duty Log</h3>
+                                    <p class="text-sm text-gray-500" x-text="statusText"></p>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <template x-if="!active">
+                                        <button @click="timeIn()" :disabled="processing" class="inline-flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 disabled:opacity-50 text-white font-bold rounded-xl transition-all shadow-lg shadow-green-600/25">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                                            <span x-text="processing ? 'Processing...' : 'Time In'"></span>
+                                        </button>
+                                    </template>
+                                    <template x-if="active">
+                                        <button @click="timeOut()" :disabled="processing" class="inline-flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white font-bold rounded-xl transition-all shadow-lg shadow-red-600/25">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                            <span x-text="processing ? 'Processing...' : 'Time Out'"></span>
+                                        </button>
+                                    </template>
+                                </div>
+                            </div>
+                            <template x-if="active">
+                                <div class="mt-4 flex items-center gap-3 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                                    <span class="w-3 h-3 bg-green-500 rounded-full animate-pulse"></span>
+                                    <div>
+                                        <p class="text-sm font-semibold text-blue-900">Active since <span x-text="timeInDisplay"></span></p>
+                                        <p class="text-xs text-blue-700">Elapsed: <span x-text="elapsed"></span></p>
+                                    </div>
+                                </div>
+                            </template>
+                            <template x-if="message">
+                                <div class="mt-3 px-4 py-3 rounded-xl text-sm font-medium" :class="messageType === 'error' ? 'bg-red-50 text-red-800 border border-red-200' : 'bg-emerald-50 text-emerald-800 border border-emerald-200'" x-text="message"></div>
+                            </template>
+                        </div>
+                        <div class="flex gap-3">
+                            <button x-show="!hasOngoing" @click="logTimeIn()" class="inline-flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl transition shadow-sm" :disabled="submitting">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                                Log Time In
+                            </button>
+                            <button x-show="hasOngoing" @click="logTimeOut()" class="inline-flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition shadow-sm" :disabled="submitting">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                Log Time Out
+                            </button>
+                        </div>
+                    </div>
+                    <template x-if="dutyMessage">
+                        <div class="mt-3 p-3 rounded-lg" :class="dutyMessageType === 'error' ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-green-50 text-green-700 border border-green-200'" x-text="dutyMessage"></div>
+                    </template>
+                </div>
+                <div x-show="loading" class="text-center py-4 text-gray-500">Loading...</div>
+                <template x-if="data">
+                    <div class="space-y-6">
+                        {{-- Hero --}}
+                        <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-orange-500 via-red-500 to-amber-600 p-8 shadow-lg">
+                            <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-20 translate-x-20"></div>
+                            <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-16 -translate-x-16"></div>
+                            <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-14 h-14 rounded-2xl bg-white/20 backdrop-blur flex items-center justify-center shadow-lg">
+                                        <span class="text-xl font-black text-white" x-text="data.userInitials"></span>
+                                    </div>
+                                    <div>
+                                        <p class="text-white/70 text-sm font-medium" x-text="data.greeting"></p>
+                                        <h1 class="text-2xl font-black text-white" x-text="data.userName"></h1>
+                                        <p class="text-white/80 text-sm font-medium capitalize" x-text="data.userRole"></p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <div class="flex items-center gap-2 px-3 py-1.5 bg-white/15 rounded-xl backdrop-blur">
+                                        <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                                        <span class="text-sm font-medium text-white" x-text="data.activeNow + ' active'"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="relative z-10 mt-4 flex flex-wrap gap-3">
+                                <button x-show="!data.hasActiveSession" @click="logTimeIn()" class="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-white font-bold rounded-xl transition shadow-lg shadow-emerald-600/30">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+                                    Log Time In
+                                </button>
+                                <button x-show="data.hasActiveSession" @click="logTimeOut()" class="inline-flex items-center gap-2 px-5 py-2.5 bg-red-500 hover:bg-red-400 text-white font-bold rounded-xl transition shadow-lg shadow-red-600/30">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                    Log Time Out
+                                </button>
+                            </div>
+                        </div>
+
+                        {{-- Log Time In/Out --}}
+                        <div x-data="logControl" class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
+                            <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+                                <div>
+                                    <h3 class="text-sm font-black text-gray-900" x-text="hasActiveSession ? 'You are logged in' : 'Ready to log in'"></h3>
+                                    <p class="text-xs text-gray-500 font-medium" x-text="hasActiveSession ? 'Logged in at ' + activeSince : 'Tap the button to record your time in'"></p>
+                                </div>
+                                <div class="flex items-center gap-3">
+                                    <template x-if="!hasActiveSession">
+                                        <button @click="logTimeIn()" :disabled="logging" class="inline-flex items-center gap-2 px-6 py-3 bg-green-600 hover:bg-green-700 disabled:bg-green-400 text-white font-bold rounded-xl transition shadow-sm">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m6 0a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+                                            <span x-text="logging ? 'Logging...' : 'Log Time In'"></span>
+                                        </button>
+                                    </template>
+                                    <template x-if="hasActiveSession">
+                                        <button @click="logTimeOut()" :disabled="logging" class="inline-flex items-center gap-2 px-6 py-3 bg-red-600 hover:bg-red-700 disabled:bg-red-400 text-white font-bold rounded-xl transition shadow-sm">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m6 0a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+                                            <span x-text="logging ? 'Logging...' : 'Log Time Out'"></span>
+                                        </button>
+                                    </template>
+                                    <template x-if="logMessage">
+                                        <p class="text-sm font-medium" :class="logSuccess ? 'text-green-600' : 'text-red-600'" x-text="logMessage"></p>
+                                    </template>
+                                </div>
+                            </div>
+                            <template x-if="hasActiveSession && elapsedMinutes > 0">
+                                <p class="mt-3 text-xs text-gray-500">Session duration: <span class="font-semibold" x-text="fmtDuration(elapsedMinutes)"></span></p>
+                            </template>
+                        </div>
+
                         {{-- Weekly Compliance --}}
                         <template x-if="data.weeklyMetrics && data.weeklyMetrics.session_count > 0">
                             <div class="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">

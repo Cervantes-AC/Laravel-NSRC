@@ -121,85 +121,139 @@ class SessionsController extends Controller
         ]);
     }
 
+    public function processLocal(): JsonResponse
+    {
+        $logs = Attendance::query()->orderBy('date_time')->get();
+
+        if ($logs->isEmpty()) {
+            return response()->json(['message' => 'No attendance records found to process. Import attendance data first.']);
+        }
+
+        $dutyEngine = app(DutyEngine::class);
+        $sessions = $dutyEngine->processDutyLogs($logs);
+        $created = 0;
+        $updated = 0;
+
+        foreach ($sessions as $session) {
+            $volunteerId = User::where('full_name', $session->full_name)->value('id');
+
+            $attributes = [
+                'full_name' => $session->full_name,
+                'date' => $session->date,
+                'time_in' => $session->time_in,
+                'time_out' => $session->time_out,
+                'duration_minutes' => $session->duration_minutes,
+                'status' => $session->status,
+                'location' => $session->location,
+                'sector' => $session->sector,
+                'integrity_score' => $session->integrity_score,
+                'volunteer_id' => $volunteerId,
+                'trace_id' => 'LOCAL-' . strtoupper(substr(md5($session->full_name . $session->date . ($session->time_in ?? now())), 0, 8)),
+            ];
+
+            $match = DutySession::query()
+                ->where('full_name', $session->full_name)
+                ->whereDate('date', $session->date)
+                ->when($session->time_in, fn ($q) => $q->where('time_in', $session->time_in))
+                ->first();
+
+            if ($match) {
+                $match->update($attributes);
+                $updated++;
+            } else {
+                DutySession::create($attributes);
+                $created++;
+            }
+        }
+
+        VolunteerMetrics::query()->delete();
+        app(MetricsService::class)->calculateVolunteerMetrics(DutySession::query()->get());
+
+        return response()->json([
+            'message' => sprintf('Local processing complete: %d attendance records processed, %d sessions created, %d updated.', $logs->count(), $created, $updated),
+        ]);
+    }
+
     public function sync(): JsonResponse
     {
         $service = app(MySQLAttendanceService::class);
         $records = $service->fetchAttendanceData();
-
-        if (empty($records)) {
-            return response()->json(['message' => 'No data found in MySQL attendance source.']);
-        }
 
         $imported = 0;
         $skipped = 0;
         $errors = [];
         $seenInBatch = [];
 
-        foreach ($records as $record) {
-            $signature = $service->recordSignature($record);
-            if (isset($seenInBatch[$signature])) { $skipped++; continue; }
-            $seenInBatch[$signature] = true;
+        if (!empty($records)) {
+            foreach ($records as $record) {
+                $signature = $service->recordSignature($record);
+                if (isset($seenInBatch[$signature])) { $skipped++; continue; }
+                $seenInBatch[$signature] = true;
 
-            $exists = Attendance::where('source_signature', $signature)->exists();
-            if ($exists) { $skipped++; continue; }
+                $exists = Attendance::where('source_signature', $signature)->exists();
+                if ($exists) { $skipped++; continue; }
 
-            Attendance::create([
-                'full_name' => $record['fullName'],
-                'attendance' => $record['attendance'],
-                'date_time' => $record['dateTime'],
-                'location' => $record['location'],
-                'shift_type' => $record['shiftType'],
-                'source_signature' => $signature,
-                'source_payload' => $record['payload'] ?? [],
-            ]);
-            $imported++;
-        }
-
-        if ($imported > 0) {
-            $dutyEngine = app(DutyEngine::class);
-            $logs = Attendance::query()->orderBy('date_time')->get();
-            $sessions = $dutyEngine->processDutyLogs($logs);
-            $created = 0;
-            $updated = 0;
-
-            foreach ($sessions as $session) {
-                $volunteerId = User::where('full_name', $session->full_name)->value('id');
-
-                $attributes = [
-                    'full_name' => $session->full_name,
-                    'date' => $session->date,
-                    'time_in' => $session->time_in,
-                    'time_out' => $session->time_out,
-                    'duration_minutes' => $session->duration_minutes,
-                    'status' => $session->status,
-                    'location' => $session->location,
-                    'sector' => $session->sector,
-                    'integrity_score' => $session->integrity_score,
-                    'volunteer_id' => $volunteerId,
-                    'trace_id' => 'SYNC-' . strtoupper(substr(md5($session->full_name . $session->date . ($session->time_in ?? now())), 0, 8)),
-                ];
-
-                $match = DutySession::query()
-                    ->where('full_name', $session->full_name)
-                    ->whereDate('date', $session->date)
-                    ->when($session->time_in, fn ($q) => $q->where('time_in', $session->time_in))
-                    ->first();
-
-                if ($match) {
-                    $match->update($attributes);
-                    $updated++;
-                } else {
-                    DutySession::create($attributes);
-                    $created++;
-                }
+                Attendance::create([
+                    'full_name' => $record['fullName'],
+                    'attendance' => $record['attendance'],
+                    'date_time' => $record['dateTime'],
+                    'location' => $record['location'],
+                    'shift_type' => $record['shiftType'],
+                    'source_signature' => $signature,
+                    'source_payload' => $record['payload'] ?? [],
+                ]);
+                $imported++;
             }
-
-            VolunteerMetrics::query()->delete();
-            app(MetricsService::class)->calculateVolunteerMetrics(DutySession::query()->get());
         }
+
+        $existingCount = Attendance::count();
+        if ($existingCount === 0) {
+            return response()->json(['message' => 'No attendance records found. Import data via the Import page or configure a MySQL source.']);
+        }
+
+        $dutyEngine = app(DutyEngine::class);
+        $logs = Attendance::query()->orderBy('date_time')->get();
+        $sessions = $dutyEngine->processDutyLogs($logs);
+        $created = 0;
+        $updated = 0;
+
+        foreach ($sessions as $session) {
+            $volunteerId = User::where('full_name', $session->full_name)->value('id');
+
+            $attributes = [
+                'full_name' => $session->full_name,
+                'date' => $session->date,
+                'time_in' => $session->time_in,
+                'time_out' => $session->time_out,
+                'duration_minutes' => $session->duration_minutes,
+                'status' => $session->status,
+                'location' => $session->location,
+                'sector' => $session->sector,
+                'integrity_score' => $session->integrity_score,
+                'volunteer_id' => $volunteerId,
+                'trace_id' => 'SYNC-' . strtoupper(substr(md5($session->full_name . $session->date . ($session->time_in ?? now())), 0, 8)),
+            ];
+
+            $match = DutySession::query()
+                ->where('full_name', $session->full_name)
+                ->whereDate('date', $session->date)
+                ->when($session->time_in, fn ($q) => $q->where('time_in', $session->time_in))
+                ->first();
+
+            if ($match) {
+                $match->update($attributes);
+                $updated++;
+            } else {
+                DutySession::create($attributes);
+                $created++;
+            }
+        }
+
+        VolunteerMetrics::query()->delete();
+        app(MetricsService::class)->calculateVolunteerMetrics(DutySession::query()->get());
 
         return response()->json([
-            'message' => sprintf('MySQL sync complete: %d imported, %d skipped, %d sessions created, %d updated.', $imported, $skipped, $created ?? 0, $updated ?? 0),
+            'message' => sprintf('Sync complete: %d imported from source, %d skipped, %d duty sessions created, %d updated.', $imported, $skipped, $created, $updated),
         ]);
     }
 }

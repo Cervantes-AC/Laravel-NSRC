@@ -86,6 +86,33 @@
                 <div class="lg:col-span-1 space-y-6">
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-6 text-gray-900">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('Export Data') }}</h3>
+                            <p class="text-sm text-gray-600 mb-4">{{ __('Download data as CSV:') }}</p>
+                            <div class="space-y-3">
+                                <a href="{{ route('admin.export.sessions') }}" class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition" aria-label="{{ __('Export sessions') }}">
+                                    <svg class="h-6 w-6 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                    </svg>
+                                    <span class="text-sm font-medium text-gray-700">{{ __('Export Sessions') }}</span>
+                                </a>
+                                <a href="{{ route('admin.export.personnel') }}" class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition" aria-label="{{ __('Export personnel') }}">
+                                    <svg class="h-6 w-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                    </svg>
+                                    <span class="text-sm font-medium text-gray-700">{{ __('Export Personnel') }}</span>
+                                </a>
+                                <a href="{{ route('admin.export.accounts') }}" class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition" aria-label="{{ __('Export accounts') }}">
+                                    <svg class="h-6 w-6 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                    </svg>
+                                    <span class="text-sm font-medium text-gray-700">{{ __('Export Accounts') }}</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
+                        <div class="p-6 text-gray-900">
                             <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('Templates') }}</h3>
                             <p class="text-sm text-gray-600 mb-4">{{ __('Download a template to ensure correct formatting:') }}</p>
                             <div class="space-y-3">
@@ -114,6 +141,7 @@
                             </div>
                         </div>
                     </div>
+
                 </div>
             </div>
         </div>

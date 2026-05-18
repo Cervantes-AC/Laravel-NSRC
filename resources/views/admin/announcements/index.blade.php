@@ -32,7 +32,6 @@
                                     <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-500">{{ __('Title') }}</th>
                                     <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-500">{{ __('Status') }}</th>
                                     <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-500">{{ __('Priority') }}</th>
-                                    <th class="px-4 py-3 text-left text-xs font-semibold uppercase text-gray-500">{{ __('Publish Window') }}</th>
                                     <th class="px-4 py-3 text-right text-xs font-semibold uppercase text-gray-500">{{ __('Actions') }}</th>
                                 </tr>
                             </thead>
@@ -45,11 +44,6 @@
                                         </td>
                                         <td class="px-4 py-4 text-sm">{{ ucfirst($announcement->status) }}</td>
                                         <td class="px-4 py-4 text-sm">{{ ucfirst($announcement->priority) }}</td>
-                                        <td class="px-4 py-4 text-sm text-gray-600">
-                                            {{ optional($announcement->published_at)->format('M d, Y h:i A') ?? __('Immediate') }}
-                                            <br>
-                                            <span class="text-xs">{{ __('Until') }} {{ optional($announcement->expires_at)->format('M d, Y h:i A') ?? __('No expiry') }}</span>
-                                        </td>
                                         <td class="px-4 py-4 text-right text-sm">
                                             <a href="{{ route('admin.announcements.edit', $announcement) }}" class="font-semibold text-indigo-600 hover:text-indigo-800">{{ __('Edit') }}</a>
                                             <form method="POST" action="{{ route('admin.announcements.destroy', $announcement) }}" class="ml-3 inline" onsubmit="return confirm('{{ __('Delete this announcement?') }}')">
@@ -61,7 +55,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="px-4 py-12 text-center text-sm text-gray-500">{{ __('No announcements found.') }}</td>
+                                        <td colspan="4" class="px-4 py-12 text-center text-sm text-gray-500">{{ __('No announcements found.') }}</td>
                                     </tr>
                                 @endforelse
                             </tbody>

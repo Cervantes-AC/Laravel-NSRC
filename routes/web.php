@@ -12,7 +12,6 @@ use App\Http\Controllers\Member\DashboardController as MemberDashboardController
 use App\Http\Controllers\Api\MemberAttendanceController;
 use App\Http\Controllers\Member\PerformanceController as MemberPerformanceController;
 use App\Http\Controllers\ReportsController;
-use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\BackupController;
 use App\Http\Controllers\AuditLogController;
@@ -39,7 +38,7 @@ Route::middleware(['auth'])->prefix('api')->name('api.')->group(function () {
     Route::post('/accounts/bulk-action', [\App\Http\Controllers\Api\AccountsController::class, 'bulkAction'])->name('accounts.bulk-action');
     Route::get('/audit-logs', [\App\Http\Controllers\Api\AuditLogsController::class, 'index'])->name('audit-logs.index');
     Route::get('/audit-logs/export', [\App\Http\Controllers\Api\AuditLogsController::class, 'export'])->name('audit-logs.export');
-    Route::post('/settings/preferences', [\App\Http\Controllers\Api\SettingsController::class, 'savePreferences'])->name('settings.preferences');
+
     Route::post('/ai/provider/switch', [\App\Http\Controllers\Api\AIProviderController::class, 'switchProvider'])->name('ai.provider.switch');
     Route::post('/ai/api-key/switch', [\App\Http\Controllers\Api\AIProviderController::class, 'switchApiKey'])->name('ai.api-key.switch');
 });
@@ -51,7 +50,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('api')->name('api.')->group(fu
 });
 
 Route::middleware(['auth', 'role:member'])->prefix('api/member')->name('api.member.')->group(function () {
-    Route::get('/attendance', MemberAttendanceController::class)->name('attendance');
+    Route::get('/attendance', [MemberAttendanceController::class, 'index'])->name('attendance');
+    Route::post('/time-in', [\App\Http\Controllers\Api\MemberAttendanceController::class, 'timeIn'])->name('time-in');
+    Route::post('/time-out', [\App\Http\Controllers\Api\MemberAttendanceController::class, 'timeOut'])->name('time-out');
 });
 
 Route::get('/', function () {
@@ -100,9 +101,6 @@ Route::middleware(['auth', 'role:admin', 'throttle.custom'])->prefix('admin')->n
     Route::post('accounts/{user}/impersonate', [UserManagementController::class, 'impersonate'])->name('accounts.impersonate');
     Route::post('accounts/{user}/force-logout', [UserManagementController::class, 'forceLogout'])->name('accounts.force-logout');
     Route::get('accounts/{user}/history', [UserManagementController::class, 'loginHistory'])->name('accounts.history');
-
-    Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
-    Route::post('settings/update', [SettingsController::class, 'update'])->name('settings.update');
 
     Route::get('audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
     Route::get('audit-logs/export', [AuditLogController::class, 'export'])->name('audit-logs.export');
