@@ -19,7 +19,7 @@ class AuditLogsController extends Controller
         $perPage = (int) $request->input('perPage', 50);
         $page = (int) $request->input('page', 1);
 
-        $query = AuditLogModel::with('user');
+        $query = AuditLogModel::with('user')->whereNull('archived_at');
 
         if ($search) {
             $query->where(function ($q) use ($search) {
@@ -62,7 +62,7 @@ class AuditLogsController extends Controller
         $dateFrom = $request->input('dateFrom', '');
         $dateTo = $request->input('dateTo', '');
 
-        $query = AuditLogModel::with('user')->orderByDesc('created_at');
+        $query = AuditLogModel::with('user')->whereNull('archived_at')->orderByDesc('created_at');
         if ($search) { $query->where(function ($q) use ($search) { $q->where('full_name', 'like', '%' . $search . '%')->orWhere('action', 'like', '%' . $search . '%'); }); }
         if ($type) { $query->where('type', $type); }
         if ($dateFrom) { $query->whereDate('created_at', '>=', $dateFrom); }

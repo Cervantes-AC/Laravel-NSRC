@@ -3,6 +3,34 @@ import Alpine from 'alpinejs';
 
 window.Alpine = Alpine;
 
+Alpine.data('appShell', ({ timeoutMinutes = 60, warningMinutes = 5 } = {}) => ({
+    sidebarOpen: false,
+    sessionWarningVisible: false,
+    sessionWarningCountdown: warningMinutes * 60,
+    sessionWarningTimer: null,
+    initSessionWarning() {
+        if (!timeoutMinutes || timeoutMinutes <= warningMinutes) return;
+
+        const warningAfterMs = Math.max(1, timeoutMinutes - warningMinutes) * 60 * 1000;
+        window.setTimeout(() => {
+            this.sessionWarningVisible = true;
+            this.sessionWarningCountdown = warningMinutes * 60;
+            this.sessionWarningTimer = window.setInterval(() => {
+                this.sessionWarningCountdown = Math.max(0, this.sessionWarningCountdown - 1);
+            }, 1000);
+        }, warningAfterMs);
+    },
+    keepSessionAlive() {
+        axios.get('/api/notifications').finally(() => {
+            this.sessionWarningVisible = false;
+            if (this.sessionWarningTimer) {
+                window.clearInterval(this.sessionWarningTimer);
+            }
+            this.initSessionWarning();
+        });
+    }
+}));
+
 Alpine.data('dashboard', () => ({
     loading: false,
     data: null,
@@ -67,6 +95,10 @@ Alpine.data('sessionsTable', () => ({
                 this.currentPage = res.data.currentPage;
             }).finally(() => { this.loading = false; });
     },
+    applyFilters() {
+        this.currentPage = 1;
+        this.loadSessions();
+    },
     getParams() {
         return {
             search: this.search, status: this.status, sector: this.sector,
@@ -123,16 +155,53 @@ Alpine.data('reportsApp', () => ({
         this.results = null; this.reportStats = null;
     },
     exportCSV() {
-        axios.post('/api/reports/export-csv', { data: this.results?.data || [] });
+        axios.post('/api/reports/export-csv', { data: this.results?.data || [] }, { responseType: 'blob' })
+            .then(res => this.downloadBlob(res.data, 'formal_attendance_report.csv'));
     },
     exportPDF() {
-        axios.post('/api/reports/export-pdf', { data: this.results?.data || [] });
+        axios.post('/api/reports/export-pdf', { data: this.results?.data || [] }, { responseType: 'blob' })
+            .then(res => this.downloadBlob(res.data, 'formal_attendance_report.pdf'));
+    },
+    downloadBlob(blob, filename) {
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = filename;
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
     },
     toggleFormalTemplate(template) {
         this.selectedTemplate = template;
         this.showFormalTemplate = true;
     },
     closeFormalTemplate() { this.showFormalTemplate = false; }
+}));
+
+Alpine.data('memberAttendanceApp', () => ({
+    loading: false,
+    dateFrom: '',
+    dateTo: '',
+    status: '',
+    results: null,
+    reportStats: null,
+    generateReport() {
+        this.loading = true;
+        axios.get('/api/member/attendance', {
+            params: { dateFrom: this.dateFrom, dateTo: this.dateTo, status: this.status }
+        }).then(res => {
+            this.results = res.data.results;
+            this.reportStats = res.data.reportStats;
+        }).finally(() => { this.loading = false; });
+    },
+    clearFilters() {
+        this.dateFrom = '';
+        this.dateTo = '';
+        this.status = '';
+        this.results = null;
+        this.reportStats = null;
+    }
 }));
 
 Alpine.data('notificationCenter', (fullPage = false) => ({
@@ -142,6 +211,7 @@ Alpine.data('notificationCenter', (fullPage = false) => ({
     unreadCount: 0,
     init() {
         this.loadNotifications();
+        this.startRealtimeStream();
     },
     loadNotifications() {
         axios.get('/api/notifications').then(res => {
@@ -157,6 +227,19 @@ Alpine.data('notificationCenter', (fullPage = false) => ({
     },
     delete(id) {
         axios.delete(`/api/notifications/${id}`).then(() => this.loadNotifications());
+    },
+    startRealtimeStream() {
+        if (!window.EventSource) {
+            window.setInterval(() => this.loadNotifications(), 30000);
+            return;
+        }
+
+        const stream = new EventSource('/api/notifications/stream');
+        stream.addEventListener('notifications', () => this.loadNotifications());
+        stream.onerror = () => {
+            stream.close();
+            window.setTimeout(() => this.startRealtimeStream(), 30000);
+        };
     }
 }));
 
@@ -333,6 +416,10 @@ Alpine.data('personnelApp', () => ({
                 this.currentPage = res.data.currentPage;
             }).finally(() => { this.loading = false; });
     },
+    applyFilters() {
+        this.currentPage = 1;
+        this.loadPersonnel();
+    },
     getParams() {
         return { search: this.search, sortBy: this.sortBy, sortDirection: this.sortDirection, complianceFilter: this.complianceFilter, viewMode: this.viewMode, page: this.currentPage };
     },
@@ -352,7 +439,11 @@ Alpine.data('personnelApp', () => ({
             .then(res => { this.historySessions = res.data.sessions; });
     },
     closeHistory() { this.selectedPersonnelName = null; this.historySessions = []; },
-    goToPage(page) { this.currentPage = page; this.loadPersonnel(); },
+    goToPage(page) {
+        if (page < 1 || page > this.totalPages) return;
+        this.currentPage = page;
+        this.loadPersonnel();
+    },
     fmtHours(mins) {
         if (!mins || mins === 0) return '0h';
         const h = Math.floor(mins / 60);

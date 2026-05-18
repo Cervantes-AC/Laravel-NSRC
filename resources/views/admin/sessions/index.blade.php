@@ -27,11 +27,11 @@
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 flex-1">
                             <div>
                                 <label class="block text-xs font-medium text-gray-600">Search</label>
-                                <input type="search" x-model="search" @input.debounce.300ms="loadSessions()" placeholder="Personnel name..." class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                                <input type="search" x-model="search" @input.debounce.300ms="applyFilters()" placeholder="Personnel name..." class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
                             </div>
                             <div>
                                 <label class="block text-xs font-medium text-gray-600">Status</label>
-                                <select x-model="status" @change="loadSessions()" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <select x-model="status" @change="applyFilters()" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                     <option value="">All Statuses</option>
                                     <option value="COMPLETE">Complete</option>
                                     <option value="ONGOING">Ongoing</option>
@@ -41,7 +41,7 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-medium text-gray-600">Sector</label>
-                                <select x-model="sector" @change="loadSessions()" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <select x-model="sector" @change="applyFilters()" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                     <option value="">All Sectors</option>
                                     <template x-for="s in sectors" :key="s">
                                         <option :value="s" x-text="s"></option>
@@ -50,7 +50,7 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-medium text-gray-600">Location</label>
-                                <select x-model="location" @change="loadSessions()" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <select x-model="location" @change="applyFilters()" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                     <option value="">All Locations</option>
                                     <template x-for="l in locations" :key="l">
                                         <option :value="l" x-text="l"></option>
@@ -59,7 +59,7 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-medium text-gray-600">Duration</label>
-                                <select x-model="duration" @change="loadSessions()" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <select x-model="duration" @change="applyFilters()" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                     <option value="">Any Duration</option>
                                     <option value="completed_hours">With logged hours</option>
                                     <option value="under_4h">Under 4 hours</option>
@@ -70,7 +70,7 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-medium text-gray-600">Integrity</label>
-                                <select x-model="integrity" @change="loadSessions()" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                <select x-model="integrity" @change="applyFilters()" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                     <option value="">Any Score</option>
                                     <option value="high">90% and above</option>
                                     <option value="medium">70% to 89%</option>
@@ -79,15 +79,15 @@
                             </div>
                             <div>
                                 <label class="block text-xs font-medium text-gray-600">From</label>
-                                <input type="date" x-model="dateFrom" @change="loadSessions()" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                                <input type="date" x-model="dateFrom" @change="applyFilters()" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
                             </div>
                             <div>
                                 <label class="block text-xs font-medium text-gray-600">To</label>
-                                <input type="date" x-model="dateTo" @change="loadSessions()" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
+                                <input type="date" x-model="dateTo" @change="applyFilters()" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
                             </div>
                         </div>
                         <div class="flex items-center gap-2">
-                            <select x-model="perPage" @change="loadSessions()" class="rounded-lg border-gray-300 text-sm shadow-sm">
+                            <select x-model="perPage" @change="applyFilters()" class="rounded-lg border-gray-300 text-sm shadow-sm">
                                 <option value="10">10</option>
                                 <option value="25">25</option>
                                 <option value="50">50</option>
@@ -125,7 +125,10 @@
                                 </article>
                             </template>
                             <template x-if="sessions.length === 0">
-                                <p class="col-span-full text-center py-12 text-gray-500">No attendance summaries match your filters.</p>
+                                <div class="col-span-full rounded-xl border border-dashed border-slate-300 bg-slate-50 px-6 py-12 text-center">
+                                    <p class="text-sm font-semibold text-slate-700">No attendance summaries match your filters.</p>
+                                    <p class="mt-1 text-xs text-slate-500">Clear filters or run MySQL sync to refresh generated attendance records.</p>
+                                </div>
                             </template>
                         </div>
                     </template>

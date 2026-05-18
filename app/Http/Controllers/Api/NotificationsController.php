@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Notifications\DatabaseNotification;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class NotificationsController extends Controller
 {
@@ -29,6 +30,30 @@ class NotificationsController extends Controller
         return response()->json([
             'notifications' => $notifications,
             'unreadCount' => $user->unreadNotifications()->count(),
+        ]);
+    }
+
+    public function stream(): StreamedResponse
+    {
+        return response()->stream(function (): void {
+            $user = auth()->user();
+            $payload = [
+                'unreadCount' => $user?->unreadNotifications()->count() ?? 0,
+                'latestId' => $user?->notifications()->latest()->value('id'),
+            ];
+
+            echo 'event: notifications'."\n";
+            echo 'data: '.json_encode($payload)."\n\n";
+
+            if (ob_get_level() > 0) {
+                ob_flush();
+            }
+
+            flush();
+        }, 200, [
+            'Content-Type' => 'text/event-stream',
+            'Cache-Control' => 'no-cache',
+            'X-Accel-Buffering' => 'no',
         ]);
     }
 

@@ -3,7 +3,9 @@
 namespace Tests\Feature\Auth;
 
 use App\Models\User;
+use App\Services\SettingsService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 
 class AuthenticationTest extends TestCase
@@ -30,6 +32,19 @@ class AuthenticationTest extends TestCase
         $response->assertRedirect(route('admin.dashboard', absolute: false));
     }
 
+    public function test_users_can_authenticate_when_email_is_unverified(): void
+    {
+        $user = User::factory()->member()->unverified()->create();
+
+        $response = $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+
+        $this->assertAuthenticated();
+        $response->assertRedirect(route('member.dashboard', absolute: false));
+    }
+
     public function test_users_can_not_authenticate_with_invalid_password(): void
     {
         $user = User::factory()->create();
@@ -40,6 +55,37 @@ class AuthenticationTest extends TestCase
         ]);
 
         $this->assertGuest();
+    }
+
+    public function test_suspended_users_can_not_authenticate(): void
+    {
+        $user = User::factory()->create(['status' => 'suspended']);
+
+        $response = $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+
+        $this->assertGuest();
+        $response->assertSessionHasErrors('email');
+    }
+
+    public function test_users_are_challenged_for_email_otp_when_two_factor_is_enabled(): void
+    {
+        Mail::fake();
+        app(SettingsService::class)->set('two_factor_enabled', true, 'security', 'boolean');
+
+        $user = User::factory()->admin()->create();
+
+        $response = $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'password',
+        ]);
+
+        $this->assertGuest();
+        $response
+            ->assertSessionHas('auth.two_factor')
+            ->assertRedirect(route('two-factor.challenge', absolute: false));
     }
 
     public function test_users_can_logout(): void

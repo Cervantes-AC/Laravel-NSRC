@@ -5,7 +5,7 @@
         </h2>
 
         <p class="mt-1 text-sm text-gray-600">
-            {{ __("Update your account's profile information and email address.") }}
+            {{ __("Update your account's profile information, email address, and avatar.") }}
         </p>
     </header>
 
@@ -13,9 +13,25 @@
         @csrf
     </form>
 
-    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6">
+    <form method="post" action="{{ route('profile.update') }}" class="mt-6 space-y-6" enctype="multipart/form-data">
         @csrf
         @method('patch')
+
+        <div>
+            <x-input-label for="avatar" :value="__('Avatar')" />
+            <div class="mt-2 flex items-center gap-4">
+                @if ($user->avatar)
+                    <img src="{{ asset('storage/'.$user->avatar) }}" alt="{{ __('Current avatar') }}" class="h-16 w-16 rounded-full object-cover ring-2 ring-gray-200">
+                @else
+                    <span class="inline-flex h-16 w-16 items-center justify-center rounded-full bg-gray-100 text-lg font-semibold text-gray-600">
+                        {{ strtoupper(substr($user->name, 0, 2)) }}
+                    </span>
+                @endif
+                <input id="avatar" name="avatar" type="file" accept="image/jpeg,image/png,image/webp" class="block w-full text-sm text-gray-700 file:mr-4 file:rounded-md file:border-0 file:bg-blue-50 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-blue-700 hover:file:bg-blue-100" />
+            </div>
+            <p class="mt-2 text-xs text-gray-500">{{ __('JPG, PNG, or WebP. 2 MB maximum.') }}</p>
+            <x-input-error class="mt-2" :messages="$errors->get('avatar')" />
+        </div>
 
         <div>
             <x-input-label for="name" :value="__('Name')" />

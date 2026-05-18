@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\DutySession;
+use App\Models\User;
 use App\Models\VolunteerMetrics;
 use App\Services\DutyEngine;
 use App\Services\MetricsService;
@@ -162,6 +163,22 @@ class SessionsController extends Controller
             $updated = 0;
 
             foreach ($sessions as $session) {
+                $volunteerId = User::where('full_name', $session->full_name)->value('id');
+
+                $attributes = [
+                    'full_name' => $session->full_name,
+                    'date' => $session->date,
+                    'time_in' => $session->time_in,
+                    'time_out' => $session->time_out,
+                    'duration_minutes' => $session->duration_minutes,
+                    'status' => $session->status,
+                    'location' => $session->location,
+                    'sector' => $session->sector,
+                    'integrity_score' => $session->integrity_score,
+                    'volunteer_id' => $volunteerId,
+                    'trace_id' => 'SYNC-' . strtoupper(substr(md5($session->full_name . $session->date . ($session->time_in ?? now())), 0, 8)),
+                ];
+
                 $match = DutySession::query()
                     ->where('full_name', $session->full_name)
                     ->whereDate('date', $session->date)
@@ -169,10 +186,10 @@ class SessionsController extends Controller
                     ->first();
 
                 if ($match) {
-                    $match->update($session->toArray());
+                    $match->update($attributes);
                     $updated++;
                 } else {
-                    DutySession::create($session->toArray());
+                    DutySession::create($attributes);
                     $created++;
                 }
             }

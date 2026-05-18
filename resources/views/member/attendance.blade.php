@@ -6,7 +6,7 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
-                    <div x-data="reportsApp" class="space-y-6" aria-label="{{ __('My Attendance') }}">
+                    <div x-data="memberAttendanceApp" class="space-y-6" aria-label="{{ __('My Attendance') }}">
                         <div class="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-500 via-blue-500 to-purple-600 p-8 shadow-lg">
                             <div class="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-20 translate-x-20"></div>
                             <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-16 -translate-x-16"></div>

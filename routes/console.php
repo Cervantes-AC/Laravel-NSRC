@@ -16,3 +16,8 @@ Schedule::command('backup:run --type=full')
     ->monthlyOn(1, '4:00')
     ->withoutOverlapping()
     ->runInBackground();
+
+Schedule::command('audit:archive --days=90')
+    ->dailyAt('01:30')
+    ->withoutOverlapping()
+    ->runInBackground();

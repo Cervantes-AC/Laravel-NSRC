@@ -4,6 +4,7 @@ return [
     'admin' => [
         'dashboard' => ['view'],
         'personnel' => ['view', 'create', 'edit', 'delete'],
+        'announcements' => ['view', 'create', 'edit', 'delete', 'publish'],
         'sessions' => ['view', 'create', 'edit', 'delete', 'restore'],
         'accounts' => ['view', 'approve', 'reject', 'suspend', 'delete'],
         'reports' => ['view', 'generate', 'export'],
@@ -19,9 +20,9 @@ return [
         'dashboard' => ['view'],
         'attendance' => ['view'],
         'performance' => ['view'],
-        'reports' => ['view'],
         'ai' => ['agent'],
         'notifications' => ['view'],
+        'announcements' => ['view'],
         'settings' => ['view', 'update'],
     ],
 ];

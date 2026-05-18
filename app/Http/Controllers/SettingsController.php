@@ -22,15 +22,45 @@ class SettingsController extends Controller
     public function update(Request $request)
     {
         $group = $request->input('group', 'general');
+        $this->normalizeBooleanInputs($request, $group);
         
         // Validate based on group
         $validated = $request->validate($this->getValidationRules($group));
 
         foreach ($validated as $key => $value) {
-            $this->settingsService->set($key, $value, $group);
+            $this->settingsService->set($key, $value, $group, $this->settingType($key));
         }
 
-        return redirect()->route('admin.settings.index')->with('success', __('Settings updated successfully.'));
+        return redirect()
+            ->route('admin.settings.index', ['tab' => $group])
+            ->with('success', __('Settings updated successfully.'));
+    }
+
+    private function normalizeBooleanInputs(Request $request, string $group): void
+    {
+        $booleanFields = match ($group) {
+            'security' => ['two_factor_enabled'],
+            'backup' => ['auto_backup'],
+            'notifications' => ['email_notifications', 'push_notifications', 'duty_reminders', 'report_generation', 'system_alerts'],
+            default => [],
+        };
+
+        foreach ($booleanFields as $field) {
+            $request->merge([$field => $request->boolean($field)]);
+        }
+    }
+
+    private function settingType(string $key): string
+    {
+        return in_array($key, [
+            'two_factor_enabled',
+            'auto_backup',
+            'email_notifications',
+            'push_notifications',
+            'duty_reminders',
+            'report_generation',
+            'system_alerts',
+        ], true) ? 'boolean' : 'string';
     }
 
     private function getValidationRules(string $group): array

@@ -8,6 +8,7 @@ use App\Services\DataExportService;
 use App\Services\ReportService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReportsController extends Controller
 {
@@ -58,18 +59,54 @@ class ReportsController extends Controller
         ]);
     }
 
-    public function exportCsv(Request $request, DataExportService $exportService): JsonResponse
+    public function exportCsv(Request $request, DataExportService $exportService): StreamedResponse
     {
         $raw = $request->input('data', []);
         $records = $raw['records'] ?? $raw;
-        $data = collect($records);
-        $exportService->exportToCSV($data, 'report_' . now()->format('Ymd_His'));
-        return response()->json(['message' => 'CSV exported']);
+        $data = $this->normalizeRows(collect($records));
+        return $exportService->exportToCSV($data, 'formal_attendance_report_' . now()->format('Ymd_His'));
     }
 
-    public function exportPdf(Request $request, DataExportService $exportService): JsonResponse
+    public function exportPdf(Request $request, DataExportService $exportService): StreamedResponse
     {
-        $exportService->exportToPDF('exports.report', $request->input('data', []), 'report_' . now()->format('Ymd_His'));
-        return response()->json(['message' => 'PDF exported']);
+        $raw = $request->input('data', []);
+        $records = $raw['records'] ?? $raw;
+        $rows = $this->normalizeRows(collect($records));
+
+        return $exportService->exportToPDF('reports.export-pdf', [
+            'title' => 'Formal Attendance Report',
+            'appName' => config('app.name', 'NSRC Attendance Management System'),
+            'generatedAt' => now()->format('F j, Y g:i A'),
+            'rows' => $rows,
+            'report' => [
+                'type' => 'Attendance Report',
+                'meta' => [
+                    'generated_at' => now()->toDateTimeString(),
+                    'total_records' => $rows->count(),
+                ],
+            ],
+        ], 'formal_attendance_report_' . now()->format('Ymd_His'));
+    }
+
+    private function normalizeRows(\Illuminate\Support\Collection $records): \Illuminate\Support\Collection
+    {
+        return $records->map(function ($record) {
+            $row = $record instanceof \Illuminate\Database\Eloquent\Model ? $record->toArray() : (array) $record;
+
+            if (array_key_exists('full_name', $row) || array_key_exists('duration_minutes', $row)) {
+                return [
+                    'full_name' => $row['full_name'] ?? data_get($row, 'volunteer.full_name') ?? 'N/A',
+                    'date' => $row['date'] ?? 'N/A',
+                    'time_in' => $row['time_in'] ?? 'N/A',
+                    'time_out' => $row['time_out'] ?? 'N/A',
+                    'duration_minutes' => $row['duration_minutes'] ?? 0,
+                    'location' => $row['location'] ?? 'N/A',
+                    'sector' => $row['sector'] ?? 'N/A',
+                    'status' => $row['status'] ?? 'N/A',
+                ];
+            }
+
+            return $row;
+        });
     }
 }

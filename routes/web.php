@@ -6,8 +6,10 @@ use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\PersonnelController;
 use App\Http\Controllers\Admin\SessionsController as AdminSessionsController;
 use App\Http\Controllers\Admin\AccountsController;
+use App\Http\Controllers\Admin\AnnouncementController;
 use App\Http\Controllers\Admin\UserManagementController;
 use App\Http\Controllers\Member\DashboardController as MemberDashboardController;
+use App\Http\Controllers\Api\MemberAttendanceController;
 use App\Http\Controllers\Member\PerformanceController as MemberPerformanceController;
 use App\Http\Controllers\ReportsController;
 use App\Http\Controllers\SettingsController;
@@ -17,14 +19,12 @@ use App\Http\Controllers\AuditLogController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-Route::middleware(['auth', 'verified'])->prefix('api')->name('api.')->group(function () {
+Route::middleware(['auth'])->prefix('api')->name('api.')->group(function () {
     Route::get('/dashboard/data', [\App\Http\Controllers\Api\DashboardController::class, 'data'])->name('dashboard.data');
     Route::get('/sessions', [\App\Http\Controllers\Api\SessionsController::class, 'index'])->name('sessions.index');
     Route::post('/sessions/sync', [\App\Http\Controllers\Api\SessionsController::class, 'sync'])->name('sessions.sync');
-    Route::post('/reports/generate', [\App\Http\Controllers\Api\ReportsController::class, 'generate'])->name('reports.generate');
-    Route::post('/reports/export-csv', [\App\Http\Controllers\Api\ReportsController::class, 'exportCsv'])->name('reports.export-csv');
-    Route::post('/reports/export-pdf', [\App\Http\Controllers\Api\ReportsController::class, 'exportPdf'])->name('reports.export-pdf');
     Route::get('/notifications', [\App\Http\Controllers\Api\NotificationsController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/stream', [\App\Http\Controllers\Api\NotificationsController::class, 'stream'])->name('notifications.stream');
     Route::post('/notifications/{id}/read', [\App\Http\Controllers\Api\NotificationsController::class, 'markAsRead'])->name('notifications.read');
     Route::post('/notifications/read-all', [\App\Http\Controllers\Api\NotificationsController::class, 'markAllAsRead'])->name('notifications.read-all');
     Route::delete('/notifications/{id}', [\App\Http\Controllers\Api\NotificationsController::class, 'destroy'])->name('notifications.destroy');
@@ -44,6 +44,16 @@ Route::middleware(['auth', 'verified'])->prefix('api')->name('api.')->group(func
     Route::post('/ai/api-key/switch', [\App\Http\Controllers\Api\AIProviderController::class, 'switchApiKey'])->name('ai.api-key.switch');
 });
 
+Route::middleware(['auth', 'role:admin'])->prefix('api')->name('api.')->group(function () {
+    Route::post('/reports/generate', [\App\Http\Controllers\Api\ReportsController::class, 'generate'])->name('reports.generate');
+    Route::post('/reports/export-csv', [\App\Http\Controllers\Api\ReportsController::class, 'exportCsv'])->name('reports.export-csv');
+    Route::post('/reports/export-pdf', [\App\Http\Controllers\Api\ReportsController::class, 'exportPdf'])->name('reports.export-pdf');
+});
+
+Route::middleware(['auth', 'role:member'])->prefix('api/member')->name('api.member.')->group(function () {
+    Route::get('/attendance', MemberAttendanceController::class)->name('attendance');
+});
+
 Route::get('/', function () {
     return view('landing');
 });
@@ -55,18 +65,27 @@ Route::get('/dashboard', function () {
     }
 
     return redirect()->route($user->role === 'admin' ? 'admin.dashboard' : 'member.dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+})->middleware(['auth'])->name('dashboard');
 
-Route::middleware(['auth', 'verified', 'throttle.custom'])->group(function () {
+Route::middleware(['auth', 'throttle.custom'])->group(function () {
     Route::get('/analytics', fn () => view('pages.analytics'))->name('analytics.index');
     Route::get('/ranking', fn () => view('pages.ranking'))->name('ranking.index');
-    Route::get('/notifications', fn () => view('pages.notifications'))->name('notifications.index');
+    Route::get('/notifications', function () {
+        $announcements = \App\Models\Announcement::visibleToMembers()
+            ->latest('published_at')
+            ->latest()
+            ->take(20)
+            ->get();
+
+        return view('pages.notifications', compact('announcements'));
+    })->name('notifications.index');
 });
 
-Route::middleware(['auth', 'verified', 'role:admin', 'throttle.custom'])->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'role:admin', 'throttle.custom'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
     Route::resource('personnel', PersonnelController::class);
+    Route::resource('announcements', AnnouncementController::class)->except(['show']);
 
     Route::get('attendance', [AdminSessionsController::class, 'index'])->name('attendance.index');
     Route::get('attendance/{session}', [AdminSessionsController::class, 'show'])->name('attendance.show');
@@ -100,7 +119,7 @@ Route::middleware(['auth', 'verified', 'role:admin', 'throttle.custom'])->prefix
     Route::post('attendance/sync', [AttendanceController::class, 'sync'])->name('attendance.sync');
 });
 
-Route::middleware(['auth', 'verified', 'role:admin', 'throttle.custom'])->prefix('api/admin')->name('api.admin.')->group(function () {
+Route::middleware(['auth', 'role:admin', 'throttle.custom'])->prefix('api/admin')->name('api.admin.')->group(function () {
     Route::get('attendance/fetch', [AttendanceController::class, 'fetchData'])->name('attendance.fetch');
 });
 
@@ -108,7 +127,7 @@ Route::post('/admin/stop-impersonating', [UserManagementController::class, 'stop
     ->middleware(['auth'])
     ->name('admin.stop-impersonating');
 
-Route::middleware(['auth', 'verified', 'role:member', 'throttle.custom'])->prefix('member')->name('member.')->group(function () {
+Route::middleware(['auth', 'role:member', 'throttle.custom'])->prefix('member')->name('member.')->group(function () {
     Route::get('/dashboard', [MemberDashboardController::class, 'index'])->name('dashboard');
     Route::get('/attendance', fn () => view('member.attendance'))->name('attendance');
     Route::get('/performance', [MemberPerformanceController::class, 'index'])->name('performance');
@@ -116,7 +135,7 @@ Route::middleware(['auth', 'verified', 'role:member', 'throttle.custom'])->prefi
     Route::get('/rules', fn () => view('member.rules'))->name('rules');
 });
 
-Route::middleware(['auth', 'verified', 'throttle.custom'])->group(function () {
+Route::middleware(['auth', 'role:admin', 'throttle.custom'])->group(function () {
     Route::get('/reports', [ReportsController::class, 'index'])->name('reports.index');
     Route::post('/reports/generate', [ReportsController::class, 'generate'])->name('reports.generate');
     Route::get('/reports/export', [ReportsController::class, 'export'])->name('reports.export');

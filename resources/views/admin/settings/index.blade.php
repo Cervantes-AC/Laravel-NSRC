@@ -45,7 +45,7 @@
 
                     <form method="POST" action="{{ route('admin.settings.update') }}" id="settings-form">
                         @csrf
-                        <input type="hidden" name="group" id="group-field" value="branding" />
+                        <input type="hidden" name="group" id="group-field" value="{{ request('tab', 'branding') }}" />
 
                         <!-- Branding Tab -->
                         <div id="tab-branding" class="tab-content" role="tabpanel">
@@ -254,29 +254,38 @@
 
 @push('scripts')
 <script>
+    const activateSettingsTab = (tabName) => {
+        const target = document.getElementById('tab-' + tabName);
+
+        if (!target) {
+            return;
+        }
+
+        document.getElementById('group-field').value = tabName;
+
+        document.querySelectorAll('.tab-button').forEach(btn => {
+            btn.classList.remove('text-indigo-600', 'border-indigo-600');
+            btn.classList.add('text-gray-500');
+            btn.setAttribute('aria-selected', 'false');
+        });
+
+        const button = document.querySelector(`[data-tab="${tabName}"]`);
+        button.classList.remove('text-gray-500');
+        button.classList.add('text-indigo-600', 'border-indigo-600');
+        button.setAttribute('aria-selected', 'true');
+
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.add('hidden');
+        });
+        target.classList.remove('hidden');
+    };
+
     document.querySelectorAll('.tab-button').forEach(button => {
         button.addEventListener('click', function() {
-            const tabName = this.dataset.tab;
-            
-            // Update group field
-            document.getElementById('group-field').value = tabName;
-            
-            // Update tab buttons
-            document.querySelectorAll('.tab-button').forEach(btn => {
-                btn.classList.remove('text-indigo-600', 'border-indigo-600');
-                btn.classList.add('text-gray-500');
-                btn.setAttribute('aria-selected', 'false');
-            });
-            this.classList.remove('text-gray-500');
-            this.classList.add('text-indigo-600', 'border-indigo-600');
-            this.setAttribute('aria-selected', 'true');
-
-            // Update tab content
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.add('hidden');
-            });
-            document.getElementById('tab-' + tabName).classList.remove('hidden');
+            activateSettingsTab(this.dataset.tab);
         });
     });
+
+    activateSettingsTab(@json(request('tab', 'branding')));
 </script>
 @endpush

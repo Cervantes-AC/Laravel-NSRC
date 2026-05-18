@@ -36,12 +36,24 @@ class LoginRequest extends FormRequest
     public function authenticate(): void
     {
         $this->ensureIsNotRateLimited();
+        $this->ensureCaptchaIsValid();
 
         $user = User::where('email', $this->string('email'))->first();
 
         if ($user?->locked_until && $user->locked_until->isFuture()) {
             throw ValidationException::withMessages([
                 'email' => 'This account is temporarily locked. Try again later.',
+            ]);
+        }
+
+        if ($user && $user->status !== 'active') {
+            throw ValidationException::withMessages([
+                'email' => match ($user->status) {
+                    'suspended' => 'This account is suspended. Please contact an administrator.',
+                    'inactive' => 'This account is inactive. Please contact an administrator.',
+                    'rejected' => 'This account is not approved for access.',
+                    default => 'This account is pending administrator approval.',
+                },
             ]);
         }
 
@@ -58,6 +70,10 @@ class LoginRequest extends FormRequest
 
                 $user->save();
 
+                if ($attempts >= 3) {
+                    $this->generateCaptchaChallenge();
+                }
+
                 app(AlertService::class)->checkFailedLoginAttempts($user, $attempts);
             }
 
@@ -67,6 +83,7 @@ class LoginRequest extends FormRequest
         }
 
         RateLimiter::clear($this->throttleKey());
+        $this->session()->forget(['auth.captcha.required', 'auth.captcha.answer']);
     }
 
     /**
@@ -93,5 +110,32 @@ class LoginRequest extends FormRequest
     public function throttleKey(): string
     {
         return Str::transliterate(Str::lower($this->string('email')).'|'.$this->ip());
+    }
+
+    private function ensureCaptchaIsValid(): void
+    {
+        if (! $this->session()->get('auth.captcha.required')) {
+            return;
+        }
+
+        if ((string) $this->input('captcha_answer') === (string) $this->session()->get('auth.captcha.answer')) {
+            return;
+        }
+
+        $this->generateCaptchaChallenge();
+
+        throw ValidationException::withMessages([
+            'captcha_answer' => 'Please solve the security check correctly.',
+        ]);
+    }
+
+    private function generateCaptchaChallenge(): void
+    {
+        $left = random_int(1, 9);
+        $right = random_int(1, 9);
+
+        $this->session()->put('auth.captcha.required', true);
+        $this->session()->put('auth.captcha.question', "{$left} + {$right}");
+        $this->session()->put('auth.captcha.answer', $left + $right);
     }
 }

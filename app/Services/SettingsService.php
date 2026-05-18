@@ -21,15 +21,7 @@ class SettingsService
             return $default;
         }
 
-        $setting = $settings[$key];
-        
-        // Cast value based on type
-        return match ($setting['type']) {
-            'boolean' => filter_var($setting['value'], FILTER_VALIDATE_BOOLEAN),
-            'integer' => (int) $setting['value'],
-            'json' => json_decode($setting['value'], true),
-            default => $setting['value'],
-        };
+        return $this->castValue($settings[$key]);
     }
 
     /**
@@ -61,7 +53,7 @@ class SettingsService
             if (!isset($grouped[$group])) {
                 $grouped[$group] = [];
             }
-            $grouped[$group][$key] = $setting;
+            $grouped[$group][$key] = $this->castValue($setting);
         }
 
         return $grouped;
@@ -115,9 +107,19 @@ class SettingsService
         $formatted = [];
 
         foreach ($settings as $key => $setting) {
-            $formatted[$key] = $this->get($key);
+            $formatted[$key] = $this->castValue($setting);
         }
 
         return $formatted;
+    }
+
+    private function castValue(array $setting): mixed
+    {
+        return match ($setting['type']) {
+            'boolean' => filter_var($setting['value'], FILTER_VALIDATE_BOOLEAN),
+            'integer' => (int) $setting['value'],
+            'json' => json_decode($setting['value'], true),
+            default => $setting['value'],
+        };
     }
 }

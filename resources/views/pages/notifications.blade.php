@@ -1,12 +1,29 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ __('Notifications') }}</h2>
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ __('Announcements & Notifications') }}</h2>
     </x-slot>
     <div class="py-12">
         <div class="max-w-3xl mx-auto sm:px-6 lg:px-8">
+            @if(isset($announcements) && $announcements->isNotEmpty())
+                <div class="mb-6 space-y-3">
+                    @foreach($announcements as $announcement)
+                        <article class="rounded-lg border {{ $announcement->priority === 'urgent' ? 'border-red-200 bg-red-50' : ($announcement->priority === 'important' ? 'border-amber-200 bg-amber-50' : 'border-blue-200 bg-blue-50') }} p-4">
+                            <div class="flex items-start justify-between gap-3">
+                                <div>
+                                    <p class="text-xs font-bold uppercase tracking-wide text-gray-500">{{ __('Announcement') }} · {{ ucfirst($announcement->priority) }}</p>
+                                    <h3 class="mt-1 text-base font-semibold text-gray-900">{{ $announcement->title }}</h3>
+                                </div>
+                                <span class="text-xs text-gray-500">{{ optional($announcement->published_at)->diffForHumans() ?? $announcement->created_at->diffForHumans() }}</span>
+                            </div>
+                            <p class="mt-3 whitespace-pre-line text-sm text-gray-700">{{ $announcement->body }}</p>
+                        </article>
+                    @endforeach
+                </div>
+            @endif
+
             <div x-data="notificationCenter(true)" class="w-full bg-white border border-gray-200 rounded-lg shadow-lg">
                 <div class="flex items-center justify-between px-4 py-3 border-b border-gray-200">
-                    <h3 class="text-sm font-medium text-gray-900">{{ __('Notifications') }}</h3>
+                    <h3 class="text-sm font-medium text-gray-900">{{ __('Notification Inbox') }}</h3>
                     <template x-if="unreadCount > 0">
                         <button @click="markAllAsRead()" class="text-xs text-indigo-600 hover:text-indigo-800">{{ __('Mark all read') }}</button>
                     </template>

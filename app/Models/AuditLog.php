@@ -12,7 +12,7 @@ class AuditLog extends Model
     /** @use HasFactory<AuditLogFactory> */
     use HasFactory;
 
-    const TYPES = ['SECURITY', 'REGISTRY', 'OPERATIONS', 'SYSTEM'];
+    const TYPES = ['SECURITY', 'REGISTRY', 'OPERATIONS', 'SYSTEM', 'ACCESS'];
 
     protected $fillable = [
         'user_id',
@@ -23,10 +23,12 @@ class AuditLog extends Model
         'ip_address',
         'user_agent',
         'timestamp',
+        'archived_at',
     ];
 
     protected $casts = [
         'timestamp' => 'datetime',
+        'archived_at' => 'datetime',
     ];
 
     public function user(): BelongsTo

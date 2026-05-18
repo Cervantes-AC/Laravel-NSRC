@@ -47,16 +47,8 @@ class DutyEngine
             return 0;
         }
 
-        // If no time_out, calculate from time_in to end of day (23:59:59)
         if (!$timeOut) {
-            $start = $timeIn instanceof \DateTimeInterface ? $timeIn : now()->parse($timeIn);
-            $endOfDay = $start->copy()->endOfDay();
-            
-            if ($endOfDay <= $start) {
-                return 0;
-            }
-            
-            return (int) $start->diffInMinutes($endOfDay);
+            return 0;
         }
 
         $start = $timeIn instanceof \DateTimeInterface ? $timeIn : now()->parse($timeIn);
@@ -88,7 +80,7 @@ class DutyEngine
 
         // Missing timeout - partial integrity (has time_in but no time_out)
         if ($timeIn && !$timeOut) {
-            return 70.0;
+            return 60.0;
         }
 
         return 40.0;
@@ -105,9 +97,7 @@ class DutyEngine
         }
 
         if ($timeIn && !$timeOut) {
-            // Record exists with time_in but no time_out - mark as MISSING_TIMEOUT
-            // Duration is calculated from time_in to end of day
-            return 'MISSING_TIMEOUT';
+            return $hasPair ? 'ONGOING' : 'MISSING_TIMEOUT';
         }
 
         return 'INVALID_LOG';

@@ -17,11 +17,13 @@ return Application::configure(basePath: dirname(__DIR__))
             'throttle.custom' => \App\Http\Middleware\RateLimitMiddleware::class,
             'security.headers' => \App\Http\Middleware\SecurityHeadersMiddleware::class,
             'session.timeout' => \App\Http\Middleware\SessionTimeoutMiddleware::class,
+            'access.log' => \App\Http\Middleware\AccessLogMiddleware::class,
         ]);
 
         $middleware->web(append: [
             \App\Http\Middleware\SecurityHeadersMiddleware::class,
             \App\Http\Middleware\SessionTimeoutMiddleware::class,
+            \App\Http\Middleware\AccessLogMiddleware::class,
         ]);
     })
     ->withSchedule(function (Schedule $schedule): void {

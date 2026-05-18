@@ -15,21 +15,21 @@
                                     </div>
                                     <div>
                                         <h1 class="text-3xl sm:text-4xl font-black tracking-tight text-slate-900">Personnel</h1>
-                                        <p class="text-sm text-slate-600 font-bold mt-1"><span x-text="totalPersonnel"></span> personnel · <span x-text="fmtHours(totalHours)"></span> total hours</p>
+                                        <p class="text-sm text-slate-600 font-bold mt-1"><span x-text="totalPersonnel"></span> personnel / <span x-text="fmtHours(totalHours)"></span> total hours</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-3 flex-wrap">
                                     <div class="flex items-center bg-white border border-slate-200 rounded-xl p-1 shadow-sm">
-                                        <button @click="viewMode = 'list'; loadPersonnel()" class="p-2.5 rounded-lg transition-all" :class="viewMode === 'list' ? 'bg-blue-50 text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'">
+                                        <button @click="viewMode = 'list'; applyFilters()" class="p-2.5 rounded-lg transition-all" :class="viewMode === 'list' ? 'bg-blue-50 text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                                         </button>
-                                        <button @click="viewMode = 'grid'; loadPersonnel()" class="p-2.5 rounded-lg transition-all" :class="viewMode === 'grid' ? 'bg-blue-50 text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'">
+                                        <button @click="viewMode = 'grid'; applyFilters()" class="p-2.5 rounded-lg transition-all" :class="viewMode === 'grid' ? 'bg-blue-50 text-blue-600 shadow-sm' : 'text-slate-400 hover:text-slate-600'">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zM14 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"></path></svg>
                                         </button>
                                     </div>
                                     <div class="relative group">
                                         <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                                        <input type="text" x-model="search" @input.debounce.300ms="loadPersonnel()" placeholder="Search personnel..." class="w-full sm:w-72 pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 outline-none transition-all shadow-sm hover:border-slate-300" />
+                                        <input type="text" x-model="search" @input.debounce.300ms="applyFilters()" placeholder="Search personnel..." class="w-full sm:w-72 pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 outline-none transition-all shadow-sm hover:border-slate-300" />
                                     </div>
                                 </div>
                             </div>
@@ -74,9 +74,9 @@
                             <div class="flex items-center gap-2">
                                 <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
                                 <div class="flex gap-1.5">
-                                    <button @click="complianceFilter = 'all'; loadPersonnel()" class="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border" :class="complianceFilter === 'all' ? 'bg-blue-100 text-blue-700 border-blue-200' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700'">All</button>
-                                    <button @click="complianceFilter = 'compliance_only'; loadPersonnel()" class="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border" :class="complianceFilter === 'compliance_only' ? 'bg-green-100 text-green-700 border-green-200' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700'">Clean</button>
-                                    <button @click="complianceFilter = 'issues_only'; loadPersonnel()" class="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border" :class="complianceFilter === 'issues_only' ? 'bg-red-100 text-red-700 border-red-200' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700'">Issues</button>
+                                    <button @click="complianceFilter = 'all'; applyFilters()" class="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border" :class="complianceFilter === 'all' ? 'bg-blue-100 text-blue-700 border-blue-200' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700'">All</button>
+                                    <button @click="complianceFilter = 'compliance_only'; applyFilters()" class="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border" :class="complianceFilter === 'compliance_only' ? 'bg-green-100 text-green-700 border-green-200' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700'">Clean</button>
+                                    <button @click="complianceFilter = 'issues_only'; applyFilters()" class="px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all border" :class="complianceFilter === 'issues_only' ? 'bg-red-100 text-red-700 border-red-200' : 'bg-white border-slate-200 text-slate-500 hover:border-slate-300 hover:text-slate-700'">Issues</button>
                                 </div>
                             </div>
                             <div class="flex items-center gap-2">
@@ -101,7 +101,7 @@
                                     <svg class="w-10 h-10 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                                 </div>
                                 <p class="text-base font-black text-slate-700 uppercase tracking-widest mb-2">No personnel found</p>
-                                <p class="text-sm text-slate-500 max-w-md">Try adjusting your search or filter criteria.</p>
+                                <p class="text-sm text-slate-500 max-w-md">Try adjusting your search, filter criteria, or sync attendance records from the Attendance page.</p>
                             </div>
                         </template>
 
@@ -118,6 +118,9 @@
                                                             <h3 class="text-sm font-black text-slate-900 leading-tight truncate" x-text="p.fullName"></h3>
                                                             <div class="flex items-center gap-1.5 mt-1">
                                                                 <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-slate-50 text-slate-700 border border-slate-200" x-text="p.role"></span>
+                                                                <template x-if="!p.linked">
+                                                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200">Unlinked</span>
+                                                                </template>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -161,6 +164,9 @@
                                                                     <span class="text-[11px] font-mono text-slate-500" x-text="'#' + p.serialNumber"></span>
                                                                     <span class="w-1 h-1 bg-slate-300 rounded-full"></span>
                                                                     <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-slate-50 text-slate-700 border border-slate-200" x-text="p.role"></span>
+                                                                    <template x-if="!p.linked">
+                                                                        <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-black uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-200">Unlinked Attendance</span>
+                                                                    </template>
                                                                     <span class="w-1 h-1 bg-slate-300 rounded-full"></span>
                                                                     <span class="text-[11px] text-slate-500" x-text="p.email"></span>
                                                                 </div>

@@ -10,7 +10,7 @@
         <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased app-shell" x-data="{ sidebarOpen: false }">
+    <body class="font-sans antialiased app-shell" x-data="appShell({ timeoutMinutes: {{ (int) config('attendance.session.timeout_minutes', 60) }}, warningMinutes: 5 })" x-init="initSessionWarning()">
         <div class="min-h-screen flex">
             {{-- Mobile backdrop --}}
             <div x-show="sidebarOpen" x-transition:enter="transition-opacity ease-linear duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="transition-opacity ease-linear duration-300" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 z-40 bg-slate-950/60 backdrop-blur-sm lg:hidden" @click="sidebarOpen = false" style="display: none;"></div>
@@ -116,5 +116,15 @@
                 </main>
             </div>
         </div>
+        @auth
+            <div x-show="sessionWarningVisible" x-cloak class="fixed bottom-4 right-4 z-50 w-[min(24rem,calc(100vw-2rem))] rounded-lg border border-amber-200 bg-white p-4 shadow-xl" style="display: none;">
+                <p class="text-sm font-semibold text-amber-900">{{ __('Session expiring soon') }}</p>
+                <p class="mt-1 text-sm text-slate-600">{{ __('You will be signed out in') }} <span class="font-semibold" x-text="sessionWarningCountdown"></span>{{ __(' seconds due to inactivity.') }}</p>
+                <button type="button" @click="keepSessionAlive()" class="mt-3 rounded-md bg-amber-600 px-3 py-2 text-sm font-semibold text-white hover:bg-amber-700">
+                    {{ __('Stay signed in') }}
+                </button>
+            </div>
+        @endauth
+        @stack('scripts')
     </body>
 </html>

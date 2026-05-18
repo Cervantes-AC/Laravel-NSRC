@@ -23,6 +23,7 @@ use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
+use Illuminate\Validation\Rules\Password;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -33,6 +34,8 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        Password::defaults(fn () => Password::min(8)->mixedCase()->numbers()->symbols());
+
         Gate::policy(DutySession::class, DutySessionPolicy::class);
 
         Event::listen(UserLoggedIn::class, LogUserLogin::class);

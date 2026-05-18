@@ -24,6 +24,14 @@
             <x-input-error :messages="$errors->get('password')" class="mt-2" />
         </div>
 
+        @if (session('auth.captcha.required'))
+            <div class="mt-4">
+                <x-input-label for="captcha_answer" :value="__('Security Check: What is :question?', ['question' => session('auth.captcha.question')])" />
+                <x-text-input id="captcha_answer" class="block mt-1 w-full" type="text" name="captcha_answer" required inputmode="numeric" autocomplete="off" />
+                <x-input-error :messages="$errors->get('captcha_answer')" class="mt-2" />
+            </div>
+        @endif
+
         <!-- Remember Me -->
         <div class="block mt-4">
             <label for="remember_me" class="inline-flex items-center">

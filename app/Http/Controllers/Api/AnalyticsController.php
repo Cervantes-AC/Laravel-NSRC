@@ -13,11 +13,11 @@ class AnalyticsController extends Controller
 {
     public function data(Request $request): JsonResponse
     {
-        $period = $request->input('period', 'month');
-        $status = $request->input('status', '');
-        $sector = $request->input('sector', '');
-        $dateFrom = $request->input('dateFrom', '');
-        $dateTo = $request->input('dateTo', '');
+        $period = (string) $request->input('period', 'month');
+        $status = (string) $request->input('status', '');
+        $sector = (string) $request->input('sector', '');
+        $dateFrom = (string) $request->input('dateFrom', '');
+        $dateTo = (string) $request->input('dateTo', '');
 
         [$start, $end] = $this->getDateRange($period, $dateFrom, $dateTo);
         $groupFormat = $this->getDateGroupFormat($period, $dateFrom, $dateTo);
@@ -108,6 +108,7 @@ class AnalyticsController extends Controller
             '3m' => [now()->subDays(90), now()],
             '6m' => [now()->subDays(180), now()],
             'year' => [now()->subYear(), now()],
+            'all' => [null, null],
             default => [now()->subDays(30), now()],
         };
     }

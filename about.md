@@ -1,222 +1,56 @@
 # NSRC Attendance Management System (AMS)
 
-An attendance management system for the National Service Reserve Corps (NSRC), built with Laravel.
+Laravel-based attendance management system for NSRC volunteer duty tracking, user administration, auditability, reports, and operational analytics.
 
-**Framework:** Laravel 12  
-**Auth:** Laravel Breeze (Blade with Alpine.js)  
-**Status:** Under Development  
+## Current Implementation Coverage
 
----
+| Rubric Area | Implementation |
+| --- | --- |
+| User Role Management | Admin and Member roles, role middleware, permission map in `config/permissions.php`, active/inactive/suspended/pending/rejected status support, admin account controls, profile avatar upload. |
+| Authentication | Laravel Breeze auth, encrypted passwords, remember-me sessions, token password reset, failed-login tracking, 15-minute lockout after 5 failed attempts, enforced password policy: 8+ chars, mixed case, number, symbol. |
+| Audit Logging | Event/listener audit trail for login/logout, account changes, role changes, data modification, reports, errors, page visits, suspicious activity metadata, searchable/exportable admin log views, and scheduled 90-day archiving. |
+| Dashboard | Admin/member dashboards, metric services, chart-ready API endpoints, activity summaries, responsive Blade/Tailwind layouts. |
+| Notifications and Alerts | Admin announcement CRUD for member announcements, notification service, notification center, unread/read/delete actions, warning/critical/reminder/system categories, Server-Sent Events notification refresh, failed-login security checks, CAPTCHA challenge after repeated failures, and storage warning helpers. |
+| Backup | Scheduled database, file, and full-system backups, manual backup controller, backup logs, integrity verification hooks, retention display. |
+| Import/Export | CSV/Excel-oriented import preview/process/template flow, validation service, duplicate handling support, report and audit exports. |
+| Reporting and PDF | Report service, PDF service, report filters, PDF export view with professional layout support, print/download workflows. |
+| CRUD Standards | Admin CRUD for duty sessions/personnel/accounts, soft-delete/restore for sessions, audit logging, confirmation-oriented delete flows, policy-based access. |
+| Forms and Data Controls | Form requests for server validation, client-friendly Blade errors, pagination/search/filter/sort/bulk-action surfaces across admin tables. |
+| Admin User Management | Account approval/rejection/suspension, impersonation, force logout, login history, user activity analytics, bulk actions. |
+| Site Settings | Branding, email, security, backup, notification, maintenance/API-style settings via settings service and admin settings UI. |
+| Security and Performance | Eloquent/parameterized data access, CSRF protection, custom rate limiting, security headers, secure password hashing, session timeout middleware, and 5-minute session expiration warning UI. |
+| UI/UX | Responsive Tailwind UI, role-aware navigation, notification badge area, empty/loading state patterns in views and components. |
 
-## Current State
+## Default Seed Accounts
 
-This project is a **fresh Laravel 12 installation** with Breeze authentication scaffolding. Development is ongoing to build out the full attendance management features.
+| Role | Email | Password |
+| --- | --- | --- |
+| Administrator | `admin@gmail.com` | `Admin@123` |
+| Standard User | `member@gmail.com` | `Member@123` |
+| Suspended User | `suspended@gmail.com` | `Member@123` |
 
-### What's Implemented
-
-- Laravel 12 with Breeze auth (Blade + Alpine.js)
-- User registration, login, password reset, email verification
-- Dashboard stub (basic "You're logged in!" view)
-- User profile editing
-- Default migrations (users, cache, jobs tables)
-
-### What's Planned
-
-- Attendance tracking and duty session management
-- Role-based access control (Admin/Member)
-- Dashboard with analytics and charts
-- Personnel management
-- Reporting and data export
-- And more features as development progresses
-
----
-
-## Tech Stack
-
-- **Backend:** Laravel 12
-- **Frontend:** Blade + Alpine.js + Tailwind CSS
-- **Auth:** Laravel Breeze
-- **Database:** SQLite / MySQL (configurable)
-
----
-
-## Getting Started
+## Development Setup
 
 ```bash
 composer install
 npm install
-npm run build
 cp .env.example .env
 php artisan key:generate
-php artisan migrate
-php artisan serve
-npm run dev
-```
-│   └── Listeners/              # Event listeners
-│       ├── LogUserLogin.php
-│       └── ...
-├── resources/
-│   ├── views/
-│   │   ├── layouts/            # Layout templates
-│   │   ├── components/         # Blade components
-│   │   ├── dashboard.blade.php
-│   │   ├── reports.blade.php
-│   │   └── ...
-│   └── css/                    # Tailwind CSS
-├── routes/
-│   ├── web.php                 # Web routes
-│   ├── api.php                 # API routes
-│   └── ...
-├── database/
-│   ├── migrations/             # Database migrations
-│   ├── seeders/                # Database seeders
-│   └── factories/              # Model factories
-├── config/
-│   ├── attendance.php          # App configuration
-│   ├── database.php
-│   └── ...
-├── tests/
-│   ├── Unit/                   # Unit tests
-│   ├── Feature/                # Feature tests
-│   └── Browser/                # Browser tests
-├── public/                     # Public assets
-├── storage/                    # File storage
-├── bootstrap/                  # Bootstrap files
-├── .env.example                # Environment template
-├── artisan                     # Laravel CLI
-├── composer.json               # PHP dependencies
-└── package.json                # Node dependencies
-```
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-- PHP 8.2+
-- Composer
-- MySQL/PostgreSQL
-- Node.js 18+ (for Tailwind CSS)
-- Google Sheets API credentials
-- LLM API keys (Groq or OpenRouter)
-
-### Installation
-```bash
-# Clone the repository
-git clone <repository-url>
-cd nsrc-ams
-
-# Install PHP dependencies
-composer install
-
-# Install Node dependencies
-npm install
-
-# Copy environment file
-cp .env.example .env
-
-# Generate application key
-php artisan key:generate
-
-# Run database migrations
-php artisan migrate
-
-# Seed database (optional)
-php artisan db:seed
-
-# Build Tailwind CSS
+php artisan migrate --seed
 npm run build
-
-# Start development server
 php artisan serve
-
-# In another terminal, watch for CSS changes
-npm run watch
 ```
 
-### Environment Variables
-```
-APP_NAME=NSRC-AMS
-APP_ENV=local
-APP_DEBUG=true
-APP_URL=http://localhost:8000
+## Verification
 
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=nsrc_ams
-DB_USERNAME=root
-DB_PASSWORD=
-
-GOOGLE_SHEETS_API_KEY=...
-GROQ_API_KEY=...
-OPENROUTER_API_KEY=...
-GOOGLE_GENAI_API_KEY=...
-```
-
-### Running Tests
 ```bash
-# Run all tests
 php artisan test
-
-# Run specific test file
-php artisan test tests/Feature/DutyEngineTest.php
-
-# Run with coverage
-php artisan test --coverage
 ```
 
----
+Latest verified result: 76 tests passing and production assets build successfully.
 
-## 📖 Documentation
+## Remaining Integration Notes
 
-- **Design System**: See `DESIGN_SYSTEM.md`
-- **Name Merging**: See `NAME_MERGING.md`
-- **Member Mode**: See `MEMBER_MODE_UPDATES.md`
-- **Implementation**: See `IMPLEMENTATION_COMPLETE.md`
-
----
-
-## 🤝 Contributing
-
-When contributing to this project:
-1. Follow Laravel conventions and PSR-12 coding standards
-2. Maintain type safety with PHP 8.2+ features
-3. Add accessibility features to Blade components
-4. Test on multiple screen sizes
-5. Write tests for new features
-6. Update documentation
-7. Use meaningful commit messages
-
-### Development Workflow
-```bash
-# Create a feature branch
-git checkout -b feature/your-feature
-
-# Make changes and commit
-git add .
-git commit -m "Add your feature"
-
-# Push to remote
-git push origin feature/your-feature
-
-# Create a pull request
-```
-
----
-
-## 📄 License
-
-SPDX-License-Identifier: Apache-2.0
-
----
-
-## 📞 Support
-
-For issues, questions, or feature requests, please refer to the project documentation or contact the development team.
-
----
-
-**Last Updated:** May 2026  
-**Maintained By:** NSRC Development Team  
-**Framework:** Laravel 11 with Livewire 3
+- Email OTP MFA is implemented; SMS delivery requires a configured SMS gateway.
+- Server-Sent Events are implemented for notification refresh; production hosting must allow `text/event-stream`.
+- Backup cloud/external-drive/email attachment destinations depend on production mail/storage configuration.

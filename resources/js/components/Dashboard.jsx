@@ -3,13 +3,13 @@ import { FilterBar } from './FilterBar';
 import { DutySessionCard } from './DutySessionCard';
 import { Card, Alert } from './ui';
 import {
-  RefreshCw, SearchX, Star, Database, Shield, X,
+  RefreshCw, SearchX, Star, Database, X,
   Clock, ArrowUpRight, TrendingDown, LayoutDashboard,
   Zap, TrendingUp, Users, Target, Award, Activity, Calendar,
   CheckCircle2, AlertCircle, BarChart3, PieChart,
-  ChevronLeft, ChevronRight, ChevronDown, ChevronUp,
+  ChevronLeft, ChevronRight,
 } from 'lucide-react';
-import { format, startOfWeek, endOfWeek, isWithinInterval, subDays, parse } from 'date-fns';
+import { format } from 'date-fns';
 import { motion, AnimatePresence } from 'motion/react';
 import { User, DutySession, AttendanceStats } from '../types';
 import { calculateVolunteerMetrics } from '../services/metrics';

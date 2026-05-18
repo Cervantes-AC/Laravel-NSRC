@@ -25,6 +25,8 @@ class PageSmokeTest extends TestCase
             'admin/dashboard',
             'admin/personnel',
             'admin/personnel/create',
+            'admin/announcements',
+            'admin/announcements/create',
             'admin/sessions',
             'admin/sessions/create',
             'admin/accounts',
@@ -51,8 +53,6 @@ class PageSmokeTest extends TestCase
             'analytics',
             'ranking',
             'notifications',
-            'reports',
-            'reports/insights',
             'profile',
             'member/dashboard',
             'member/attendance',
@@ -67,5 +67,27 @@ class PageSmokeTest extends TestCase
                 ->get($route)
                 ->assertOk();
         }
+    }
+
+    public function test_members_cannot_access_reports_pages(): void
+    {
+        $member = User::factory()->member()->create();
+
+        $this->actingAs($member)
+            ->get('/reports')
+            ->assertRedirect(route('member.dashboard', absolute: false));
+
+        $this->actingAs($member)
+            ->get('/reports/insights')
+            ->assertRedirect(route('member.dashboard', absolute: false));
+    }
+
+    public function test_members_cannot_access_reports_api(): void
+    {
+        $member = User::factory()->member()->create();
+
+        $this->actingAs($member)
+            ->postJson('/api/reports/generate')
+            ->assertForbidden();
     }
 }

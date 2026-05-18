@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\DutySession;
 use App\Models\User;
+use Illuminate\Support\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
@@ -19,10 +20,13 @@ class PersonnelController extends Controller
         $viewMode = $request->input('viewMode', 'list');
         $page = (int) $request->input('page', 1);
 
-        $allUsers = User::query()->where('role', '!=', 'admin')->get();
+        $allUsers = User::query()
+            ->where('role', '!=', 'admin')
+            ->with('dutySessions')
+            ->get();
 
         $enrichedData = $allUsers->map(function (User $user) {
-            $sessions = $user->dutySessions()->get();
+            $sessions = $user->dutySessions;
             $totalRegularMinutes = 0;
             $totalOvertimeMinutes = 0;
             $totalUndertimeMinutes = 0;
@@ -53,9 +57,68 @@ class PersonnelController extends Controller
                 'totalOvertimeMinutes' => $totalOvertimeMinutes,
                 'totalUndertimeMinutes' => $totalUndertimeMinutes,
                 'invalidRecordCount' => $invalidRecordCount,
-                'lastActive' => $sessions->first()?->date?->format('Y-m-d'),
+                'lastActive' => $sessions->sortByDesc('date')->first()?->date?->format('Y-m-d'),
+                'linked' => true,
             ];
         });
+
+        $knownNames = $allUsers
+            ->pluck('full_name')
+            ->filter()
+            ->map(fn ($name) => mb_strtolower(trim($name)))
+            ->all();
+
+        $unlinkedSessions = DutySession::query()
+            ->whereNull('volunteer_id')
+            ->whereNotNull('full_name')
+            ->get()
+            ->reject(fn (DutySession $session) => in_array(mb_strtolower(trim($session->full_name)), $knownNames, true))
+            ->groupBy(fn (DutySession $session) => $session->full_name);
+
+        $unlinkedData = $unlinkedSessions->map(function (Collection $sessions, string $name) {
+            $totalRegularMinutes = 0;
+            $totalOvertimeMinutes = 0;
+            $totalUndertimeMinutes = 0;
+            $invalidRecordCount = 0;
+
+            foreach ($sessions as $session) {
+                $issues = $this->deriveIssues($session);
+                if (count($issues) > 0) {
+                    $invalidRecordCount++;
+                }
+
+                if ($session->duration_minutes !== null) {
+                    $minutes = (int) $session->duration_minutes;
+                    if ($minutes < 60) {
+                        $totalUndertimeMinutes += $minutes;
+                    } elseif ($minutes <= 480) {
+                        $totalRegularMinutes += $minutes;
+                    } else {
+                        $totalRegularMinutes += 480;
+                        $totalOvertimeMinutes += ($minutes - 480);
+                    }
+                }
+            }
+
+            return [
+                'id' => 'unlinked-' . md5($name),
+                'fullName' => $name,
+                'volunteerId' => null,
+                'email' => 'No linked user account',
+                'serialNumber' => 'UNLINKED',
+                'role' => 'unlinked',
+                'avatar' => null,
+                'sessionCount' => $sessions->count(),
+                'totalRegularMinutes' => $totalRegularMinutes,
+                'totalOvertimeMinutes' => $totalOvertimeMinutes,
+                'totalUndertimeMinutes' => $totalUndertimeMinutes,
+                'invalidRecordCount' => $invalidRecordCount,
+                'lastActive' => $sessions->sortByDesc('date')->first()?->date?->format('Y-m-d'),
+                'linked' => false,
+            ];
+        })->values();
+
+        $enrichedData = $enrichedData->concat($unlinkedData)->values();
 
         if ($search) {
             $l = strtolower($search);
@@ -90,6 +153,7 @@ class PersonnelController extends Controller
 
         $perPage = $viewMode === 'grid' ? 12 : 10;
         $totalPages = max(1, (int) ceil($totalPersonnel / $perPage));
+        $page = min(max($page, 1), $totalPages);
         $paginatedData = $enrichedData->slice(($page - 1) * $perPage, $perPage)->values();
 
         return response()->json([
@@ -137,7 +201,7 @@ class PersonnelController extends Controller
                 $issues[] = ['date' => $session->date->format('Y-m-d'), 'type' => 'ZERO_DURATION', 'description' => "Time-out is not after time-in on {$session->date->format('Y-m-d')}."];
             }
         }
-        if ($session->date && $session->date > now()->toDateString()) {
+        if ($session->date && $session->date->isFuture()) {
             $issues[] = ['date' => $session->date->format('Y-m-d'), 'type' => 'FUTURE_DATE', 'description' => "Session date {$session->date->format('Y-m-d')} is in the future."];
         }
         return $issues;
