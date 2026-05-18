@@ -34,7 +34,7 @@ Alpine.data('appShell', ({ timeoutMinutes = 60, warningMinutes = 5 } = {}) => ({
 Alpine.data('dashboard', () => ({
     loading: false,
     data: null,
-    dateFilter: 'today',
+    dateFilter: 'all',
     statusFilter: '',
     sectorFilter: '',
     sectors: [],
@@ -48,6 +48,9 @@ Alpine.data('dashboard', () => ({
         }).then(res => {
             this.data = res.data;
             this.sectors = res.data.sectors || [];
+        }).catch(err => {
+            console.error('Dashboard data load failed:', err);
+            alert('Failed to load dashboard data. Check console for details.');
         }).finally(() => { this.loading = false; });
     },
     clearFilters() {

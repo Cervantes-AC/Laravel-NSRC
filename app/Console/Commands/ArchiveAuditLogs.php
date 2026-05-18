@@ -3,7 +3,6 @@
 namespace App\Console\Commands;
 
 use App\Models\AuditLog;
-use App\Services\SettingsService;
 use Illuminate\Console\Command;
 
 class ArchiveAuditLogs extends Command
@@ -12,9 +11,9 @@ class ArchiveAuditLogs extends Command
 
     protected $description = 'Marks old audit logs as archived so active log views stay focused.';
 
-    public function handle(SettingsService $settings): int
+    public function handle(): int
     {
-        $days = (int) ($this->option('days') ?: $settings->get('audit_archive_days', 90));
+        $days = (int) ($this->option('days') ?: 90);
         $cutoff = now()->subDays(max(1, $days));
 
         $count = AuditLog::whereNull('archived_at')

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Attendance;
 use App\Models\AuditLog;
 use App\Models\DutySession;
 use App\Models\User;
@@ -74,15 +75,37 @@ class DashboardController extends Controller
 
         $hasActiveSession = $user->role === 'member' && DutySession::where('volunteer_id', $user->id)->whereNull('time_out')->exists();
 
+        $attendanceCount = Attendance::count();
+        $activeUsersCount = User::where('role', 'member')->where('status', 'active')->count();
+
+        if ($user->role === 'member') {
+            $todayCount = DutySession::where('volunteer_id', $user->id)->whereDate('date', today())->count();
+            $activeNow = DutySession::where('volunteer_id', $user->id)->whereNull('time_out')->count();
+            $missingTimeouts = DutySession::where('volunteer_id', $user->id)->where('status', 'MISSING_TIMEOUT')->count();
+            $avgDuration = DutySession::where('volunteer_id', $user->id)->whereNotNull('duration_minutes')->avg('duration_minutes') ?? 0;
+            $totalRecords = DutySession::where('volunteer_id', $user->id)->count();
+            $completeSessions = DutySession::where('volunteer_id', $user->id)->where('status', 'COMPLETE')->count();
+            $completionRate = $totalRecords > 0 ? round(($completeSessions / $totalRecords) * 100, 1) : 0;
+            $avgIntegrity = DutySession::where('volunteer_id', $user->id)->avg('integrity_score') ?? 0;
+        } else {
+            $todayCount = (int) ($summary['today_count'] ?? 0);
+            $activeNow = (int) ($summary['active_sessions'] ?? 0);
+            $missingTimeouts = DutySession::where('status', 'MISSING_TIMEOUT')->count();
+            $avgDuration = $summary['average_duration_minutes'] ?? 0;
+            $totalRecords = $attendanceCount;
+            $completionRate = (float) ($summary['completion_rate'] ?? 0);
+            $avgIntegrity = $summary['avg_integrity_score'] ?? 0;
+        }
+
         return response()->json([
-            'totalRecords' => DutySession::count(),
-            'todayCount' => (int) ($summary['today_count'] ?? 0),
-            'activeNow' => (int) ($summary['active_sessions'] ?? 0),
-            'missingTimeouts' => DutySession::where('status', 'MISSING_TIMEOUT')->count(),
-            'avgDuration' => (float) ($summary['average_duration_minutes'] ?? 0),
+            'totalRecords' => $totalRecords,
+            'todayCount' => $todayCount,
+            'activeNow' => $activeNow,
+            'missingTimeouts' => $missingTimeouts,
+            'avgDuration' => (float) $avgDuration,
             'totalUsers' => (int) ($summary['total_users'] ?? 0),
-            'completionRate' => (float) ($summary['completion_rate'] ?? 0),
-            'avgIntegrityScore' => (float) ($summary['avg_integrity_score'] ?? 0),
+            'completionRate' => (float) $completionRate,
+            'avgIntegrityScore' => (float) $avgIntegrity,
             'hasActiveSession' => $hasActiveSession,
             'weeklyMetrics' => $weeklyMetrics,
             'recentSessions' => $recentSessions,

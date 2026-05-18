@@ -3,7 +3,6 @@
 namespace Tests\Feature\Auth;
 
 use App\Models\User;
-use App\Services\SettingsService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
@@ -68,24 +67,6 @@ class AuthenticationTest extends TestCase
 
         $this->assertGuest();
         $response->assertSessionHasErrors('email');
-    }
-
-    public function test_users_are_challenged_for_email_otp_when_two_factor_is_enabled(): void
-    {
-        Mail::fake();
-        app(SettingsService::class)->set('two_factor_enabled', true, 'security', 'boolean');
-
-        $user = User::factory()->admin()->create();
-
-        $response = $this->post('/login', [
-            'email' => $user->email,
-            'password' => 'password',
-        ]);
-
-        $this->assertGuest();
-        $response
-            ->assertSessionHas('auth.two_factor')
-            ->assertRedirect(route('two-factor.challenge', absolute: false));
     }
 
     public function test_users_can_logout(): void

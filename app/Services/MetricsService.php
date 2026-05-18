@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\Attendance;
 use App\Models\DutySession;
 use App\Models\User;
 use App\Models\VolunteerMetrics;
@@ -68,20 +69,26 @@ class MetricsService
     public function getSystemSummary(): array
     {
         $totalUsers = User::count();
+        $activeUsers = User::where('role', 'member')->where('status', 'active')->count();
         $activeSessions = DutySession::where('status', 'ONGOING')->orWhereNull('time_out')->count();
         $todayCount = DutySession::whereDate('date', today())->count();
+        $attendanceToday = Attendance::whereDate('date_time', today())->count();
         $avgDuration = DutySession::whereNotNull('duration_minutes')->avg('duration_minutes') ?? 0;
         $totalSessions = DutySession::count();
+        $totalAttendanceRecords = Attendance::count();
         $completeSessions = DutySession::where('status', 'COMPLETE')->count();
         $completionRate = $totalSessions > 0 ? round(($completeSessions / $totalSessions) * 100, 1) : 0;
         $avgIntegrity = DutySession::avg('integrity_score') ?? 0;
 
         return [
             'total_users' => $totalUsers,
+            'active_users' => $activeUsers,
             'active_sessions' => $activeSessions,
             'today_count' => $todayCount,
+            'attendance_today' => $attendanceToday,
             'average_duration_minutes' => round($avgDuration, 2),
             'total_sessions' => $totalSessions,
+            'total_attendance_records' => $totalAttendanceRecords,
             'complete_sessions' => $completeSessions,
             'completion_rate' => $completionRate,
             'avg_integrity_score' => round($avgIntegrity, 1),

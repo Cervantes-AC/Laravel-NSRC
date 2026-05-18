@@ -110,6 +110,11 @@ Route::middleware(['auth', 'role:admin', 'throttle.custom'])->prefix('admin')->n
     Route::post('import/process', [ImportController::class, 'process'])->name('import.process');
     Route::get('import/template', [ImportController::class, 'downloadTemplate'])->name('import.template');
 
+    Route::get('export', [\App\Http\Controllers\ExportController::class, 'index'])->name('export.index');
+    Route::get('export/accounts', [\App\Http\Controllers\ExportController::class, 'accounts'])->name('export.accounts');
+    Route::get('export/sessions', [\App\Http\Controllers\ExportController::class, 'sessions'])->name('export.sessions');
+    Route::get('export/personnel', [\App\Http\Controllers\ExportController::class, 'personnel'])->name('export.personnel');
+
     Route::get('backup', [BackupController::class, 'index'])->name('backup.index');
     Route::post('backup/run', [BackupController::class, 'runBackup'])->name('backup.run');
     Route::get('backup/download/{id}', [BackupController::class, 'download'])->name('backup.download');
