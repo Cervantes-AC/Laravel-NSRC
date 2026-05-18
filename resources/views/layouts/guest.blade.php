@@ -10,43 +10,54 @@
         <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet" />
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
-    <body class="font-sans antialiased">
+    <body class="font-sans antialiased bg-slate-50">
         <div class="min-h-screen flex">
             {{-- Left panel --}}
-            <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-indigo-600 via-indigo-700 to-indigo-900 relative overflow-hidden">
-                <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 25% 50%, white 1px, transparent 1px); background-size: 40px 40px;"></div>
+            <div class="hidden lg:flex lg:w-1/2 bg-slate-950 relative overflow-hidden">
+                <div class="absolute inset-0 bg-[linear-gradient(135deg,rgba(37,99,235,0.34),transparent_42%),linear-gradient(315deg,rgba(5,150,105,0.24),transparent_38%)]"></div>
+                <div class="absolute inset-0 opacity-[0.08]" style="background-image: linear-gradient(rgba(255,255,255,.8) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.8) 1px, transparent 1px); background-size: 42px 42px;"></div>
                 <div class="relative w-full flex flex-col justify-between p-12">
                     <div class="flex items-center gap-3">
-                        <x-application-logo class="h-10 w-10 brightness-0 invert" />
+                        <div class="flex h-11 w-11 items-center justify-center rounded-lg bg-white">
+                            <x-application-logo class="h-9 w-9" />
+                        </div>
                         <span class="text-xl font-bold text-white">{{ config('app.name', 'NSRC') }}</span>
                     </div>
                     <div>
-                        <h1 class="text-3xl font-bold text-white leading-tight">Attendance Management<br>Made Simple</h1>
-                        <p class="mt-4 text-indigo-200 text-lg max-w-md">Streamline volunteer attendance tracking, duty session management, and performance analytics.</p>
-                        <div class="mt-8 flex gap-4">
-                            <div class="flex -space-x-2">
-                                <div class="w-10 h-10 rounded-full bg-indigo-400 border-2 border-indigo-600 flex items-center justify-center text-xs font-bold text-white">JD</div>
-                                <div class="w-10 h-10 rounded-full bg-purple-400 border-2 border-indigo-600 flex items-center justify-center text-xs font-bold text-white">MK</div>
-                                <div class="w-10 h-10 rounded-full bg-pink-400 border-2 border-indigo-600 flex items-center justify-center text-xs font-bold text-white">AL</div>
-                                <div class="w-10 h-10 rounded-full bg-indigo-300 border-2 border-indigo-600 flex items-center justify-center text-xs font-bold text-white">+</div>
+                        <p class="text-sm font-semibold uppercase tracking-[0.18em] text-blue-200">National Service Reserve Corps</p>
+                        <h1 class="mt-4 text-4xl font-bold text-white leading-tight">Attendance operations with cleaner data and faster decisions.</h1>
+                        <p class="mt-5 text-slate-300 text-lg max-w-md">Manage duty sessions, personnel, reports, backups, and analytics from one secure console.</p>
+                        <div class="mt-8 grid grid-cols-3 gap-3 max-w-md">
+                            <div class="rounded-lg border border-white/10 bg-white/10 p-4">
+                                <p class="text-2xl font-bold text-white">24/7</p>
+                                <p class="mt-1 text-xs font-medium text-slate-300">Session access</p>
                             </div>
-                            <span class="text-indigo-200 text-sm self-center">Trusted by NSRC volunteers</span>
+                            <div class="rounded-lg border border-white/10 bg-white/10 p-4">
+                                <p class="text-2xl font-bold text-white">AI</p>
+                                <p class="mt-1 text-xs font-medium text-slate-300">Insights ready</p>
+                            </div>
+                            <div class="rounded-lg border border-white/10 bg-white/10 p-4">
+                                <p class="text-2xl font-bold text-white">PDF</p>
+                                <p class="mt-1 text-xs font-medium text-slate-300">Export reports</p>
+                            </div>
                         </div>
                     </div>
-                    <p class="text-indigo-300 text-sm">&copy; {{ date('Y') }} NSRC-AMS. All rights reserved.</p>
+                    <p class="text-slate-400 text-sm">&copy; {{ date('Y') }} NSRC-AMS. All rights reserved.</p>
                 </div>
             </div>
 
             {{-- Right panel --}}
-            <div class="flex-1 flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8 py-12 bg-gray-50">
+            <div class="flex-1 flex flex-col justify-center items-center px-4 sm:px-6 lg:px-8 py-12">
                 <div class="w-full sm:max-w-md">
                     <div class="lg:hidden flex justify-center mb-8">
                         <div class="flex items-center gap-3">
-                            <x-application-logo class="h-10 w-10" />
+                            <div class="flex h-11 w-11 items-center justify-center rounded-lg bg-white shadow-sm">
+                                <x-application-logo class="h-9 w-9" />
+                            </div>
                             <span class="text-xl font-bold text-gray-900">{{ config('app.name', 'NSRC') }}</span>
                         </div>
                     </div>
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-6 sm:p-8">
+                    <div class="rounded-lg border border-slate-200 bg-white p-6 shadow-xl shadow-slate-200/80 sm:p-8">
                         {{ $slot }}
                     </div>
                 </div>

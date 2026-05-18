@@ -43,8 +43,20 @@ class DutyEngine
 
     public function calculateDuration($timeIn, $timeOut): int
     {
-        if (!$timeIn || !$timeOut) {
+        if (!$timeIn) {
             return 0;
+        }
+
+        // If no time_out, calculate from time_in to end of day (23:59:59)
+        if (!$timeOut) {
+            $start = $timeIn instanceof \DateTimeInterface ? $timeIn : now()->parse($timeIn);
+            $endOfDay = $start->copy()->endOfDay();
+            
+            if ($endOfDay <= $start) {
+                return 0;
+            }
+            
+            return (int) $start->diffInMinutes($endOfDay);
         }
 
         $start = $timeIn instanceof \DateTimeInterface ? $timeIn : now()->parse($timeIn);
@@ -74,24 +86,27 @@ class DutyEngine
             return 100.0;
         }
 
+        // Missing timeout - partial integrity (has time_in but no time_out)
         if ($timeIn && !$timeOut) {
-            return 60.0;
+            return 70.0;
         }
 
         return 40.0;
     }
 
-    public function determineStatus($timeIn, $timeOut, bool $hasPair): string
+    public function determineStatus($timeIn, $timeOut, bool $hasPair, ?int $duration = null): string
     {
         if ($timeIn && $timeOut) {
-            return 'COMPLETE';
-        }
+            if ($duration === null) {
+                return 'COMPLETE';
+            }
 
-        if ($timeIn && !$timeOut && $hasPair) {
-            return 'ONGOING';
+            return $duration >= 1 ? 'COMPLETE' : 'INVALID_LOG';
         }
 
         if ($timeIn && !$timeOut) {
+            // Record exists with time_in but no time_out - mark as MISSING_TIMEOUT
+            // Duration is calculated from time_in to end of day
             return 'MISSING_TIMEOUT';
         }
 
@@ -221,7 +236,7 @@ class DutyEngine
             'location' => $location,
             'sector' => $this->assignSector($location),
             'integrity_score' => $this->generateIntegrityScore($timeIn, $timeOut),
-            'status' => $this->determineStatus($timeIn, $timeOut, $hasPair),
+            'status' => $this->determineStatus($timeIn, $timeOut, $hasPair, $duration),
         ]);
     }
 }

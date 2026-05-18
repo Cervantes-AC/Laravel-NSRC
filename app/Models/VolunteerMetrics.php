@@ -18,6 +18,7 @@ class VolunteerMetrics extends Model
         'total_regular_minutes',
         'total_overtime_minutes',
         'total_undertime_minutes',
+        'total_minutes',
         'invalid_record_count',
         'session_count',
     ];

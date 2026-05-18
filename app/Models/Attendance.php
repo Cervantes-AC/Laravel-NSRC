@@ -19,9 +19,12 @@ class Attendance extends Model
         'date_time',
         'location',
         'shift_type',
+        'source_signature',
+        'source_payload',
     ];
 
     protected $casts = [
         'date_time' => 'datetime',
+        'source_payload' => 'array',
     ];
 }

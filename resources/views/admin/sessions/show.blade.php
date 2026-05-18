@@ -1,17 +1,14 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ __('Session Details') }}</h2>
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ __('Attendance Details') }}</h2>
     </x-slot>
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     <div class="flex items-center justify-between mb-6">
-                        <a href="{{ route('admin.sessions.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition" aria-label="{{ __('Back to sessions list') }}">
+                        <a href="{{ route('admin.attendance.index') }}" class="inline-flex items-center px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition" aria-label="{{ __('Back to attendance list') }}">
                             &larr; {{ __('Back') }}
-                        </a>
-                        <a href="{{ route('admin.sessions.edit', $session) }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg transition" aria-label="{{ __('Edit session') }}">
-                            {{ __('Edit') }}
                         </a>
                     </div>
 
@@ -35,7 +32,7 @@
                         </div>
 
                         <div class="md:col-span-1">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('Session Information') }}</h3>
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('Attendance Summary') }}</h3>
                             <dl class="space-y-3">
                                 <div>
                                     <dt class="text-sm font-medium text-gray-500">{{ __('Date') }}</dt>
@@ -51,13 +48,13 @@
                                 </div>
                                 <div>
                                     <dt class="text-sm font-medium text-gray-500">{{ __('Duration') }}</dt>
-                                    <dd class="text-sm text-gray-900">{{ $session->duration ? $session->duration . ' ' . __('minutes') : __('Ongoing') }}</dd>
+                                    <dd class="text-sm text-gray-900">{{ $session->duration_minutes ? $session->duration_minutes . ' ' . __('minutes') : __('Ongoing') }}</dd>
                                 </div>
                                 <div>
                                     <dt class="text-sm font-medium text-gray-500">{{ __('Status') }}</dt>
                                     <dd class="text-sm">
                                         <span class="px-2 py-1 rounded-full text-xs font-medium {{ $session->status === 'completed' ? 'bg-green-100 text-green-800' : ($session->status === 'ongoing' ? 'bg-blue-100 text-blue-800' : 'bg-red-100 text-red-800') }}">
-                                            {{ ucfirst($session->status) }}
+                                            {{ str_replace('_', ' ', ucfirst(strtolower($session->status))) }}
                                         </span>
                                     </dd>
                                 </div>
@@ -84,15 +81,13 @@
                                     <dd class="text-sm text-gray-900">{{ $session->sector ?? __('N/A') }}</dd>
                                 </div>
                                 <div>
-                                    <dt class="text-sm font-medium text-gray-500">{{ __('Logged At') }}</dt>
+                                    <dt class="text-sm font-medium text-gray-500">{{ __('Synced At') }}</dt>
                                     <dd class="text-sm text-gray-900">{{ $session->created_at->format('M d, Y h:i A') }}</dd>
                                 </div>
-                                @if($session->notes)
-                                    <div>
-                                        <dt class="text-sm font-medium text-gray-500">{{ __('Notes') }}</dt>
-                                        <dd class="text-sm text-gray-900">{{ $session->notes }}</dd>
-                                    </div>
-                                @endif
+                                <div>
+                                    <dt class="text-sm font-medium text-gray-500">{{ __('Source') }}</dt>
+                                    <dd class="text-sm text-gray-900">{{ __('Google Spreadsheet') }}</dd>
+                                </div>
                             </dl>
                         </div>
                     </div>

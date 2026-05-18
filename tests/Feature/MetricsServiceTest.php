@@ -35,6 +35,7 @@ class MetricsServiceTest extends TestCase
         $this->assertCount(1, $results);
         $this->assertEquals($user->id, $results->first()->volunteer_id);
         $this->assertEquals(360, $results->first()->total_regular_minutes);
+        $this->assertEquals(360, $results->first()->total_minutes);
         $this->assertEquals(0, $results->first()->invalid_record_count);
         $this->assertEquals(3, $results->first()->session_count);
     }
@@ -74,6 +75,7 @@ class MetricsServiceTest extends TestCase
         $this->assertEquals(480, $results->first()->total_regular_minutes);
         $this->assertEquals(120, $results->first()->total_overtime_minutes);
         $this->assertEquals(0, $results->first()->total_undertime_minutes);
+        $this->assertEquals(600, $results->first()->total_minutes);
     }
 
     public function test_calculate_volunteer_metrics_handles_undertime(): void
@@ -91,6 +93,7 @@ class MetricsServiceTest extends TestCase
         $this->assertEquals(240, $results->first()->total_regular_minutes);
         $this->assertEquals(0, $results->first()->total_overtime_minutes);
         $this->assertEquals(240, $results->first()->total_undertime_minutes);
+        $this->assertEquals(240, $results->first()->total_minutes);
     }
 
     public function test_get_system_summary_returns_expected_keys(): void

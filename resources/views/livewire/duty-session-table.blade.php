@@ -1,6 +1,27 @@
 <div class="space-y-6">
+    @if($syncMessage)
+        <div class="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
+            {{ $syncMessage }}
+        </div>
+    @endif
+
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <div class="rounded-xl border border-gray-200 bg-white p-4">
+            <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">{{ __('Filtered Sessions') }}</p>
+            <p class="mt-1 text-2xl font-black text-gray-900">{{ number_format($filteredCount) }}</p>
+        </div>
+        <div class="rounded-xl border border-gray-200 bg-white p-4">
+            <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">{{ __('Completed') }}</p>
+            <p class="mt-1 text-2xl font-black text-green-600">{{ number_format($completeCount) }}</p>
+        </div>
+        <div class="rounded-xl border border-gray-200 bg-white p-4">
+            <p class="text-xs font-semibold uppercase tracking-wider text-gray-500">{{ __('Logged Hours') }}</p>
+            <p class="mt-1 text-2xl font-black text-indigo-600">{{ number_format($totalMinutes / 60, 1) }}</p>
+        </div>
+    </div>
+
     <div class="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 flex-1">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 flex-1">
             <div>
                 <label for="session-search" class="block text-xs font-medium text-gray-600">{{ __('Search') }}</label>
                 <input id="session-search" type="search" wire:model.live.debounce.300ms="search" placeholder="{{ __('Personnel name...') }}" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
@@ -25,6 +46,35 @@
                 </select>
             </div>
             <div>
+                <label for="session-location" class="block text-xs font-medium text-gray-600">{{ __('Location') }}</label>
+                <select id="session-location" wire:model.live="location" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <option value="">{{ __('All Locations') }}</option>
+                    @foreach($locations as $loc)
+                        <option value="{{ $loc }}">{{ $loc }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div>
+                <label for="session-duration" class="block text-xs font-medium text-gray-600">{{ __('Duration') }}</label>
+                <select id="session-duration" wire:model.live="duration" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <option value="">{{ __('Any Duration') }}</option>
+                    <option value="completed_hours">{{ __('With logged hours') }}</option>
+                    <option value="under_4h">{{ __('Under 4 hours') }}</option>
+                    <option value="4h_8h">{{ __('4 to 8 hours') }}</option>
+                    <option value="over_8h">{{ __('Over 8 hours') }}</option>
+                    <option value="missing">{{ __('No duration') }}</option>
+                </select>
+            </div>
+            <div>
+                <label for="session-integrity" class="block text-xs font-medium text-gray-600">{{ __('Integrity') }}</label>
+                <select id="session-integrity" wire:model.live="integrity" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                    <option value="">{{ __('Any Score') }}</option>
+                    <option value="high">{{ __('90% and above') }}</option>
+                    <option value="medium">{{ __('70% to 89%') }}</option>
+                    <option value="low">{{ __('Below 70%') }}</option>
+                </select>
+            </div>
+            <div>
                 <label for="session-from" class="block text-xs font-medium text-gray-600">{{ __('From') }}</label>
                 <input id="session-from" type="date" wire:model.live="dateFrom" class="mt-1 w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-indigo-500 focus:ring-indigo-500" />
             </div>
@@ -41,7 +91,6 @@
                 <option value="100">100</option>
             </select>
             <button type="button" wire:click="clearFilters" class="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-lg">{{ __('Clear') }}</button>
-            <a href="{{ route('admin.sessions.create') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm rounded-lg">+ {{ __('New Session') }}</a>
         </div>
     </div>
 
@@ -66,15 +115,15 @@
                     </div>
                     <div>
                         <dt class="text-gray-500">{{ __('Time In') }}</dt>
-                        <dd>{{ $session->time_in?->format('h:i A') ?? '—' }}</dd>
+                        <dd>{{ $session->time_in?->format('h:i A') ?? '-' }}</dd>
                     </div>
                     <div>
                         <dt class="text-gray-500">{{ __('Time Out') }}</dt>
-                        <dd>{{ $session->time_out?->format('h:i A') ?? '—' }}</dd>
+                        <dd>{{ $session->time_out?->format('h:i A') ?? '-' }}</dd>
                     </div>
                     <div class="col-span-2">
                         <dt class="text-gray-500">{{ __('Location / Sector') }}</dt>
-                        <dd>{{ $session->location ?? '—' }} · {{ $session->sector ?? __('General') }}</dd>
+                        <dd>{{ $session->location ?? '-' }} - {{ $session->sector ?? __('General') }}</dd>
                     </div>
                     <div>
                         <dt class="text-gray-500">{{ __('Integrity') }}</dt>
@@ -82,12 +131,11 @@
                     </div>
                 </dl>
                 <div class="mt-4 flex gap-3 text-sm">
-                    <a href="{{ route('admin.sessions.show', $session) }}" class="text-indigo-600 hover:text-indigo-800">{{ __('View') }}</a>
-                    <a href="{{ route('admin.sessions.edit', $session) }}" class="text-amber-600 hover:text-amber-800">{{ __('Edit') }}</a>
+                    <a href="{{ route('admin.attendance.show', $session) }}" class="text-indigo-600 hover:text-indigo-800">{{ __('View') }}</a>
                 </div>
             </article>
         @empty
-            <p class="col-span-full text-center py-12 text-gray-500">{{ __('No duty sessions match your filters.') }}</p>
+            <p class="col-span-full text-center py-12 text-gray-500">{{ __('No attendance summaries match your filters.') }}</p>
         @endforelse
     </div>
 

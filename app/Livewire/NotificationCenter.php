@@ -37,7 +37,7 @@ class NotificationCenter extends Component
     {
         $notification = DatabaseNotification::find($id);
 
-        if ($notification && $notification->notifiable_id === auth()->id()) {
+        if ($notification && (string) $notification->notifiable_id === (string) auth()->id()) {
             $notification->markAsRead();
             $this->loadNotifications();
         }
@@ -45,7 +45,7 @@ class NotificationCenter extends Component
 
     public function markAllAsRead(): void
     {
-        auth()->user()->unreadNotifications->markAsRead();
+        auth()->user()?->unreadNotifications->markAsRead();
         $this->loadNotifications();
     }
 
@@ -53,7 +53,7 @@ class NotificationCenter extends Component
     {
         $notification = DatabaseNotification::find($id);
 
-        if ($notification && $notification->notifiable_id === auth()->id()) {
+        if ($notification && (string) $notification->notifiable_id === (string) auth()->id()) {
             $notification->delete();
             $this->loadNotifications();
         }

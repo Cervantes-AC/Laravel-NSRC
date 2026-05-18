@@ -12,7 +12,7 @@ A production-ready Laravel web application for tracking volunteer attendance, ma
 
 ## Features
 
-- **Attendance Tracking** — Real-time duty session management with time-in/time-out logging, duration calculation, and integrity scoring
+- **Spreadsheet-Based Attendance Tracking** — Google Spreadsheet rows are mirrored into attendance logs, then paired into attendance summaries with duration calculation and integrity scoring
 - **Role-Based Access** — Admin and Member roles with distinct permissions and data visibility via Laravel Policies
 - **Dashboard & Analytics** — Livewire-powered dashboards with stats, charts, and real-time activity feeds
 - **Reporting** — User activity, transaction summary, audit trail, system usage, and custom report builder
@@ -48,7 +48,7 @@ Database (MySQL/SQLite/PostgreSQL) + Google Sheets API
 |---------|---------|
 | `DutyEngine` | Core processing: log parsing, time pairing, duration/status calculation |
 | `MetricsService` | Volunteer metrics: regular/overtime/undertime/invalid/session counts |
-| `GoogleSheetsSyncService` | Orchestrates full Google Sheets import pipeline |
+| `MySQLAttendanceService` | Fetches attendance data from MySQL source table |
 | `NameNormalizationService` | Levenshtein-based fuzzy name matching and merging |
 | `BackupService` | Database dump, file archive, full system backup with integrity check |
 | `NotificationService` | Multi-channel notification creation and delivery |
@@ -75,7 +75,12 @@ npm run build
 php artisan serve
 ```
 
-**Default credentials:** `admin@example.com` / `Admin@123`
+**Default test accounts:**
+
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | `admin@gmail.com` | `Admin@123` |
+| Member | `member@gmail.com` | `Member@123` |
 
 ## Environment
 
@@ -105,7 +110,8 @@ MAIL_MAILER=log       # configure for production
 ## Commands
 
 ```bash
-# Sync Google Sheets attendance
+# Sync Google Sheets attendance.
+# A full sync replaces the local attendance mirror so the app reflects the spreadsheet.
 php artisan attendance:sync-google-sheets
 
 # Run backup (database/files/full)

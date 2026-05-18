@@ -12,16 +12,72 @@ class ReportService
 {
     protected AIProviderService $aiProvider;
 
-    public function __construct(AIProviderService $aiProvider)
+    protected NameNormalizationService $nameService;
+
+    private const MERGE_THRESHOLD = 85.0;
+
+    public function __construct(AIProviderService $aiProvider, NameNormalizationService $nameService)
     {
         $this->aiProvider = $aiProvider;
+        $this->nameService = $nameService;
     }
+
+    public function mergeSimilarNames(Collection $sessions): Collection
+    {
+        if ($sessions->isEmpty()) {
+            return $sessions;
+        }
+
+        $groups = collect();
+        $assigned = [];
+
+        foreach ($sessions as $session) {
+            $name = $session->full_name ?? '';
+            if (empty($name)) {
+                $groups->push($session);
+                continue;
+            }
+
+            $matched = false;
+            foreach ($groups as $groupKey => $groupSessions) {
+                if ($this->nameService->areNamesSimilar($name, $groupKey, self::MERGE_THRESHOLD)) {
+                    $groups[$groupKey]->push($session);
+                    $matched = true;
+                    break;
+                }
+            }
+
+            if (!$matched) {
+                $groups[$name] = collect([$session]);
+            }
+        }
+
+        return $groups->map(function ($groupSessions) {
+            $first = $groupSessions->first();
+            $first->full_name = $groupSessions->pluck('full_name')->unique()->implode(' / ');
+            return $groupSessions;
+        })->flatten();
+    }
+
     public function generateUserActivityReport(array $filters): array
     {
         $query = DutySession::with('volunteer');
 
         if (!empty($filters['user_id'])) {
             $query->where('volunteer_id', $filters['user_id']);
+        }
+
+        if (!empty($filters['personnel_search'])) {
+            $search = $filters['personnel_search'];
+            $query->where(function ($q) use ($search) {
+                $q->where('full_name', 'like', '%' . $search . '%')
+                    ->orWhereHas('volunteer', function ($volunteer) use ($search) {
+                        $volunteer->where('full_name', 'like', '%' . $search . '%')
+                            ->orWhere('name', 'like', '%' . $search . '%')
+                            ->orWhere('school_id', 'like', '%' . $search . '%')
+                            ->orWhere('email', 'like', '%' . $search . '%');
+                    });
+            });
         }
 
         if (!empty($filters['date_from'])) {
@@ -34,6 +90,10 @@ class ReportService
 
         if (!empty($filters['status'])) {
             $query->where('status', $filters['status']);
+        }
+
+        if (!empty($filters['sector'])) {
+            $query->where('sector', $filters['sector']);
         }
 
         $data = $query->orderByDesc('date')->get();
@@ -54,11 +114,24 @@ class ReportService
         $query = DutySession::query();
 
         if (!empty($filters['date_from'])) {
-            $query->whereDate('created_at', '>=', $filters['date_from']);
+            $query->whereDate('date', '>=', $filters['date_from']);
         }
 
         if (!empty($filters['date_to'])) {
-            $query->whereDate('created_at', '<=', $filters['date_to']);
+            $query->whereDate('date', '<=', $filters['date_to']);
+        }
+
+        if (!empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+
+        if (!empty($filters['sector'])) {
+            $query->where('sector', $filters['sector']);
+        }
+
+        if (!empty($filters['personnel_search'])) {
+            $search = $filters['personnel_search'];
+            $query->where('full_name', 'like', '%' . $search . '%');
         }
 
         $summary = (object) [
@@ -69,7 +142,7 @@ class ReportService
             'invalid' => (clone $query)->where('status', 'INVALID_LOG')->count(),
         ];
 
-        $data = $query->orderByDesc('created_at')->get();
+        $data = $query->orderByDesc('date')->get();
 
         return [
             'data' => [
@@ -121,20 +194,38 @@ class ReportService
 
     public function generateSystemUsageStats(array $filters): array
     {
+        $query = DutySession::query();
+
+        if (!empty($filters['date_from'])) {
+            $query->whereDate('date', '>=', $filters['date_from']);
+        }
+
+        if (!empty($filters['date_to'])) {
+            $query->whereDate('date', '<=', $filters['date_to']);
+        }
+
+        if (!empty($filters['status'])) {
+            $query->where('status', $filters['status']);
+        }
+
+        if (!empty($filters['sector'])) {
+            $query->where('sector', $filters['sector']);
+        }
+
         $userCount = User::count();
-        $sessionCount = DutySession::count();
-        $totalDuration = DutySession::sum('duration_minutes');
+        $sessionCount = (clone $query)->count();
+        $totalDuration = (clone $query)->sum('duration_minutes');
 
         $stats = [
             'total_users' => $userCount,
             'total_sessions' => $sessionCount,
             'total_duration_minutes' => $totalDuration,
             'avg_duration_per_session' => $sessionCount > 0 ? round($totalDuration / $sessionCount, 2) : 0,
-            'sessions_by_status' => DutySession::select('status', DB::raw('count(*) as count'))
+            'sessions_by_status' => (clone $query)->select('status', DB::raw('count(*) as count'))
                 ->groupBy('status')
                 ->pluck('count', 'status')
                 ->toArray(),
-            'sessions_by_sector' => DutySession::select('sector', DB::raw('count(*) as count'))
+            'sessions_by_sector' => (clone $query)->select('sector', DB::raw('count(*) as count'))
                 ->groupBy('sector')
                 ->pluck('count', 'sector')
                 ->toArray(),

@@ -78,6 +78,16 @@ class User extends Authenticatable
         return $this->hasMany(DutySession::class, 'volunteer_id');
     }
 
+    public function attendanceSummaries(): HasMany
+    {
+        return $this->dutySessions();
+    }
+
+    public function sessions(): HasMany
+    {
+        return $this->dutySessions();
+    }
+
     public function metrics(): HasOne
     {
         return $this->hasOne(VolunteerMetrics::class, 'volunteer_id');

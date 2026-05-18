@@ -84,28 +84,6 @@
                 </div>
 
                 <div class="lg:col-span-1 space-y-6">
-                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-emerald-100">
-                        <div class="p-6 text-gray-900">
-                            <h3 class="text-lg font-medium text-gray-900 mb-2">{{ __('Google Sheets') }}</h3>
-                            <p class="text-sm text-gray-600 mb-4">{{ __('Pull the latest attendance logs from your connected spreadsheet and rebuild duty sessions.') }}</p>
-                            <form method="POST" action="{{ route('admin.import.sync-google-sheets') }}" class="space-y-3">
-                                @csrf
-                                <div>
-                                    <label for="sync_date" class="block text-xs font-medium text-gray-600">{{ __('Date (optional)') }}</label>
-                                    <input id="sync_date" name="date" type="text" placeholder="5/3/2026" class="mt-1 block w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-emerald-500 focus:ring-emerald-500" />
-                                </div>
-                                <div>
-                                    <label for="sync_name" class="block text-xs font-medium text-gray-600">{{ __('Name (optional)') }}</label>
-                                    <input id="sync_name" name="name" type="text" placeholder="{{ __('Volunteer name') }}" class="mt-1 block w-full rounded-lg border-gray-300 text-sm shadow-sm focus:border-emerald-500 focus:ring-emerald-500" />
-                                </div>
-                                <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg transition">
-                                    {{ __('Sync from Google Sheets') }}
-                                </button>
-                            </form>
-                            <p class="mt-3 text-xs text-gray-500">{{ __('Columns: timestamp, full_name, attendance (Time in / Time out)') }}</p>
-                        </div>
-                    </div>
-
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                         <div class="p-6 text-gray-900">
                             <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('Templates') }}</h3>
@@ -121,7 +99,7 @@
                                     <svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                     </svg>
-                                    <span class="text-sm font-medium text-gray-700">{{ __('Attendance Template (Google Sheets format)') }}</span>
+                                    <span class="text-sm font-medium text-gray-700">{{ __('Attendance Template') }}</span>
                                 </a>
                             </div>
 

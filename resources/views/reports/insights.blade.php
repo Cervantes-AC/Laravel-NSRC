@@ -1,6 +1,8 @@
-@extends('layouts.app')
+<x-app-layout>
+<x-slot name="header">
+    <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ __('Report Insights') }}</h2>
+</x-slot>
 
-@section('content')
 <div class="container mx-auto px-4 py-8">
     <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
         <!-- Sidebar with Provider Switcher -->
@@ -124,4 +126,4 @@
         }
     });
 </script>
-@endsection
+</x-app-layout>

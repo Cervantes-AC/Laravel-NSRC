@@ -17,18 +17,18 @@
                             <label for="dark-mode" class="text-sm font-medium text-gray-700">{{ __('Dark Mode') }}</label>
                             <p class="text-xs text-gray-500">{{ __('Toggle dark mode for the interface') }}</p>
                         </div>
-                        <button type="button" wire:click="$toggle('darkMode')" role="switch" aria-checked="{{ $darkMode ? 'true' : 'false' }}" aria-label="{{ __('Toggle dark mode') }}" class="relative inline-flex h-6 w-11 items-center rounded-full transition {{ $darkMode ? 'bg-indigo-600' : 'bg-gray-300' }}">
-                            <span class="inline-block h-4 w-4 transform rounded-full bg-white transition {{ $darkMode ? 'translate-x-6' : 'translate-x-1' }}"></span>
+                        <button type="button" wire:click="$set('theme', '{{ $theme === 'dark' ? 'light' : 'dark' }}')" role="switch" aria-checked="{{ $theme === 'dark' ? 'true' : 'false' }}" aria-label="{{ __('Toggle dark mode') }}" class="relative inline-flex h-6 w-11 items-center rounded-full transition {{ $theme === 'dark' ? 'bg-indigo-600' : 'bg-gray-300' }}">
+                            <span class="inline-block h-4 w-4 transform rounded-full bg-white transition {{ $theme === 'dark' ? 'translate-x-6' : 'translate-x-1' }}"></span>
                         </button>
                     </div>
 
                     <div class="flex items-center justify-between">
                         <div>
-                            <label for="compact-view" class="text-sm font-medium text-gray-700">{{ __('Compact View') }}</label>
-                            <p class="text-xs text-gray-500">{{ __('Use a more compact layout') }}</p>
+                            <label for="notifications-enabled" class="text-sm font-medium text-gray-700">{{ __('In-app Notifications') }}</label>
+                            <p class="text-xs text-gray-500">{{ __('Show notifications inside the application') }}</p>
                         </div>
-                        <button type="button" wire:click="$toggle('compactView')" role="switch" aria-checked="{{ $compactView ? 'true' : 'false' }}" aria-label="{{ __('Toggle compact view') }}" class="relative inline-flex h-6 w-11 items-center rounded-full transition {{ $compactView ? 'bg-indigo-600' : 'bg-gray-300' }}">
-                            <span class="inline-block h-4 w-4 transform rounded-full bg-white transition {{ $compactView ? 'translate-x-6' : 'translate-x-1' }}"></span>
+                        <button type="button" wire:click="$toggle('notificationEnabled')" role="switch" aria-checked="{{ $notificationEnabled ? 'true' : 'false' }}" aria-label="{{ __('Toggle in-app notifications') }}" class="relative inline-flex h-6 w-11 items-center rounded-full transition {{ $notificationEnabled ? 'bg-indigo-600' : 'bg-gray-300' }}">
+                            <span class="inline-block h-4 w-4 transform rounded-full bg-white transition {{ $notificationEnabled ? 'translate-x-6' : 'translate-x-1' }}"></span>
                         </button>
                     </div>
                 </div>
@@ -42,8 +42,8 @@
                             <label for="email-alerts" class="text-sm font-medium text-gray-700">{{ __('Email Alerts') }}</label>
                             <p class="text-xs text-gray-500">{{ __('Receive notification emails') }}</p>
                         </div>
-                        <button type="button" wire:click="$toggle('emailAlerts')" role="switch" aria-checked="{{ $emailAlerts ? 'true' : 'false' }}" aria-label="{{ __('Toggle email alerts') }}" class="relative inline-flex h-6 w-11 items-center rounded-full transition {{ $emailAlerts ? 'bg-indigo-600' : 'bg-gray-300' }}">
-                            <span class="inline-block h-4 w-4 transform rounded-full bg-white transition {{ $emailAlerts ? 'translate-x-6' : 'translate-x-1' }}"></span>
+                        <button type="button" wire:click="$toggle('emailNotifications')" role="switch" aria-checked="{{ $emailNotifications ? 'true' : 'false' }}" aria-label="{{ __('Toggle email alerts') }}" class="relative inline-flex h-6 w-11 items-center rounded-full transition {{ $emailNotifications ? 'bg-indigo-600' : 'bg-gray-300' }}">
+                            <span class="inline-block h-4 w-4 transform rounded-full bg-white transition {{ $emailNotifications ? 'translate-x-6' : 'translate-x-1' }}"></span>
                         </button>
                     </div>
 
@@ -52,18 +52,8 @@
                             <label for="sms-alerts" class="text-sm font-medium text-gray-700">{{ __('SMS Alerts') }}</label>
                             <p class="text-xs text-gray-500">{{ __('Receive SMS notifications') }}</p>
                         </div>
-                        <button type="button" wire:click="$toggle('smsAlerts')" role="switch" aria-checked="{{ $smsAlerts ? 'true' : 'false' }}" aria-label="{{ __('Toggle SMS alerts') }}" class="relative inline-flex h-6 w-11 items-center rounded-full transition {{ $smsAlerts ? 'bg-indigo-600' : 'bg-gray-300' }}">
-                            <span class="inline-block h-4 w-4 transform rounded-full bg-white transition {{ $smsAlerts ? 'translate-x-6' : 'translate-x-1' }}"></span>
-                        </button>
-                    </div>
-
-                    <div class="flex items-center justify-between">
-                        <div>
-                            <label for="browser-notifications" class="text-sm font-medium text-gray-700">{{ __('Browser Notifications') }}</label>
-                            <p class="text-xs text-gray-500">{{ __('Receive in-browser notifications') }}</p>
-                        </div>
-                        <button type="button" wire:click="$toggle('browserNotifications')" role="switch" aria-checked="{{ $browserNotifications ? 'true' : 'false' }}" aria-label="{{ __('Toggle browser notifications') }}" class="relative inline-flex h-6 w-11 items-center rounded-full transition {{ $browserNotifications ? 'bg-indigo-600' : 'bg-gray-300' }}">
-                            <span class="inline-block h-4 w-4 transform rounded-full bg-white transition {{ $browserNotifications ? 'translate-x-6' : 'translate-x-1' }}"></span>
+                        <button type="button" wire:click="$toggle('smsNotifications')" role="switch" aria-checked="{{ $smsNotifications ? 'true' : 'false' }}" aria-label="{{ __('Toggle SMS alerts') }}" class="relative inline-flex h-6 w-11 items-center rounded-full transition {{ $smsNotifications ? 'bg-indigo-600' : 'bg-gray-300' }}">
+                            <span class="inline-block h-4 w-4 transform rounded-full bg-white transition {{ $smsNotifications ? 'translate-x-6' : 'translate-x-1' }}"></span>
                         </button>
                     </div>
                 </div>

@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ImportRequest;
-use App\Services\GoogleSheetsSyncService;
 use App\Services\ImportService;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
@@ -12,7 +11,6 @@ class ImportController extends Controller
 {
     public function __construct(
         protected ImportService $importService,
-        protected GoogleSheetsSyncService $googleSheetsSyncService,
     ) {}
 
     public function index()
@@ -46,32 +44,6 @@ class ImportController extends Controller
 
         return redirect()->route('admin.import.index')
             ->with('success', "Successfully imported {$result['success']} records.");
-    }
-
-    public function syncGoogleSheets(Request $request)
-    {
-        $options = array_filter([
-            'date' => $request->input('date'),
-            'name' => $request->input('name'),
-        ]);
-
-        $result = $this->googleSheetsSyncService->sync($options);
-
-        $message = sprintf(
-            'Google Sheets sync complete: %d new logs, %d sessions created, %d sessions updated, %d skipped.',
-            $result['imported'],
-            $result['sessions_created'],
-            $result['sessions_updated'],
-            $result['skipped']
-        );
-
-        if (! empty($result['errors']) && $result['imported'] === 0 && $result['sessions_created'] === 0) {
-            return redirect()->route('admin.import.index')
-                ->with('warning', $message . ' ' . implode(' ', $result['errors']));
-        }
-
-        return redirect()->route('admin.import.index')
-            ->with('success', $message);
     }
 
     public function downloadTemplate()

@@ -41,6 +41,8 @@ Route::middleware(['auth', 'verified', 'role:admin', 'throttle.custom'])->prefix
 
     Route::resource('personnel', PersonnelController::class);
 
+    Route::get('attendance', [AdminSessionsController::class, 'index'])->name('attendance.index');
+    Route::get('attendance/{session}', [AdminSessionsController::class, 'show'])->name('attendance.show');
     Route::get('sessions/restore/{id}', [AdminSessionsController::class, 'restore'])->name('sessions.restore');
     Route::resource('sessions', AdminSessionsController::class);
 
@@ -54,11 +56,6 @@ Route::middleware(['auth', 'verified', 'role:admin', 'throttle.custom'])->prefix
     Route::get('accounts/{user}/history', [UserManagementController::class, 'loginHistory'])->name('accounts.history');
 
     Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
-    Route::post('settings/branding', [SettingsController::class, 'updateBranding'])->name('settings.branding');
-    Route::post('settings/email', [SettingsController::class, 'updateEmail'])->name('settings.email');
-    Route::post('settings/security', [SettingsController::class, 'updateSecurity'])->name('settings.security');
-    Route::post('settings/backup', [SettingsController::class, 'updateBackup'])->name('settings.backup');
-    Route::post('settings/notifications', [SettingsController::class, 'updateNotifications'])->name('settings.notifications');
     Route::post('settings/update', [SettingsController::class, 'update'])->name('settings.update');
 
     Route::get('audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
@@ -67,7 +64,6 @@ Route::middleware(['auth', 'verified', 'role:admin', 'throttle.custom'])->prefix
     Route::get('import', [ImportController::class, 'index'])->name('import.index');
     Route::post('import/preview', [ImportController::class, 'preview'])->name('import.preview');
     Route::post('import/process', [ImportController::class, 'process'])->name('import.process');
-    Route::post('import/sync-google-sheets', [ImportController::class, 'syncGoogleSheets'])->name('import.sync-google-sheets');
     Route::get('import/template', [ImportController::class, 'downloadTemplate'])->name('import.template');
 
     Route::get('backup', [BackupController::class, 'index'])->name('backup.index');

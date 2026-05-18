@@ -3,107 +3,74 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\SettingsRequest;
-use App\Models\Setting;
+use App\Services\SettingsService;
 use Illuminate\Http\Request;
 
 class SettingsController extends Controller
 {
+    public function __construct(private SettingsService $settingsService)
+    {
+    }
+
     public function index()
     {
-        return view('admin.settings.index');
-    }
+        $settings = $this->settingsService->grouped();
 
-    public function updateBranding(SettingsRequest $request)
-    {
-        foreach ($request->validated() as $key => $value) {
-            Setting::updateOrCreate(
-                ['key' => $key, 'group' => 'branding'],
-                ['value' => $value, 'type' => 'string']
-            );
-        }
-
-        return redirect()->route('admin.settings.index')->with('success', 'Branding settings updated successfully.');
-    }
-
-    public function updateEmail(SettingsRequest $request)
-    {
-        foreach ($request->validated() as $key => $value) {
-            Setting::updateOrCreate(
-                ['key' => $key, 'group' => 'email'],
-                ['value' => $value, 'type' => 'string']
-            );
-        }
-
-        return redirect()->route('admin.settings.index')->with('success', 'Email settings updated successfully.');
-    }
-
-    public function updateSecurity(SettingsRequest $request)
-    {
-        foreach ($request->validated() as $key => $value) {
-            Setting::updateOrCreate(
-                ['key' => $key, 'group' => 'security'],
-                ['value' => $value, 'type' => 'string']
-            );
-        }
-
-        return redirect()->route('admin.settings.index')->with('success', 'Security settings updated successfully.');
-    }
-
-    public function updateBackup(SettingsRequest $request)
-    {
-        foreach ($request->validated() as $key => $value) {
-            Setting::updateOrCreate(
-                ['key' => $key, 'group' => 'backup'],
-                ['value' => $value, 'type' => 'string']
-            );
-        }
-
-        return redirect()->route('admin.settings.index')->with('success', 'Backup settings updated successfully.');
-    }
-
-    public function updateNotifications(SettingsRequest $request)
-    {
-        foreach ($request->validated() as $key => $value) {
-            // Convert arrays to JSON strings
-            $storedValue = is_array($value) ? json_encode($value) : $value;
-            
-            Setting::updateOrCreate(
-                ['key' => $key, 'group' => 'notifications'],
-                ['value' => $storedValue, 'type' => is_array($value) ? 'json' : 'string']
-            );
-        }
-
-        return redirect()->route('admin.settings.index')->with('success', 'Notification settings updated successfully.');
+        return view('admin.settings.index', compact('settings'));
     }
 
     public function update(Request $request)
     {
-        $groups = ['branding', 'email', 'security', 'backup', 'notifications'];
+        $group = $request->input('group', 'general');
+        
+        // Validate based on group
+        $validated = $request->validate($this->getValidationRules($group));
 
-        foreach ($groups as $group) {
-            $fields = match ($group) {
-                'branding' => ['app_name', 'app_logo', 'primary_color'],
-                'email' => ['mail_driver', 'mail_host', 'mail_port', 'mail_from'],
-                'security' => ['two_factor', 'session_timeout', 'max_login_attempts'],
-                'backup' => ['auto_backup', 'backup_frequency', 'backup_retention'],
-                'notifications' => ['email_notifications', 'sms_notifications', 'in_app_notifications', 'notify_events'],
-                default => [],
-            };
-
-            foreach ($fields as $field) {
-                if ($request->has($field)) {
-                    $value = $request->input($field);
-                    // Convert arrays to JSON strings
-                    $storedValue = is_array($value) ? json_encode($value) : $value;
-                    
-                    Setting::updateOrCreate(
-                        ['key' => $field, 'group' => $group],
-                        ['value' => $storedValue, 'type' => is_array($value) ? 'json' : 'string']
-                    );
-                }
-            }
+        foreach ($validated as $key => $value) {
+            $this->settingsService->set($key, $value, $group);
         }
 
-        return redirect()->route('admin.settings.index')->with('success', 'Settings updated successfully.');
+        return redirect()->route('admin.settings.index')->with('success', __('Settings updated successfully.'));
+    }
+
+    private function getValidationRules(string $group): array
+    {
+        return match ($group) {
+            'branding' => [
+                'site_name' => ['required', 'string', 'max:255'],
+                'logo' => ['nullable', 'url', 'max:2048'],
+                'primary_color' => ['nullable', 'string', 'regex:/^#[0-9A-F]{6}$/i'],
+                'secondary_color' => ['nullable', 'string', 'regex:/^#[0-9A-F]{6}$/i'],
+            ],
+            'email' => [
+                'smtp_host' => ['required', 'string', 'max:255'],
+                'smtp_port' => ['required', 'integer', 'min:1', 'max:65535'],
+                'smtp_username' => ['nullable', 'string', 'max:255'],
+                'smtp_password' => ['nullable', 'string', 'max:255'],
+                'smtp_encryption' => ['nullable', 'string', 'in:ssl,tls'],
+                'from_address' => ['required', 'email'],
+                'from_name' => ['required', 'string', 'max:255'],
+            ],
+            'security' => [
+                'password_min_length' => ['required', 'integer', 'min:6', 'max:128'],
+                'session_lifetime' => ['required', 'integer', 'min:1', 'max:1440'],
+                'two_factor_enabled' => ['nullable', 'boolean'],
+                'max_login_attempts' => ['required', 'integer', 'min:1', 'max:10'],
+            ],
+            'backup' => [
+                'auto_backup' => ['required', 'boolean'],
+                'backup_frequency' => ['required_if:auto_backup,true', 'string', 'in:daily,weekly,monthly'],
+                'backup_retention_days' => ['required', 'integer', 'min:1', 'max:365'],
+                'backup_location' => ['nullable', 'string', 'max:255'],
+            ],
+            'notifications' => [
+                'email_notifications' => ['nullable', 'boolean'],
+                'push_notifications' => ['nullable', 'boolean'],
+                'duty_reminders' => ['nullable', 'boolean'],
+                'report_generation' => ['nullable', 'boolean'],
+                'system_alerts' => ['nullable', 'boolean'],
+            ],
+            default => [],
+        };
     }
 }

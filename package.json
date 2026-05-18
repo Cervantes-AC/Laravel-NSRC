@@ -7,12 +7,13 @@
         "dev": "vite"
     },
     "dependencies": {
-        "react": "^18.2.0",
-        "react-dom": "^18.2.0",
-        "lucide-react": "^0.263.1",
+        "axios": "^1.11.0",
         "date-fns": "^2.30.0",
+        "firebase": "^12.13.0",
+        "lucide-react": "^0.263.1",
         "motion": "^10.16.4",
-        "axios": "^1.11.0"
+        "react": "^18.2.0",
+        "react-dom": "^18.2.0"
     },
     "devDependencies": {
         "@tailwindcss/forms": "^0.5.2",

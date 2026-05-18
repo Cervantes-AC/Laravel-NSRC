@@ -25,20 +25,6 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
     })
     ->withSchedule(function (Schedule $schedule): void {
-        $frequency = config('attendance.google_sheets.sync_schedule', 'hourly');
-
-        $event = $schedule->command('attendance:sync-google-sheets');
-
-        match ($frequency) {
-            'everyMinute' => $event->everyMinute(),
-            'everyFiveMinutes' => $event->everyFiveMinutes(),
-            'everyTenMinutes' => $event->everyTenMinutes(),
-            'everyFifteenMinutes' => $event->everyFifteenMinutes(),
-            'everyThirtyMinutes' => $event->everyThirtyMinutes(),
-            'daily' => $event->daily(),
-            default => $event->hourly(),
-        };
-
         $schedule->command('backup:run --type=database')->weeklyOn(0, '02:00');
         $schedule->command('backup:run --type=files')->weeklyOn(0, '03:00');
         $schedule->command('backup:run --type=full')->monthlyOn(1, '04:00');

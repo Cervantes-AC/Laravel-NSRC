@@ -2,11 +2,6 @@
 
 use Illuminate\Support\Facades\Schedule;
 
-Schedule::command('attendance:sync-google-sheets')
-    ->hourly()
-    ->withoutOverlapping()
-    ->runInBackground();
-
 Schedule::command('backup:run --type=database')
     ->weeklyOn(1, '2:00')
     ->withoutOverlapping()

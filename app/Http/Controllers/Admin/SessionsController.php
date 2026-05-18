@@ -28,34 +28,30 @@ class SessionsController extends Controller
 
     public function create()
     {
-        $this->authorize('create', DutySession::class);
-
-        return view('admin.sessions.create');
+        return redirect()
+            ->route('admin.attendance.index')
+            ->with('warning', 'Attendance summaries are auto-generated from attendance logs. Use file import or manual entry instead.');
     }
 
     public function store(StoreDutySessionRequest $request)
     {
-        $this->authorize('create', DutySession::class);
-
-        DutySession::create($request->validated());
-
-        return redirect()->route('admin.sessions.index')->with('success', 'Duty session created successfully.');
+        return redirect()
+            ->route('admin.attendance.index')
+            ->with('warning', 'Manual attendance entry is disabled. Use file import to add attendance data.');
     }
 
     public function edit(DutySession $session)
     {
-        $this->authorize('update', $session);
-
-        return view('admin.sessions.edit', compact('session'));
+        return redirect()
+            ->route('admin.attendance.show', $session)
+            ->with('warning', 'Attendance summaries are generated from attendance logs and cannot be edited here.');
     }
 
     public function update(UpdateDutySessionRequest $request, DutySession $session)
     {
-        $this->authorize('update', $session);
-
-        $session->update($request->validated());
-
-        return redirect()->route('admin.sessions.index')->with('success', 'Duty session updated successfully.');
+        return redirect()
+            ->route('admin.attendance.show', $session)
+            ->with('warning', 'Manual attendance updates are disabled. Use file import to update attendance data.');
     }
 
     public function destroy(DutySession $session)
@@ -75,7 +71,7 @@ class SessionsController extends Controller
             'timestamp' => now(),
         ]);
 
-        return redirect()->route('admin.sessions.index')->with('success', 'Duty session deleted successfully.');
+        return redirect()->route('admin.attendance.index')->with('success', 'Attendance summary hidden successfully.');
     }
 
     public function restore($id)
@@ -95,6 +91,6 @@ class SessionsController extends Controller
             'timestamp' => now(),
         ]);
 
-        return redirect()->route('admin.sessions.index')->with('success', 'Duty session restored successfully.');
+        return redirect()->route('admin.attendance.index')->with('success', 'Attendance summary restored successfully.');
     }
 }
