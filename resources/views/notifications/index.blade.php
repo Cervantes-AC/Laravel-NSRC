@@ -31,36 +31,6 @@
                 </div>
             </div>
 
-            {{-- Announcements --}}
-            @if($announcements->count() > 0)
-                <div class="mb-8">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Announcements</h3>
-                    <div class="space-y-4">
-                        @foreach($announcements as $announcement)
-                            <div class="bg-white rounded-lg border p-4 @if($announcement->priority === 'urgent') border-l-4 border-l-red-500 @elseif($announcement->priority === 'important') border-l-4 border-l-amber-500 @endif">
-                                <div class="flex items-start justify-between gap-3">
-                                    <div class="flex-1">
-                                        <div class="flex items-center gap-2 mb-1">
-                                            @if($announcement->priority === 'urgent')
-                                                <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-red-100 text-red-800">URGENT</span>
-                                            @elseif($announcement->priority === 'important')
-                                                <span class="px-2 py-0.5 text-xs font-semibold rounded-full bg-amber-100 text-amber-800">IMPORTANT</span>
-                                            @endif
-                                            <h4 class="text-sm font-semibold text-gray-900">{{ $announcement->title }}</h4>
-                                        </div>
-                                        <p class="text-sm text-gray-600 mt-1 whitespace-pre-line">{{ $announcement->body }}</p>
-                                        <p class="text-xs text-gray-400 mt-2">{{ $announcement->published_at?->format('M d, Y h:i A') }}</p>
-                                    </div>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
-                    <div class="mt-4">
-                        {{ $announcements->links() }}
-                    </div>
-                </div>
-            @endif
-
             {{-- Notifications --}}
             <div>
                 <h3 class="text-lg font-semibold text-gray-900 mb-4">Notifications</h3>
@@ -106,7 +76,7 @@
                 @else
                     <div class="rounded-xl border border-dashed border-slate-300 bg-slate-50 px-6 py-16 text-center">
                         <p class="text-sm font-semibold text-slate-700">No notifications yet</p>
-                        <p class="mt-1 text-xs text-slate-500">System notifications and announcements will appear here.</p>
+                        <p class="mt-1 text-xs text-slate-500">System notifications will appear here.</p>
                     </div>
                 @endif
             </div>

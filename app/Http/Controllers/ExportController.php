@@ -82,10 +82,15 @@ class ExportController extends Controller
         });
 
         if ($request->boolean('send_email')) {
-            $this->exportService->scheduleExport($data, $filename, $format);
-            $this->notificationService->sendExportNotification($user, 'accounts', 'scheduled', "{$users->count()} records");
+            $scheduled = $this->exportService->scheduleExport($data, $filename, $format, $user->email);
 
-            return redirect()->route('admin.export.index')->with('success', 'Export will be emailed when ready.');
+            if ($scheduled) {
+                $this->notificationService->sendExportNotification($user, 'accounts', 'scheduled', "{$users->count()} records");
+                return redirect()->route('admin.export.index')->with('success', 'Export will be emailed when ready.');
+            }
+
+            $this->notificationService->sendExportNotification($user, 'accounts', 'failed', 'Failed to schedule export.');
+            return redirect()->route('admin.export.index')->with('error', 'Failed to schedule export. Please try again.');
         }
 
         $this->notificationService->sendExportNotification($user, 'accounts', 'completed', "{$users->count()} records as {$format}");
@@ -145,10 +150,15 @@ class ExportController extends Controller
         });
 
         if ($request->boolean('send_email')) {
-            $this->exportService->scheduleExport($data, $filename, $format);
-            $this->notificationService->sendExportNotification($user, 'sessions', 'scheduled', "{$sessions->count()} records");
+            $scheduled = $this->exportService->scheduleExport($data, $filename, $format, $user->email);
 
-            return redirect()->route('admin.export.index')->with('success', 'Export will be emailed when ready.');
+            if ($scheduled) {
+                $this->notificationService->sendExportNotification($user, 'sessions', 'scheduled', "{$sessions->count()} records");
+                return redirect()->route('admin.export.index')->with('success', 'Export will be emailed when ready.');
+            }
+
+            $this->notificationService->sendExportNotification($user, 'sessions', 'failed', 'Failed to schedule export.');
+            return redirect()->route('admin.export.index')->with('error', 'Failed to schedule export. Please try again.');
         }
 
         $this->notificationService->sendExportNotification($user, 'sessions', 'completed', "{$sessions->count()} records as {$format}");
@@ -200,10 +210,15 @@ class ExportController extends Controller
         });
 
         if ($request->boolean('send_email')) {
-            $this->exportService->scheduleExport($data, $filename, $format);
-            $this->notificationService->sendExportNotification($user, 'personnel', 'scheduled', "{$users->count()} records");
+            $scheduled = $this->exportService->scheduleExport($data, $filename, $format, $user->email);
 
-            return redirect()->route('admin.export.index')->with('success', 'Export will be emailed when ready.');
+            if ($scheduled) {
+                $this->notificationService->sendExportNotification($user, 'personnel', 'scheduled', "{$users->count()} records");
+                return redirect()->route('admin.export.index')->with('success', 'Export will be emailed when ready.');
+            }
+
+            $this->notificationService->sendExportNotification($user, 'personnel', 'failed', 'Failed to schedule export.');
+            return redirect()->route('admin.export.index')->with('error', 'Failed to schedule export. Please try again.');
         }
 
         $this->notificationService->sendExportNotification($user, 'personnel', 'completed', "{$users->count()} records as {$format}");
@@ -257,10 +272,15 @@ class ExportController extends Controller
         });
 
         if ($request->boolean('send_email')) {
-            $this->exportService->scheduleExport($data, $filename, $format);
-            $this->notificationService->sendExportNotification($user, 'attendance', 'scheduled', "{$records->count()} records");
+            $scheduled = $this->exportService->scheduleExport($data, $filename, $format, $user->email);
 
-            return redirect()->route('admin.export.index')->with('success', 'Export will be emailed when ready.');
+            if ($scheduled) {
+                $this->notificationService->sendExportNotification($user, 'attendance', 'scheduled', "{$records->count()} records");
+                return redirect()->route('admin.export.index')->with('success', 'Export will be emailed when ready.');
+            }
+
+            $this->notificationService->sendExportNotification($user, 'attendance', 'failed', 'Failed to schedule export.');
+            return redirect()->route('admin.export.index')->with('error', 'Failed to schedule export. Please try again.');
         }
 
         $this->notificationService->sendExportNotification($user, 'attendance', 'completed', "{$records->count()} records as {$format}");

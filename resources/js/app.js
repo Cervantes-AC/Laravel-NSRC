@@ -465,7 +465,7 @@ Alpine.data('notificationCenter', (fullPage = false) => ({
             'failure_notification': '❌',
             'batch_failure_notification': '❌',
         };
-        return iconMap[type] || '📢';
+        return iconMap[type] || '📰';
     },
     getNotificationColor(type, data) {
         const level = data?.level || 'info';
@@ -1087,6 +1087,19 @@ Alpine.data('logControl', () => ({
         const m = mins % 60;
         return h > 0 ? `${h}h ${m}m` : `${m}m`;
     }
+}));
+
+Alpine.data('announcementCenter', () => ({
+    open: false,
+    announcements: [],
+    init() {
+        this.loadAnnouncements();
+    },
+    loadAnnouncements() {
+        axios.get('/api/announcements/recent').then(res => {
+            this.announcements = res.data.announcements;
+        });
+    },
 }));
 
 Alpine.data('themeToggle', () => ({

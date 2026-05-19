@@ -14,7 +14,7 @@
                             </svg>
                         </div>
                         <p class="text-sm font-semibold text-slate-700">No notifications yet</p>
-                        <p class="mt-1 text-xs text-slate-500">System notifications and announcements will appear here.</p>
+                        <p class="mt-1 text-xs text-slate-500">System notifications will appear here.</p>
                     </div>
                 </template>
 

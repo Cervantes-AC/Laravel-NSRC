@@ -172,7 +172,7 @@
                         </div>
                         <div class="p-4 bg-gray-50 rounded-lg">
                             <h4 class="font-medium text-gray-900 mb-2">{{ __('Email Export') }}</h4>
-                            <p class="text-sm text-gray-600">{{ __('Check the "Email" option to receive the export file at aaronclydeccervantes@gmail.com') }}</p>
+                            <p class="text-sm text-gray-600">{{ __('Check the "Email" option to receive the export file via email.') }}</p>
                         </div>
                     </div>
                 </div>

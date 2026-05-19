@@ -82,7 +82,7 @@ class ExportService
         };
     }
 
-    public function scheduleExport(Collection $data, string $filename, string $format = 'csv', string $email = 'aaronclydeccervantes@gmail.com'): bool
+    public function scheduleExport(Collection $data, string $filename, string $format = 'csv', string $email): bool
     {
         try {
             $response = $this->exportWithData($data, $filename, $format);

@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\JsonResponse;
-use Illuminate\Notifications\DatabaseNotification;
+use App\Models\Notification;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class NotificationsController extends Controller
@@ -23,7 +23,7 @@ class NotificationsController extends Controller
             'title' => $n->data['title'] ?? $n->data['subject'] ?? class_basename($n->type),
             'message' => $n->data['message'] ?? $n->data['body'] ?? $n->data['description'] ?? '',
             'read_at' => $n->read_at,
-            'created_at' => $n->created_at->diffForHumans(),
+            'created_at' => $n->created_at->toIso8601String(),
             'kind' => $n->data['type'] ?? $n->data['level'] ?? 'info',
         ]);
 
@@ -59,7 +59,7 @@ class NotificationsController extends Controller
 
     public function markAsRead(string $id): JsonResponse
     {
-        $notification = DatabaseNotification::find($id);
+        $notification = Notification::find($id);
         if ($notification && (string) $notification->notifiable_id === (string) auth()->id()) {
             $notification->markAsRead();
         }
@@ -69,14 +69,14 @@ class NotificationsController extends Controller
 
     public function markAllAsRead(): JsonResponse
     {
-        auth()->user()?->unreadNotifications->markAsRead();
+        auth()->user()?->notifications()->whereNull('read_at')->update(['read_at' => now()]);
 
         return response()->json(['success' => true]);
     }
 
     public function destroy(string $id): JsonResponse
     {
-        $notification = DatabaseNotification::find($id);
+        $notification = Notification::find($id);
         if ($notification && (string) $notification->notifiable_id === (string) auth()->id()) {
             $notification->delete();
         }

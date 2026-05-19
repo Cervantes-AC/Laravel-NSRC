@@ -24,6 +24,7 @@ use App\Http\Controllers\ExportController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\Member\DashboardController as MemberDashboardController;
 use App\Http\Controllers\Member\PerformanceController as MemberPerformanceController;
+use App\Http\Controllers\AnnouncementController as MemberAnnouncementController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportsController;
@@ -36,6 +37,7 @@ Route::middleware(['auth'])->prefix('api')->name('api.')->group(function () {
     Route::post('/sessions/sync', [SessionsController::class, 'sync'])->name('sessions.sync');
     Route::get('/notifications', [NotificationsController::class, 'index'])->name('notifications.index');
     Route::get('/notifications/stream', [NotificationsController::class, 'stream'])->name('notifications.stream');
+    Route::get('/announcements/recent', [App\Http\Controllers\Api\MemberAnnouncementsController::class, 'recent'])->name('announcements.recent');
     Route::post('/notifications/{id}/read', [NotificationsController::class, 'markAsRead'])->name('notifications.read');
     Route::post('/notifications/read-all', [NotificationsController::class, 'markAllAsRead'])->name('notifications.read-all');
     Route::delete('/notifications/{id}', [NotificationsController::class, 'destroy'])->name('notifications.destroy');
@@ -196,9 +198,12 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile/disable-2fa', [ProfileController::class, 'disableTwoFactor'])->name('profile.disable-2fa');
     Route::patch('/profile/email-notifications', [ProfileController::class, 'updateEmailNotifications'])->name('profile.email-notifications');
 
+    // Announcement routes
+    Route::get('/announcements', [MemberAnnouncementController::class, 'index'])->name('announcements.index');
+
     // Notification routes
     Route::prefix('notifications')->name('notifications.')->group(function () {
-        Route::get('/', [NotificationController::class, 'index'])->name('index');
+        Route::get('/', fn () => view('pages.notifications'))->name('index');
         Route::get('/failures', [NotificationController::class, 'failures'])->name('failures');
         Route::get('/{notification}', [NotificationController::class, 'show'])->name('show');
         Route::post('/{notification}/read', [NotificationController::class, 'markAsRead'])->name('mark-as-read');

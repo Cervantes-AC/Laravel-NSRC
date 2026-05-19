@@ -108,7 +108,7 @@ class ImportController extends Controller
 
     protected function processAttendanceImport(ImportRequest $request)
     {
-        $result = $this->importService->processImport($request->file('file'));
+        $result = $this->importService->processImport($request->file('file'), Auth::user()->email);
 
         if (! empty($result['errors'])) {
             return redirect()->route('admin.import.index')

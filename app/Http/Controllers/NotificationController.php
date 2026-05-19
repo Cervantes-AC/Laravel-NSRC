@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Announcement;
 use App\Models\Notification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -45,12 +44,6 @@ class NotificationController extends Controller
 
         $notifications = $query->paginate(20);
 
-        // Get announcements
-        $announcements = Announcement::visibleToMembers()
-            ->latest('published_at')
-            ->latest()
-            ->paginate(15);
-
         // Get statistics
         $stats = [
             'total' => $user->notifications()->count(),
@@ -60,7 +53,7 @@ class NotificationController extends Controller
             'unacknowledged' => $user->notifications()->whereNull('acknowledged_at')->count(),
         ];
 
-        return view('notifications.index', compact('notifications', 'announcements', 'stats'));
+        return view('notifications.index', compact('notifications', 'stats'));
     }
 
     /**

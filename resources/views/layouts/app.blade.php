@@ -57,6 +57,49 @@
                                     </svg>
                                 </button>
                             </div>
+                            <div x-data="announcementCenter()" class="relative">
+                                <div @click="open = !open" class="relative p-2 text-slate-500 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg cursor-pointer" aria-label="Toggle announcements">
+                                    <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+                                    </svg>
+                                    <template x-if="announcements.length > 0">
+                                        <span class="absolute -top-1 -right-1 inline-flex items-center justify-center px-2 py-0.5 text-xs font-bold text-white bg-orange-500 rounded-full" x-text="announcements.length"></span>
+                                    </template>
+                                </div>
+                                <div x-show="open" @click.away="open = false" class="absolute right-0 mt-2 w-80 sm:w-96 z-50 bg-white border border-slate-200 rounded-lg shadow-lg" style="display: none;">
+                                    <div class="flex items-center justify-between px-4 py-3 border-b border-slate-200">
+                                        <h3 class="text-sm font-semibold text-slate-900">Announcements</h3>
+                                        <a href="{{ route('announcements.index') }}" class="text-xs text-blue-600 hover:text-blue-800">View all</a>
+                                    </div>
+                                    <div class="max-h-64 overflow-y-auto">
+                                        <template x-if="announcements.length === 0">
+                                            <div class="px-4 py-8 text-center text-sm text-slate-500">No announcements</div>
+                                        </template>
+                                        <template x-for="a in announcements" :key="a.id">
+                                            <div class="flex items-start gap-3 px-4 py-3 border-b border-slate-100 hover:bg-slate-50 transition" :class="a.priority === 'urgent' ? 'bg-red-50' : a.priority === 'important' ? 'bg-amber-50' : ''">
+                                                <div class="flex-shrink-0 mt-0.5">
+                                                    <div class="w-7 h-7 rounded-full flex items-center justify-center"
+                                                        :class="{
+                                                            'bg-red-100 text-red-600': a.priority === 'urgent',
+                                                            'bg-amber-100 text-amber-600': a.priority === 'important',
+                                                            'bg-blue-100 text-blue-600': a.priority === 'normal'
+                                                        }">
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" /></svg>
+                                                    </div>
+                                                </div>
+                                                <div class="flex-1 min-w-0">
+                                                    <p class="text-sm font-semibold text-slate-900" x-text="a.title"></p>
+                                                    <p class="text-xs text-slate-500 mt-0.5 line-clamp-2" x-text="a.body"></p>
+                                                    <p class="text-xs text-slate-400 mt-1" x-text="a.published_at"></p>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                    <div class="px-4 py-2 border-t border-slate-200 text-center">
+                                        <a href="{{ route('announcements.index') }}" class="text-xs text-blue-600 hover:text-blue-800">View all announcements</a>
+                                    </div>
+                                </div>
+                            </div>
                             <div x-data="notificationCenter(false)">
                                 <div @click="open = !open" class="relative p-2 text-slate-500 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg cursor-pointer" aria-label="Toggle notifications">
                                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -82,10 +125,10 @@
                                                 <div class="flex-shrink-0 mt-0.5">
                                                     <div class="w-7 h-7 rounded-full flex items-center justify-center"
                                                         :class="{
-                                                            'bg-green-100 text-green-600': n.level === 'success' || n.data?.status === 'completed',
-                                                            'bg-red-100 text-red-600': n.level === 'error' || n.data?.status === 'failed',
-                                                            'bg-amber-100 text-amber-600': n.level === 'warning',
-                                                            'bg-blue-100 text-blue-600': n.level === 'info' || n.data?.status === 'started' || n.data?.status === 'scheduled',
+                                                            'bg-green-100 text-green-600': n.kind === 'success' || n.data?.status === 'completed',
+                                                            'bg-red-100 text-red-600': n.kind === 'error' || n.data?.status === 'failed',
+                                                            'bg-amber-100 text-amber-600': n.kind === 'warning',
+                                                            'bg-blue-100 text-blue-600': n.kind === 'info' || n.data?.status === 'started' || n.data?.status === 'scheduled',
                                                             'bg-purple-100 text-purple-600': n.data?.validation_status
                                                         }">
                                                         <template x-if="n.data?.action_type === 'backup' || n.type?.startsWith('backup')">
@@ -100,10 +143,7 @@
                                                         <template x-if="n.data?.validation_status || n.type?.startsWith('validation')">
                                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                                         </template>
-                                                        <template x-if="n.type === 'announcement'">
-                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6" /></svg>
-                                                        </template>
-                                                        <template x-if="!['backup', 'import', 'export', 'announcement'].some(t => n.type?.startsWith(t) || n.data?.action_type === t) && !n.data?.validation_status">
+                                                        <template x-if="!['backup', 'import', 'export'].some(t => n.type?.startsWith(t) || n.data?.action_type === t) && !n.data?.validation_status">
                                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 00-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" /></svg>
                                                         </template>
                                                     </div>
@@ -111,7 +151,7 @@
                                                 <div class="flex-1 min-w-0">
                                                     <p class="text-sm font-semibold text-slate-900" x-text="n.title"></p>
                                                     <p class="text-xs text-slate-500 mt-0.5 line-clamp-2" x-text="n.message"></p>
-                                                    <p class="text-xs text-slate-400 mt-1" x-text="n.created_at"></p>
+                                                    <p class="text-xs text-slate-400 mt-1" x-text="formatTimestamp(n.created_at)"></p>
                                                 </div>
                                                 <div class="flex-shrink-0 flex gap-1">
                                                     <template x-if="!n.read_at">

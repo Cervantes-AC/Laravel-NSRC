@@ -7,7 +7,7 @@ use Database\Factories\UserFactory;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -110,10 +110,9 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(ConversationHistory::class);
     }
 
-    public function notifications(): HasMany
+    public function notifications(): MorphMany
     {
-        return $this->hasMany(Notification::class, 'notifiable_id')
-            ->where('notifiable_type', self::class);
+        return $this->morphMany(Notification::class, 'notifiable');
     }
 
     public function preferences(): HasOne

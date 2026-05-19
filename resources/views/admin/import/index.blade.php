@@ -166,7 +166,7 @@
                                     <li>{{ __('Sessions: full_name, date, time_in, time_out, duration_minutes, status') }}</li>
                                     <li>{{ __('Personnel: full_name, email, role, status') }}</li>
                                     <li>{{ __('Accounts: full_name, email, role, status') }}</li>
-                                    <li>{{ __('Email notification sent to: aaronclydeccervantes@gmail.com') }}</li>
+                                    <li>{{ __('Email notification will be sent to your email address on file.') }}</li>
                                 </ul>
                             </div>
                         </div>

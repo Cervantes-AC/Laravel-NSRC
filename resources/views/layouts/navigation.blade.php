@@ -34,7 +34,7 @@
         $navSections['communications'] = [
             'label' => __('Communications'),
             'items' => [
-                ['label' => __('Announcements'), 'route' => 'admin.announcements.index', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592L6.5 17H5a2 2 0 01-2-2v-4a2 2 0 012-2h1.5l8.447-3.224A1 1 0 0116.3 6.71v10.58a1 1 0 01-1.353.936L11 16.718M18 10.5a3.5 3.5 0 010 5" />', 'active' => request()->routeIs('admin.announcements.*')],
+                ['label' => __('Announcements'), 'route' => 'admin.announcements.index', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />', 'active' => request()->routeIs('admin.announcements.*')],
             ]
         ];
 
@@ -74,6 +74,7 @@
             'items' => [
                 ['label' => __('How to Log'), 'route' => 'member.how-to-log', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5S19.832 5.477 21 6.253v13C19.832 18.477 18.246 18 16.5 18s-3.332.477-4.5 1.253" />', 'active' => request()->routeIs('member.how-to-log')],
                 ['label' => __('Rules'), 'route' => 'member.rules', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 3l7 4v5c0 4.418-2.985 8.19-7 9-4.015-.81-7-4.582-7-9V7l7-4z" />', 'active' => request()->routeIs('member.rules')],
+                ['label' => __('Announcements'), 'route' => 'announcements.index', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />', 'active' => request()->routeIs('announcements.index')],
                 ['label' => __('Notifications'), 'route' => 'notifications.index', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />', 'active' => request()->routeIs('notifications.index')],
             ]
         ];

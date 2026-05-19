@@ -94,7 +94,7 @@ class ImportService
         }
     }
 
-    public function processImport(UploadedFile $file): array
+    public function processImport(UploadedFile $file, ?string $userEmail = null): array
     {
         $validation = $this->validateImportFile($file);
 
@@ -158,7 +158,7 @@ class ImportService
                 }
             }
 
-            $this->sendImportNotification($validation['filename'], $totalRows, $success, $failed, $skipped, empty($errors));
+            $this->sendImportNotification($validation['filename'], $totalRows, $success, $failed, $skipped, empty($errors), $userEmail);
             $this->notifications->importSuccess($validation['filename'], $success, $failed, $skipped);
         } catch (\Exception $e) {
             Log::error('Import failed: '.$e->getMessage());
@@ -209,10 +209,11 @@ class ImportService
             ->exists();
     }
 
-    private function sendImportNotification(string $filename, int $total, int $success, int $failed, int $skipped, bool $overallSuccess): void
+    private function sendImportNotification(string $filename, int $total, int $success, int $failed, int $skipped, bool $overallSuccess, ?string $userEmail = null): void
     {
         try {
-            Mail::to(config('mail.backup_email', 'aaronclydeccervantes@gmail.com'))
+            $recipient = $userEmail ?? config('mail.backup_email', 'aaronclydeccervantes@gmail.com');
+            Mail::to($recipient)
                 ->send(new ImportNotification($filename, $total, $success, $failed, $skipped, $overallSuccess));
         } catch (\Exception $e) {
             Log::warning('Failed to send import notification email: '.$e->getMessage());

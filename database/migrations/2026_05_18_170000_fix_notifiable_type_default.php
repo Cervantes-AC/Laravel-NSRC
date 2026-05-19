@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::table('notifications', function (Blueprint $table) {
             // Set default value for notifiable_type column
-            $table->string('notifiable_type')->default('App\Models\User')->change();
+            $table->string('notifiable_type')->default('App\\Models\\User')->change();
         });
     }
 
