@@ -14,7 +14,7 @@ class DutySessionAlert extends Mailable
     public function __construct(
         public User $user,
         public string $alertType,
-        public string $message,
+        public string $alertMessage,
         public ?string $sessionDetails = null
     ) {}
 
@@ -32,7 +32,7 @@ class DutySessionAlert extends Mailable
             ->with([
                 'name' => $this->user->full_name,
                 'alertType' => $this->alertType,
-                'message' => $this->message,
+                'alertMessage' => $this->alertMessage,
                 'sessionDetails' => $this->sessionDetails,
             ]);
     }

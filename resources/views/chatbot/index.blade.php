@@ -25,7 +25,8 @@
                 <div class="flex flex-col h-[600px]">
                     <!-- Messages Area -->
                     <div class="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50" id="messagesContainer">
-                        <div class="flex justify-center">
+                        <!-- Empty State -->
+                        <div x-show="messages.length === 0" class="flex justify-center">
                             <div class="text-center text-gray-500">
                                 <svg class="w-12 h-12 mx-auto mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
@@ -33,6 +34,25 @@
                                 <p class="text-sm">Start a conversation with the AI assistant</p>
                             </div>
                         </div>
+
+                        <!-- Messages List -->
+                        <template x-for="(message, index) in messages" :key="index">
+                            <div>
+                                <!-- User Message -->
+                                <div x-show="message.role === 'user'" class="flex justify-end mb-4">
+                                    <div class="max-w-[75%] bg-blue-500 text-white rounded-2xl rounded-br-sm px-4 py-3 shadow-sm">
+                                        <p class="text-sm whitespace-pre-wrap" x-text="message.content"></p>
+                                    </div>
+                                </div>
+
+                                <!-- Assistant Message -->
+                                <div x-show="message.role === 'assistant'" class="flex justify-start mb-4">
+                                    <div class="max-w-[75%] bg-white border border-gray-200 rounded-2xl rounded-bl-sm px-4 py-3 shadow-sm">
+                                        <p class="text-sm whitespace-pre-wrap text-gray-800" x-text="message.content"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
                     </div>
 
                     <!-- Input Area -->

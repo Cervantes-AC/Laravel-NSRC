@@ -29,7 +29,7 @@
         </div>
         <div class="content">
             <p>Dear {{ $name }},</p>
-            <p>{{ $message }}</p>
+            <p>{{ $alertMessage }}</p>
 
             @if($sessionDetails)
             <div class="info-box">
