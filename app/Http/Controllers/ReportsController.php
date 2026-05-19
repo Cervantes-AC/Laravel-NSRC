@@ -68,7 +68,7 @@ class ReportsController extends Controller
         };
 
         $data = collect($report['data'] ?? []);
-        $filename = 'report-' . $filters['type'] . '-' . now()->format('Y-m-d');
+        $filename = 'report-'.$filters['type'].'-'.now()->format('Y-m-d');
 
         if ($request->format === 'csv') {
             return $this->exportService->exportToCSV($data, $filename);

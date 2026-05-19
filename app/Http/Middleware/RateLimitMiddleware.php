@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Setting;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -11,20 +12,51 @@ class RateLimitMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $maxRequests = config('app.rate_limit_max_requests', 100);
+        $maxRequests = $this->getMaxRequests();
+        $decayMinutes = 1;
         $ip = $request->ip();
-        $key = 'rate_limit:' . $ip;
+        $key = 'rate_limit:'.$ip;
 
         $attempts = (int) Cache::get($key, 0);
 
+        $response = $next($request);
+
+        $response->headers->set('X-RateLimit-Limit', $maxRequests);
+        $response->headers->set('X-RateLimit-Remaining', max(0, $maxRequests - $attempts - 1));
+        $response->headers->set('Retry-After', $decayMinutes * 60);
+
         if ($attempts >= $maxRequests) {
+            Cache::put($key, $attempts + 1, now()->addMinutes($decayMinutes));
+
             return response()->json([
                 'message' => 'Too many requests. Please try again later.',
-            ], 429);
+                'retry_after_seconds' => $decayMinutes * 60,
+            ], 429, [
+                'X-RateLimit-Limit' => $maxRequests,
+                'X-RateLimit-Remaining' => 0,
+                'Retry-After' => $decayMinutes * 60,
+            ]);
         }
 
-        Cache::put($key, $attempts + 1, now()->addMinute());
+        Cache::put($key, $attempts + 1, now()->addMinutes($decayMinutes));
 
-        return $next($request);
+        return $response;
+    }
+
+    private function getMaxRequests(): int
+    {
+        try {
+            $custom = app(Setting::class)
+                ->where('key', 'rate_limit_max_attempts')
+                ->value('value');
+
+            if ($custom) {
+                return (int) $custom;
+            }
+        } catch (\Exception $e) {
+            // Fall back to config default
+        }
+
+        return (int) config('app.rate_limit_max_requests', 100);
     }
 }

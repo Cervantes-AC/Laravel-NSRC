@@ -110,7 +110,7 @@ class AttendanceSeeder extends Seeder
                     'sector' => $session->sector,
                     'integrity_score' => $session->integrity_score,
                     'volunteer_id' => $volunteerId,
-                    'trace_id' => 'SEED-' . strtoupper(substr(md5(uniqid()), 0, 8)),
+                    'trace_id' => 'SEED-'.strtoupper(substr(md5(uniqid()), 0, 8)),
                 ];
 
                 $match = DutySession::query()

@@ -2,16 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Attendance;
 use App\Models\DutySession;
 use App\Models\User;
-use App\Models\Attendance;
-use App\Models\AuditLog;
 use App\Models\VolunteerMetrics;
 use App\Services\ExportService;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Response;
 
 class ExportController extends Controller
 {
@@ -50,7 +48,7 @@ class ExportController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('full_name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
@@ -63,11 +61,12 @@ class ExportController extends Controller
                 'warning',
                 'No accounts match the current filters. Export cancelled.'
             );
+
             return redirect()->route('admin.export.index')->with('warning', 'No accounts to export with current filters.');
         }
 
         $format = $request->get('format', 'csv');
-        $filename = 'accounts-export-' . now()->format('Y-m-d-His');
+        $filename = 'accounts-export-'.now()->format('Y-m-d-His');
 
         $this->notificationService->sendActionNotification($user, 'export', 'started', "Exporting {$users->count()} accounts as {$format}...", 'info');
 
@@ -85,10 +84,12 @@ class ExportController extends Controller
         if ($request->boolean('send_email')) {
             $this->exportService->scheduleExport($data, $filename, $format);
             $this->notificationService->sendExportNotification($user, 'accounts', 'scheduled', "{$users->count()} records");
+
             return redirect()->route('admin.export.index')->with('success', 'Export will be emailed when ready.');
         }
 
         $this->notificationService->sendExportNotification($user, 'accounts', 'completed', "{$users->count()} records as {$format}");
+
         return $this->exportService->exportWithData($data, $filename, $format);
     }
 
@@ -119,11 +120,12 @@ class ExportController extends Controller
                 'warning',
                 'No sessions match the current filters. Export cancelled.'
             );
+
             return redirect()->route('admin.export.index')->with('warning', 'No sessions to export with current filters.');
         }
 
         $format = $request->get('format', 'csv');
-        $filename = 'sessions-export-' . now()->format('Y-m-d-His');
+        $filename = 'sessions-export-'.now()->format('Y-m-d-His');
 
         $this->notificationService->sendActionNotification($user, 'export', 'started', "Exporting {$sessions->count()} sessions as {$format}...", 'info');
 
@@ -145,10 +147,12 @@ class ExportController extends Controller
         if ($request->boolean('send_email')) {
             $this->exportService->scheduleExport($data, $filename, $format);
             $this->notificationService->sendExportNotification($user, 'sessions', 'scheduled', "{$sessions->count()} records");
+
             return redirect()->route('admin.export.index')->with('success', 'Export will be emailed when ready.');
         }
 
         $this->notificationService->sendExportNotification($user, 'sessions', 'completed', "{$sessions->count()} records as {$format}");
+
         return $this->exportService->exportWithData($data, $filename, $format);
     }
 
@@ -161,7 +165,7 @@ class ExportController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('full_name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
@@ -174,11 +178,12 @@ class ExportController extends Controller
                 'warning',
                 'No personnel match the current filters. Export cancelled.'
             );
+
             return redirect()->route('admin.export.index')->with('warning', 'No personnel to export with current filters.');
         }
 
         $format = $request->get('format', 'csv');
-        $filename = 'personnel-export-' . now()->format('Y-m-d-His');
+        $filename = 'personnel-export-'.now()->format('Y-m-d-His');
 
         $this->notificationService->sendActionNotification($user, 'export', 'started', "Exporting {$users->count()} personnel records as {$format}...", 'info');
 
@@ -197,10 +202,12 @@ class ExportController extends Controller
         if ($request->boolean('send_email')) {
             $this->exportService->scheduleExport($data, $filename, $format);
             $this->notificationService->sendExportNotification($user, 'personnel', 'scheduled', "{$users->count()} records");
+
             return redirect()->route('admin.export.index')->with('success', 'Export will be emailed when ready.');
         }
 
         $this->notificationService->sendExportNotification($user, 'personnel', 'completed', "{$users->count()} records as {$format}");
+
         return $this->exportService->exportWithData($data, $filename, $format);
     }
 
@@ -228,11 +235,12 @@ class ExportController extends Controller
                 'warning',
                 'No attendance records match the current filters. Export cancelled.'
             );
+
             return redirect()->route('admin.export.index')->with('warning', 'No attendance records to export with current filters.');
         }
 
         $format = $request->get('format', 'csv');
-        $filename = 'attendance-export-' . now()->format('Y-m-d-His');
+        $filename = 'attendance-export-'.now()->format('Y-m-d-His');
 
         $this->notificationService->sendActionNotification($user, 'export', 'started', "Exporting {$records->count()} attendance records as {$format}...", 'info');
 
@@ -251,10 +259,12 @@ class ExportController extends Controller
         if ($request->boolean('send_email')) {
             $this->exportService->scheduleExport($data, $filename, $format);
             $this->notificationService->sendExportNotification($user, 'attendance', 'scheduled', "{$records->count()} records");
+
             return redirect()->route('admin.export.index')->with('success', 'Export will be emailed when ready.');
         }
 
         $this->notificationService->sendExportNotification($user, 'attendance', 'completed', "{$records->count()} records as {$format}");
+
         return $this->exportService->exportWithData($data, $filename, $format);
     }
 }

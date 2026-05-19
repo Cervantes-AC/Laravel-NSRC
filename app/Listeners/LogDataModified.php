@@ -13,18 +13,18 @@ class LogDataModified
         $performer = $user?->name ?? 'System';
 
         AuditLog::create([
-            'user_id'    => $user?->id,
-            'full_name'  => $user?->full_name ?? $user?->name ?? 'System',
-            'type'       => 'OPERATIONS',
-            'action'     => 'Data Modified',
-            'details'    => json_encode([
-                'model'    => $event->model ?? get_class($event),
-                'changes'  => $changes,
+            'user_id' => $user?->id,
+            'full_name' => $user?->full_name ?? $user?->name ?? 'System',
+            'type' => 'OPERATIONS',
+            'action' => 'Data Modified',
+            'details' => json_encode([
+                'model' => $event->model ?? get_class($event),
+                'changes' => $changes,
                 'performed_by' => $performer,
             ]),
             'ip_address' => request()->ip(),
             'user_agent' => request()->userAgent(),
-            'timestamp'  => now(),
+            'timestamp' => now(),
         ]);
     }
 }

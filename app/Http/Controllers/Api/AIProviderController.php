@@ -14,9 +14,10 @@ class AIProviderController extends Controller
         $provider = $request->input('provider', 'groq');
         try {
             $reportService->switchAIProvider($provider);
+
             return response()->json(['success' => true, 'message' => "Switched to {$provider} provider", 'provider' => $provider]);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Error: ' . $e->getMessage()], 500);
+            return response()->json(['success' => false, 'message' => 'Error: '.$e->getMessage()], 500);
         }
     }
 
@@ -24,9 +25,10 @@ class AIProviderController extends Controller
     {
         try {
             $reportService->switchAPIKey();
+
             return response()->json(['success' => true, 'message' => 'API key switched successfully.']);
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Error: ' . $e->getMessage()], 500);
+            return response()->json(['success' => false, 'message' => 'Error: '.$e->getMessage()], 500);
         }
     }
 }

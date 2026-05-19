@@ -70,6 +70,7 @@ class AttendanceController extends Controller
 
                     if (isset($seenInBatch[$signature])) {
                         $skipped++;
+
                         continue;
                     }
                     $seenInBatch[$signature] = true;
@@ -77,6 +78,7 @@ class AttendanceController extends Controller
                     $exists = Attendance::where('source_signature', $signature)->exists();
                     if ($exists) {
                         $skipped++;
+
                         continue;
                     }
 
@@ -114,7 +116,7 @@ class AttendanceController extends Controller
                         'sector' => $session->sector,
                         'integrity_score' => $session->integrity_score,
                         'volunteer_id' => $volunteerId,
-                        'trace_id' => 'SYNC-' . strtoupper(substr(md5(uniqid()), 0, 8)),
+                        'trace_id' => 'SYNC-'.strtoupper(substr(md5(uniqid()), 0, 8)),
                     ];
 
                     $match = DutySession::query()
@@ -151,6 +153,7 @@ class AttendanceController extends Controller
             ]);
         } catch (\Exception $e) {
             Log::error('MySQL attendance sync failed', ['error' => $e->getMessage()]);
+
             return response()->json([
                 'imported' => 0,
                 'skipped' => 0,
@@ -187,6 +190,7 @@ class AttendanceController extends Controller
 
         // No match found - return null (will be handled by MetricsService filter)
         Log::warning('No volunteer found for attendance record', ['full_name' => $fullName]);
+
         return null;
     }
 }

@@ -6,11 +6,12 @@ use Database\Factories\AnnouncementFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Announcement extends Model
 {
     /** @use HasFactory<AnnouncementFactory> */
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'title',
@@ -22,12 +23,14 @@ class Announcement extends Model
         'published_at',
         'expires_at',
         'notified_at',
+        'lock_version',
     ];
 
     protected $casts = [
         'published_at' => 'datetime',
         'expires_at' => 'datetime',
         'notified_at' => 'datetime',
+        'lock_version' => 'integer',
     ];
 
     public function creator(): BelongsTo
@@ -41,7 +44,7 @@ class Announcement extends Model
             ->whereIn('audience', ['members', 'all'])
             ->where(function ($q) {
                 $q->whereNull('expires_at')
-                  ->orWhere('expires_at', '>', now());
+                    ->orWhere('expires_at', '>', now());
             });
     }
 }

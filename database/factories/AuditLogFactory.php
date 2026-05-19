@@ -2,18 +2,19 @@
 
 namespace Database\Factories;
 
+use App\Models\AuditLog;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class AuditLogFactory extends Factory
 {
-    protected $model = \App\Models\AuditLog::class;
+    protected $model = AuditLog::class;
 
     public function definition(): array
     {
         $types = ['SECURITY', 'REGISTRY', 'OPERATIONS', 'SYSTEM'];
         $actions = ['LOGIN', 'User Logged Out', 'Account Created', 'Account Deleted',
-                     'Role Changed', 'Data Modified', 'Report Generated', 'System Error'];
+            'Role Changed', 'Data Modified', 'Report Generated', 'System Error'];
 
         return [
             'user_id' => User::factory(),
@@ -29,11 +30,11 @@ class AuditLogFactory extends Factory
 
     public function security(): static
     {
-        return $this->state(fn() => ['type' => 'SECURITY']);
+        return $this->state(fn () => ['type' => 'SECURITY']);
     }
 
     public function operation(): static
     {
-        return $this->state(fn() => ['type' => 'OPERATIONS']);
+        return $this->state(fn () => ['type' => 'OPERATIONS']);
     }
 }

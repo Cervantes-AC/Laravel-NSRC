@@ -2,8 +2,8 @@
 
 namespace App\Mail;
 
-use App\Models\User;
 use App\Models\Announcement;
+use App\Models\User;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
@@ -19,7 +19,7 @@ class NewAnnouncement extends Mailable
 
     public function build(): static
     {
-        return $this->subject('New Announcement: ' . $this->announcement->title)
+        return $this->subject('New Announcement: '.$this->announcement->title)
             ->view('emails.new-announcement')
             ->with([
                 'name' => $this->user->full_name,

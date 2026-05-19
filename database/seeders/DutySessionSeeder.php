@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\DutySession;
 use App\Models\User;
 use Carbon\Carbon;
+use Illuminate\Database\Seeder;
 
 class DutySessionSeeder extends Seeder
 {
@@ -50,7 +50,7 @@ class DutySessionSeeder extends Seeder
                     'location' => $location,
                     'sector' => $sector,
                     'integrity_score' => $status === 'COMPLETE' ? 100 : ($status === 'MISSING_TIMEOUT' ? 60 : 40),
-                    'trace_id' => 'SEED-' . strtoupper(substr(md5(uniqid()), 0, 8)),
+                    'trace_id' => 'SEED-'.strtoupper(substr(md5(uniqid()), 0, 8)),
                 ]);
             }
         }

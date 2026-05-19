@@ -25,10 +25,18 @@ class AnalyticsController extends Controller
 
         $query = DutySession::query();
 
-        if ($start) { $query->where('date', '>=', $start->copy()->startOfDay()); }
-        if ($end) { $query->where('date', '<=', $end->copy()->endOfDay()); }
-        if ($status !== '') { $query->where('status', $status); }
-        if ($sector !== '') { $query->where('sector', $sector); }
+        if ($start) {
+            $query->where('date', '>=', $start->copy()->startOfDay());
+        }
+        if ($end) {
+            $query->where('date', '<=', $end->copy()->endOfDay());
+        }
+        if ($status !== '') {
+            $query->where('status', $status);
+        }
+        if ($sector !== '') {
+            $query->where('sector', $sector);
+        }
 
         $records = (clone $query)->orderBy('date')->get(['date', 'duration_minutes'])
             ->groupBy(fn (DutySession $s) => $s->date?->format($groupFormat))
@@ -102,6 +110,7 @@ class AnalyticsController extends Controller
                 $dateTo ? Carbon::parse($dateTo)->endOfDay() : null,
             ];
         }
+
         return match ($period) {
             'week' => [now()->subDays(7), now()],
             'month' => [now()->subDays(30), now()],
@@ -118,8 +127,10 @@ class AnalyticsController extends Controller
         if ($dateFrom || $dateTo) {
             $start = $dateFrom ? Carbon::parse($dateFrom) : now()->subDays(30);
             $end = $dateTo ? Carbon::parse($dateTo) : now();
+
             return $start->diffInDays($end) > 180 ? 'Y-m' : 'Y-m-d';
         }
+
         return in_array($period, ['6m', 'year', 'all']) ? 'Y-m' : 'Y-m-d';
     }
 
@@ -128,8 +139,12 @@ class AnalyticsController extends Controller
         if ($dateFrom || $dateTo) {
             $start = $dateFrom ? Carbon::parse($dateFrom) : now()->subDays(30);
             $end = $dateTo ? Carbon::parse($dateTo) : now();
+
             return $start->diffInDays($end) > 180 ? 'Y M' : 'M d';
         }
-        return match ($period) { 'week' => 'D m/d', '6m', 'year', 'all' => 'Y M', default => 'M d' };
+
+        return match ($period) {
+            'week' => 'D m/d', '6m', 'year', 'all' => 'Y M', default => 'M d'
+        };
     }
 }

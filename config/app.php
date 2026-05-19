@@ -17,6 +17,8 @@ return [
 
     'logo' => env('APP_LOGO', 'images/nsrc-logo.png'),
 
+    'favicon' => env('APP_FAVICON', 'images/nsrc-logo.png'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment
@@ -67,7 +69,7 @@ return [
     |
     */
 
-    'timezone' => 'UTC',
+    'timezone' => env('APP_TIMEZONE', 'Asia/Bangkok'),
 
     /*
     |--------------------------------------------------------------------------

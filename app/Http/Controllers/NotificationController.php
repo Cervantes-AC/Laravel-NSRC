@@ -2,10 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Announcement;
 use App\Models\Notification;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Illuminate\Http\RedirectResponse;
 
 class NotificationController extends Controller
 {
@@ -15,7 +16,7 @@ class NotificationController extends Controller
     public function index(Request $request): View
     {
         $user = auth()->user();
-        
+
         $query = $user->notifications()->orderByDesc('created_at');
 
         // Filter by type
@@ -44,6 +45,12 @@ class NotificationController extends Controller
 
         $notifications = $query->paginate(20);
 
+        // Get announcements
+        $announcements = Announcement::visibleToMembers()
+            ->latest('published_at')
+            ->latest()
+            ->paginate(15);
+
         // Get statistics
         $stats = [
             'total' => $user->notifications()->count(),
@@ -53,7 +60,7 @@ class NotificationController extends Controller
             'unacknowledged' => $user->notifications()->whereNull('acknowledged_at')->count(),
         ];
 
-        return view('notifications.index', compact('notifications', 'stats'));
+        return view('notifications.index', compact('notifications', 'announcements', 'stats'));
     }
 
     /**
@@ -102,7 +109,7 @@ class NotificationController extends Controller
         $this->authorize('view', $notification);
 
         // Mark as read
-        if (!$notification->read_at) {
+        if (! $notification->read_at) {
             $notification->markAsRead();
         }
 
@@ -245,7 +252,7 @@ class NotificationController extends Controller
 
         $notifications = $query->get();
 
-        $filename = 'notifications_' . now()->format('Y-m-d_H-i-s') . '.csv';
+        $filename = 'notifications_'.now()->format('Y-m-d_H-i-s').'.csv';
 
         $headers = [
             'Content-Type' => 'text/csv; charset=utf-8',

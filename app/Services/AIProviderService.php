@@ -28,7 +28,7 @@ class AIProviderService
             : (string) ($config['api_key_2'] ?? '');
 
         if ($this->apiKey === '') {
-            $envKey = strtoupper($this->provider) . '_API_KEY_' . $this->keyIndex;
+            $envKey = strtoupper($this->provider).'_API_KEY_'.$this->keyIndex;
             throw new Exception("API key not configured: {$envKey}");
         }
     }
@@ -46,7 +46,7 @@ class AIProviderService
         $validProviders = ['groq', 'openrouter'];
 
         if (! in_array($provider, $validProviders, true)) {
-            throw new Exception('Invalid provider: ' . $provider . '. Valid options: ' . implode(', ', $validProviders));
+            throw new Exception('Invalid provider: '.$provider.'. Valid options: '.implode(', ', $validProviders));
         }
 
         $this->provider = $provider;
@@ -113,7 +113,7 @@ class AIProviderService
         $config = $this->providerConfig();
 
         $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $this->apiKey,
+            'Authorization' => 'Bearer '.$this->apiKey,
             'Content-Type' => 'application/json',
         ])->timeout(60)->post($config['endpoint'] ?? 'https://api.groq.com/openai/v1/chat/completions', [
             'model' => $config['model'] ?? 'llama-3.3-70b-versatile',
@@ -125,7 +125,7 @@ class AIProviderService
         ]);
 
         if ($response->failed()) {
-            throw new Exception('Groq API error: ' . $response->body());
+            throw new Exception('Groq API error: '.$response->body());
         }
 
         return $response->json('choices.0.message.content', '');
@@ -136,7 +136,7 @@ class AIProviderService
         $config = $this->providerConfig();
 
         $response = Http::withHeaders([
-            'Authorization' => 'Bearer ' . $this->apiKey,
+            'Authorization' => 'Bearer '.$this->apiKey,
             'Content-Type' => 'application/json',
             'HTTP-Referer' => config('app.url'),
             'X-Title' => config('app.name', 'NSRC AMS'),
@@ -150,7 +150,7 @@ class AIProviderService
         ]);
 
         if ($response->failed()) {
-            throw new Exception('OpenRouter API error: ' . $response->body());
+            throw new Exception('OpenRouter API error: '.$response->body());
         }
 
         return $response->json('choices.0.message.content', '');

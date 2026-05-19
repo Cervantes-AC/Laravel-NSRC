@@ -12,7 +12,7 @@ class NotificationsController extends Controller
     public function index(): JsonResponse
     {
         $user = auth()->user();
-        if (!$user) {
+        if (! $user) {
             return response()->json(['notifications' => [], 'unreadCount' => 0]);
         }
 
@@ -63,12 +63,14 @@ class NotificationsController extends Controller
         if ($notification && (string) $notification->notifiable_id === (string) auth()->id()) {
             $notification->markAsRead();
         }
+
         return response()->json(['success' => true]);
     }
 
     public function markAllAsRead(): JsonResponse
     {
         auth()->user()?->unreadNotifications->markAsRead();
+
         return response()->json(['success' => true]);
     }
 
@@ -78,6 +80,7 @@ class NotificationsController extends Controller
         if ($notification && (string) $notification->notifiable_id === (string) auth()->id()) {
             $notification->delete();
         }
+
         return response()->json(['success' => true]);
     }
 }

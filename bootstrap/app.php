@@ -1,5 +1,16 @@
 <?php
 
+use App\Http\Middleware\AccessLogMiddleware;
+use App\Http\Middleware\CheckPermission;
+use App\Http\Middleware\CheckRole;
+use App\Http\Middleware\InputSanitizationMiddleware;
+use App\Http\Middleware\MaintenanceMiddleware;
+use App\Http\Middleware\OptimisticLockingMiddleware;
+use App\Http\Middleware\RateLimitMiddleware;
+use App\Http\Middleware\SecurityHeadersMiddleware;
+use App\Http\Middleware\SessionTimeoutMiddleware;
+use App\Http\Middleware\XssProtectionMiddleware;
+use App\Providers\BrandingServiceProvider;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -13,19 +24,31 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'role' => \App\Http\Middleware\CheckRole::class,
-            'throttle.custom' => \App\Http\Middleware\RateLimitMiddleware::class,
-            'security.headers' => \App\Http\Middleware\SecurityHeadersMiddleware::class,
-            'session.timeout' => \App\Http\Middleware\SessionTimeoutMiddleware::class,
-            'access.log' => \App\Http\Middleware\AccessLogMiddleware::class,
+            'role' => CheckRole::class,
+            'permission' => CheckPermission::class,
+            'throttle.custom' => RateLimitMiddleware::class,
+            'security.headers' => SecurityHeadersMiddleware::class,
+            'session.timeout' => SessionTimeoutMiddleware::class,
+            'access.log' => AccessLogMiddleware::class,
+            'xss.protect' => XssProtectionMiddleware::class,
+            'sanitize' => InputSanitizationMiddleware::class,
+            'optimistic.lock' => OptimisticLockingMiddleware::class,
+            'maintenance' => MaintenanceMiddleware::class,
         ]);
 
         $middleware->web(append: [
-            \App\Http\Middleware\SecurityHeadersMiddleware::class,
-            \App\Http\Middleware\SessionTimeoutMiddleware::class,
-            \App\Http\Middleware\AccessLogMiddleware::class,
+            SecurityHeadersMiddleware::class,
+            SessionTimeoutMiddleware::class,
+            AccessLogMiddleware::class,
+        ]);
+
+        $middleware->api(prepend: [
+            MaintenanceMiddleware::class,
         ]);
     })
+    ->withProviders([
+        BrandingServiceProvider::class,
+    ])
     ->withSchedule(function (Schedule $schedule): void {
         $schedule->command('backup:run --type=database')->weeklyOn(0, '02:00');
         $schedule->command('backup:run --type=files')->weeklyOn(0, '03:00');

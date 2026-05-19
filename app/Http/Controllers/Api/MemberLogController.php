@@ -76,7 +76,7 @@ class MemberLogController extends Controller
             ->latest()
             ->first();
 
-        if (!$session) {
+        if (! $session) {
             return response()->json(['success' => false, 'message' => 'No active session found.'], 422);
         }
 

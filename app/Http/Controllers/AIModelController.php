@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AuditLog;
 use App\Services\AIModelService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -9,9 +10,7 @@ use Illuminate\Support\Facades\Auth;
 
 class AIModelController extends Controller
 {
-    public function __construct(private AIModelService $aiModelService)
-    {
-    }
+    public function __construct(private AIModelService $aiModelService) {}
 
     /**
      * Get current AI model
@@ -56,7 +55,7 @@ class AIModelController extends Controller
         $modelId = $request->input('model_id');
 
         // Validate model exists
-        if (!$this->aiModelService->getModel($modelId)) {
+        if (! $this->aiModelService->getModel($modelId)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid AI model selected',
@@ -66,13 +65,15 @@ class AIModelController extends Controller
         // Update user's model preference
         if ($this->aiModelService->setUserModel($modelId)) {
             // Log the action
-            \App\Models\AuditLog::create([
+            AuditLog::create([
                 'user_id' => Auth::id(),
+                'full_name' => Auth::user()?->name ?? 'Unknown',
+                'type' => 'SYSTEM',
                 'action' => 'AI_MODEL_CHANGED',
-                'category' => 'SYSTEM',
-                'description' => "Changed AI model to {$modelId}",
+                'details' => "Changed AI model to {$modelId}",
                 'ip_address' => $request->ip(),
                 'user_agent' => $request->userAgent(),
+                'timestamp' => now(),
             ]);
 
             return response()->json([
@@ -96,7 +97,7 @@ class AIModelController extends Controller
     {
         $validTiers = ['standard', 'premium'];
 
-        if (!in_array($tier, $validTiers)) {
+        if (! in_array($tier, $validTiers)) {
             return response()->json([
                 'success' => false,
                 'message' => 'Invalid tier',
@@ -120,7 +121,7 @@ class AIModelController extends Controller
         $allModels = $this->aiModelService->getAvailableModels();
         $models = array_filter(
             $allModels,
-            fn($model) => strtolower($model['provider']) === strtolower($provider)
+            fn ($model) => strtolower($model['provider']) === strtolower($provider)
         );
 
         if (empty($models)) {

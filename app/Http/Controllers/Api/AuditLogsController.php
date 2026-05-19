@@ -23,13 +23,23 @@ class AuditLogsController extends Controller
 
         if ($search) {
             $query->where(function ($q) use ($search) {
-                $q->where('full_name', 'like', '%' . $search . '%')
-                    ->orWhere('action', 'like', '%' . $search . '%');
+                $q->where('full_name', 'like', '%'.$search.'%')
+                    ->orWhere('action', 'like', '%'.$search.'%')
+                    ->orWhere('details', 'like', '%'.$search.'%');
             });
         }
-        if ($type) { $query->where('type', $type); }
-        if ($dateFrom) { $query->whereDate('created_at', '>=', $dateFrom); }
-        if ($dateTo) { $query->whereDate('created_at', '<=', $dateTo); }
+
+        if ($type) {
+            $query->where('type', strtoupper($type));
+        }
+
+        if ($dateFrom) {
+            $query->whereDate('created_at', '>=', $dateFrom);
+        }
+
+        if ($dateTo) {
+            $query->whereDate('created_at', '<=', $dateTo);
+        }
 
         $total = (clone $query)->count();
         $totalPages = max(1, (int) ceil($total / $perPage));
@@ -40,18 +50,28 @@ class AuditLogsController extends Controller
             ->map(fn ($log) => [
                 'id' => $log->id,
                 'created_at' => $log->created_at->format('M d, Y h:i A'),
-                'user' => $log->user->full_name ?? 'System',
+                'user' => $log->user->full_name ?? ($log->full_name ?? 'System'),
                 'type' => $log->type,
                 'action' => $log->action,
                 'details' => $log->details ?? 'N/A',
                 'ip_address' => $log->ip_address ?? 'N/A',
             ]);
 
+        $stats = [
+            'Total' => $total,
+            'Security' => AuditLogModel::whereNull('archived_at')->where('type', 'SECURITY')->count(),
+            'Registry' => AuditLogModel::whereNull('archived_at')->where('type', 'REGISTRY')->count(),
+            'Operations' => AuditLogModel::whereNull('archived_at')->where('type', 'OPERATIONS')->count(),
+            'System' => AuditLogModel::whereNull('archived_at')->where('type', 'SYSTEM')->count(),
+            'Access' => AuditLogModel::whereNull('archived_at')->where('type', 'ACCESS')->count(),
+        ];
+
         return response()->json([
             'logs' => $logs,
             'totalPages' => $totalPages,
             'currentPage' => $page,
             'total' => $total,
+            'stats' => $stats,
         ]);
     }
 
@@ -63,14 +83,36 @@ class AuditLogsController extends Controller
         $dateTo = $request->input('dateTo', '');
 
         $query = AuditLogModel::with('user')->whereNull('archived_at')->orderByDesc('created_at');
-        if ($search) { $query->where(function ($q) use ($search) { $q->where('full_name', 'like', '%' . $search . '%')->orWhere('action', 'like', '%' . $search . '%'); }); }
-        if ($type) { $query->where('type', $type); }
-        if ($dateFrom) { $query->whereDate('created_at', '>=', $dateFrom); }
-        if ($dateTo) { $query->whereDate('created_at', '<=', $dateTo); }
 
-        $logs = $query->get();
-        $exportService->exportToCSV($logs, 'audit_log_' . now()->format('Ymd_His'));
+        if ($search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('full_name', 'like', '%'.$search.'%')
+                    ->orWhere('action', 'like', '%'.$search.'%')
+                    ->orWhere('details', 'like', '%'.$search.'%');
+            });
+        }
 
-        return response()->json(['message' => 'Export started']);
+        if ($type) {
+            $query->where('type', strtoupper($type));
+        }
+
+        if ($dateFrom) {
+            $query->whereDate('created_at', '>=', $dateFrom);
+        }
+
+        if ($dateTo) {
+            $query->whereDate('created_at', '<=', $dateTo);
+        }
+
+        $logs = $query->get()->map(fn ($log) => collect([
+            'Timestamp' => $log->created_at->format('Y-m-d H:i:s'),
+            'User' => $log->user->full_name ?? ($log->full_name ?? 'System'),
+            'Type' => $log->type,
+            'Action' => $log->action,
+            'Details' => $log->details,
+            'IP Address' => $log->ip_address,
+        ]));
+
+        return $exportService->exportToCSV($logs, 'audit_log_'.now()->format('Ymd_His'));
     }
 }

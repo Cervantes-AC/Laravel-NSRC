@@ -9,58 +9,58 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            if (!Schema::hasColumn('users', 'role')) {
+            if (! Schema::hasColumn('users', 'role')) {
                 $table->string('role')->default('member');
             }
-            if (!Schema::hasColumn('users', 'status')) {
+            if (! Schema::hasColumn('users', 'status')) {
                 $table->string('status')->default('pending');
             }
-            if (!Schema::hasColumn('users', 'full_name')) {
+            if (! Schema::hasColumn('users', 'full_name')) {
                 $table->string('full_name')->nullable();
             }
-            if (!Schema::hasColumn('users', 'school_id')) {
+            if (! Schema::hasColumn('users', 'school_id')) {
                 $table->string('school_id')->nullable();
             }
-            if (!Schema::hasColumn('users', 'nsrc_serial_number')) {
+            if (! Schema::hasColumn('users', 'nsrc_serial_number')) {
                 $table->string('nsrc_serial_number')->nullable();
             }
-            if (!Schema::hasColumn('users', 'birthdate')) {
+            if (! Schema::hasColumn('users', 'birthdate')) {
                 $table->date('birthdate')->nullable();
             }
-            if (!Schema::hasColumn('users', 'gender')) {
+            if (! Schema::hasColumn('users', 'gender')) {
                 $table->string('gender')->nullable();
             }
-            if (!Schema::hasColumn('users', 'college')) {
+            if (! Schema::hasColumn('users', 'college')) {
                 $table->string('college')->nullable();
             }
-            if (!Schema::hasColumn('users', 'major')) {
+            if (! Schema::hasColumn('users', 'major')) {
                 $table->string('major')->nullable();
             }
-            if (!Schema::hasColumn('users', 'year_level')) {
+            if (! Schema::hasColumn('users', 'year_level')) {
                 $table->string('year_level')->nullable();
             }
-            if (!Schema::hasColumn('users', 'primary_competency')) {
+            if (! Schema::hasColumn('users', 'primary_competency')) {
                 $table->string('primary_competency')->nullable();
             }
-            if (!Schema::hasColumn('users', 'personal_contact_number')) {
+            if (! Schema::hasColumn('users', 'personal_contact_number')) {
                 $table->string('personal_contact_number')->nullable();
             }
-            if (!Schema::hasColumn('users', 'current_address')) {
+            if (! Schema::hasColumn('users', 'current_address')) {
                 $table->text('current_address')->nullable();
             }
-            if (!Schema::hasColumn('users', 'home_address')) {
+            if (! Schema::hasColumn('users', 'home_address')) {
                 $table->text('home_address')->nullable();
             }
-            if (!Schema::hasColumn('users', 'emergency_contact_person')) {
+            if (! Schema::hasColumn('users', 'emergency_contact_person')) {
                 $table->string('emergency_contact_person')->nullable();
             }
-            if (!Schema::hasColumn('users', 'emergency_contact_number')) {
+            if (! Schema::hasColumn('users', 'emergency_contact_number')) {
                 $table->string('emergency_contact_number')->nullable();
             }
-            if (!Schema::hasColumn('users', 'avatar')) {
+            if (! Schema::hasColumn('users', 'avatar')) {
                 $table->string('avatar')->nullable();
             }
-            if (!Schema::hasColumn('users', 'serial_number')) {
+            if (! Schema::hasColumn('users', 'serial_number')) {
                 $table->string('serial_number')->nullable();
             }
         });

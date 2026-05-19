@@ -21,7 +21,7 @@ class BackupEmailNotification extends Mailable
 
     public function build(): static
     {
-        return $this->subject('Backup ' . ($this->success ? 'Completed' : 'Failed') . ': ' . ucfirst($this->type))
+        return $this->subject('Backup '.($this->success ? 'Completed' : 'Failed').': '.ucfirst($this->type))
             ->view('emails.backup-notification')
             ->with([
                 'type' => $this->type,

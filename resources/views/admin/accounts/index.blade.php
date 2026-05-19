@@ -87,6 +87,24 @@
                             </div>
                         </div>
 
+                        {{-- Column-specific search --}}
+                        <div x-show="search" class="flex flex-wrap gap-2" x-transition>
+                            <template x-for="col in columns" :key="col.key">
+                                <template x-if="col.visible && col.key !== 'select'">
+                                    <div class="relative">
+                                        <input type="text"
+                                            x-model="col.query"
+                                            @input.debounce.500ms="applyColumnFilter()"
+                                            :placeholder="'Filter ' + col.label.toLowerCase() + '...'"
+                                            class="w-40 pl-3 pr-7 py-1.5 bg-white border border-slate-200 rounded-lg text-xs text-slate-700 placeholder-slate-400 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 outline-none" />
+                                        <button @click="col.query = ''; applyColumnFilter()" x-show="col.query" class="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                                        </button>
+                                    </div>
+                                </template>
+                            </template>
+                        </div>
+
                         {{-- Bulk actions bar --}}
                         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                             <div class="flex items-center gap-3 text-sm text-gray-500">
@@ -103,14 +121,30 @@
                                 </span>
                             </div>
                             <div class="flex items-center gap-2 flex-wrap">
+                                {{-- Column visibility toggle --}}
+                                <div x-data="{ open: false }" class="relative">
+                                    <button @click="open = !open" class="inline-flex items-center px-3 py-2 bg-white border border-slate-200 text-slate-600 rounded-lg transition hover:border-slate-300 text-xs font-bold uppercase tracking-wider gap-1.5">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7" /></svg>
+                                        Columns
+                                    </button>
+                                    <div x-show="open" @click.away="open = false" class="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-lg z-50 py-2" style="display: none;">
+                                        <template x-for="col in columns" :key="col.key">
+                                            <label class="flex items-center gap-2 px-4 py-2 hover:bg-slate-50 cursor-pointer text-sm">
+                                                <input type="checkbox" x-model="col.visible" @change="persistColumns()" class="rounded border-slate-300 text-blue-600 focus:ring-blue-500" />
+                                                <span x-text="col.label"></span>
+                                            </label>
+                                        </template>
+                                    </div>
+                                </div>
                                 <select x-model="bulkAction"
                                     class="rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                     <option value="">{{ __('Bulk Actions') }}</option>
                                     <option value="approve">{{ __('Approve Selected') }}</option>
                                     <option value="suspend">{{ __('Suspend Selected') }}</option>
+                                    <option value="delete">{{ __('Delete Selected') }}</option>
                                     <option value="reject">{{ __('Reject Selected') }}</option>
                                 </select>
-                                <button @click="executeBulkAction()" :disabled="!bulkAction || selectedAccounts.length === 0"
+                                <button @click="confirmBulkAction()" :disabled="!bulkAction || selectedAccounts.length === 0"
                                     class="inline-flex items-center px-3 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded-lg transition disabled:opacity-40">
                                     {{ __('Apply') }}
                                 </button>
@@ -139,28 +173,28 @@
                                 <table class="min-w-full divide-y divide-gray-200">
                                     <thead class="bg-gray-50">
                                         <tr>
-                                            <th class="px-6 py-3 text-left">
+                                            <th class="px-6 py-3 text-left" x-show="getCol('select').visible">
                                                 <input type="checkbox" x-model="selectAll" @change="toggleSelectAll()"
                                                     class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
                                             </th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('Name') }}</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('Email') }}</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('Role') }}</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('Status') }}</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('Last Login') }}</th>
-                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{{ __('Actions') }}</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" x-show="getCol('name').visible">{{ __('Name') }}</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" x-show="getCol('email').visible">{{ __('Email') }}</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" x-show="getCol('role').visible">{{ __('Role') }}</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" x-show="getCol('status').visible">{{ __('Status') }}</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" x-show="getCol('last_login').visible">{{ __('Last Login') }}</th>
+                                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider" x-show="getCol('actions').visible">{{ __('Actions') }}</th>
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200">
                                         <template x-for="a in accounts" :key="a.id">
                                             <tr class="hover:bg-gray-50 transition-colors">
-                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                <td class="px-6 py-4 whitespace-nowrap" x-show="getCol('select').visible">
                                                     <input type="checkbox"
                                                         :checked="selectedAccounts.includes(a.id)"
                                                         @change="toggleAccount(a.id)"
                                                         class="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500" />
                                                 </td>
-                                                <td class="px-6 py-4 whitespace-nowrap">
+                                                <td class="px-6 py-4 whitespace-nowrap" x-show="getCol('name').visible">
                                                     <div class="flex items-center gap-3">
                                                         <div class="w-9 h-9 rounded-lg flex items-center justify-center font-bold text-xs border"
                                                             :class="getAvatarColor(a.full_name)"
@@ -168,12 +202,12 @@
                                                         <span class="text-sm font-medium text-gray-900" x-text="a.full_name"></span>
                                                     </div>
                                                 </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700" x-text="a.email"></td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700" x-text="a.email" x-show="getCol('email').visible"></td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm" x-show="getCol('role').visible">
                                                     <span class="px-2 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200"
                                                         x-text="a.role ? a.role.charAt(0).toUpperCase() + a.role.slice(1) : 'Member'"></span>
                                                 </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm" x-show="getCol('status').visible">
                                                     <span class="px-2 py-1 rounded-full text-xs font-medium"
                                                         :class="{
                                                             'bg-green-100 text-green-800 border border-green-200':  a.status === 'active',
@@ -184,8 +218,8 @@
                                                         x-text="a.status ? a.status.charAt(0).toUpperCase() + a.status.slice(1) : 'Unknown'">
                                                     </span>
                                                 </td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="a.last_login_at"></td>
-                                                <td class="px-6 py-4 whitespace-nowrap text-sm space-x-2">
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="a.last_login_at" x-show="getCol('last_login').visible"></td>
+                                                <td class="px-6 py-4 whitespace-nowrap text-sm space-x-2" x-show="getCol('actions').visible">
                                                     <a :href="'/admin/accounts/' + a.id + '/edit'"
                                                         class="text-indigo-600 hover:text-indigo-900 font-medium">{{ __('Edit') }}</a>
                                                     <button @click="viewDetails(a)"
@@ -320,8 +354,8 @@
                                 <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full p-8">
                                     <div class="flex items-center gap-4 mb-6">
                                         <div class="w-12 h-12 rounded-full flex items-center justify-center"
-                                            :class="confirmActionType === 'reject' ? 'bg-red-100' : 'bg-orange-100'">
-                                            <svg class="w-6 h-6" :class="confirmActionType === 'reject' ? 'text-red-600' : 'text-orange-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            :class="confirmActionType === 'reject' || confirmActionType === 'bulk_delete' ? 'bg-red-100' : 'bg-orange-100'">
+                                            <svg class="w-6 h-6" :class="confirmActionType === 'reject' || confirmActionType === 'bulk_delete' ? 'text-red-600' : 'text-orange-600'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
                                             </svg>
                                         </div>
@@ -330,10 +364,18 @@
                                             <p class="text-sm text-gray-500" x-text="confirmMessage"></p>
                                         </div>
                                     </div>
+                                    <template x-if="cascadeWarning">
+                                        <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
+                                            <div class="flex gap-3">
+                                                <svg class="w-5 h-5 text-red-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                                <p class="text-sm text-red-700" x-text="cascadeWarning"></p>
+                                            </div>
+                                        </div>
+                                    </template>
                                     <div class="flex gap-3">
                                         <button @click="closeConfirmModal()" class="flex-1 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition">Cancel</button>
                                         <button @click="executeConfirmedAction()" class="flex-1 py-2.5 text-white font-bold rounded-xl transition"
-                                            :class="confirmActionType === 'reject' ? 'bg-red-600 hover:bg-red-700' : confirmActionType === 'suspend' ? 'bg-orange-600 hover:bg-orange-700' : 'bg-green-600 hover:bg-green-700'"
+                                            :class="confirmActionType === 'reject' || confirmActionType === 'bulk_delete' ? 'bg-red-600 hover:bg-red-700' : confirmActionType === 'suspend' ? 'bg-orange-600 hover:bg-orange-700' : 'bg-green-600 hover:bg-green-700'"
                                             x-text="confirmButtonText"></button>
                                     </div>
                                 </div>
@@ -364,6 +406,8 @@ document.addEventListener('alpine:init', () => {
         sortBy: 'created_at',
         sortDirection: 'desc',
 
+        columns: [],
+
         selectAll: false,
         selectedAccounts: [],
 
@@ -381,6 +425,69 @@ document.addEventListener('alpine:init', () => {
         confirmTitle: '',
         confirmMessage: '',
         confirmButtonText: '',
+        cascadeWarning: '',
+
+        getCol(key) {
+            return this.columns.find(c => c.key === key) || { visible: true };
+        },
+
+        initColumns() {
+            const stored = localStorage.getItem('accounts_columns');
+            const defaultCols = [
+                { key: 'select', label: '', visible: true, query: '' },
+                { key: 'name', label: 'Name', visible: true, query: '' },
+                { key: 'email', label: 'Email', visible: true, query: '' },
+                { key: 'role', label: 'Role', visible: true, query: '' },
+                { key: 'status', label: 'Status', visible: true, query: '' },
+                { key: 'last_login', label: 'Last Login', visible: true, query: '' },
+                { key: 'actions', label: 'Actions', visible: true, query: '' },
+            ];
+            if (stored) {
+                const saved = JSON.parse(stored);
+                this.columns = defaultCols.map(dc => {
+                    const found = saved.find(s => s.key === dc.key);
+                    return found ? { ...dc, visible: found.visible } : dc;
+                });
+            } else {
+                this.columns = defaultCols;
+            }
+        },
+
+        persistColumns() {
+            localStorage.setItem('accounts_columns', JSON.stringify(
+                this.columns.map(c => ({ key: c.key, visible: c.visible }))
+            ));
+        },
+
+        applyColumnFilter() {
+            // Store column queries for the API to use
+            this.applyFilters();
+        },
+
+        get columnFilterParams() {
+            const params = {};
+            this.columns.forEach(c => {
+                if (c.query) params['col_' + c.key] = c.query;
+            });
+            return params;
+        },
+
+        confirmBulkAction() {
+            if (!this.bulkAction || this.selectedAccounts.length === 0) return;
+
+            if (this.bulkAction === 'delete') {
+                this.confirmActionType = 'bulk_delete';
+                this.confirmTitle = 'Delete Accounts';
+                this.confirmMessage = `Are you sure you want to delete ${this.selectedAccounts.length} account(s)?`;
+                this.cascadeWarning = 'This will permanently remove all associated data including sessions, notifications, and preferences for these accounts. This action cannot be undone.';
+                this.confirmButtonText = 'Delete';
+                this.showConfirmModal = true;
+                return;
+            }
+
+            this.cascadeWarning = '';
+            this.executeBulkAction();
+        },
 
         get pageNumbers() {
             const pages = [];
@@ -401,6 +508,7 @@ document.addEventListener('alpine:init', () => {
         },
 
         init() {
+            this.initColumns();
             this.loadAccounts();
         },
 
@@ -412,6 +520,10 @@ document.addEventListener('alpine:init', () => {
             if (this.sortDirection) p.set('sortDirection', this.sortDirection);
             p.set('page',    this.currentPage);
             p.set('perPage', this.perPage);
+            // Add column-specific filters
+            this.columns.forEach(c => {
+                if (c.query) p.set('col_' + c.key, c.query);
+            });
             return p.toString();
         },
 
@@ -571,6 +683,9 @@ document.addEventListener('alpine:init', () => {
                 await this.postAction(`/api/accounts/${this.confirmAccountId}/approve`, 'Account activated.');
             } else if (this.confirmActionType === 'reject') {
                 await this.postAction(`/api/accounts/${this.confirmAccountId}/reject`, 'Account rejected.');
+            } else if (this.confirmActionType === 'bulk_delete') {
+                this.bulkAction = 'delete';
+                await this.executeBulkAction();
             }
         },
 
@@ -603,33 +718,6 @@ document.addEventListener('alpine:init', () => {
                 await this.loadAccounts();
             } catch (e) {
                 this.flash('Action failed: ' + e.message, true);
-            }
-        },
-
-        async executeBulkAction() {
-            if (!this.bulkAction || this.selectedAccounts.length === 0) return;
-
-            try {
-                const res = await fetch('/api/accounts/bulk-action', {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': this.csrfToken(),
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        ids:    this.selectedAccounts,
-                        action: this.bulkAction,
-                    }),
-                });
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.message ?? `Error ${res.status}`);
-                this.flash(data.message ?? 'Bulk action completed.');
-                this.bulkAction = '';
-                await this.loadAccounts();
-            } catch (e) {
-                this.flash('Bulk action failed: ' + e.message, true);
             }
         },
 

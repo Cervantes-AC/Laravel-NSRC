@@ -33,12 +33,12 @@ class SessionsController extends Controller
 
         if ($search !== '') {
             $query->where(function ($q) use ($search) {
-                $q->where('full_name', 'like', '%' . $search . '%')
+                $q->where('full_name', 'like', '%'.$search.'%')
                     ->orWhereHas('volunteer', function ($v) use ($search) {
-                        $v->where('full_name', 'like', '%' . $search . '%')
-                            ->orWhere('name', 'like', '%' . $search . '%')
-                            ->orWhere('school_id', 'like', '%' . $search . '%')
-                            ->orWhere('email', 'like', '%' . $search . '%');
+                        $v->where('full_name', 'like', '%'.$search.'%')
+                            ->orWhere('name', 'like', '%'.$search.'%')
+                            ->orWhere('school_id', 'like', '%'.$search.'%')
+                            ->orWhere('email', 'like', '%'.$search.'%');
                     });
             });
         }
@@ -149,7 +149,7 @@ class SessionsController extends Controller
                 'sector' => $session->sector,
                 'integrity_score' => $session->integrity_score,
                 'volunteer_id' => $volunteerId,
-                'trace_id' => 'LOCAL-' . strtoupper(substr(md5($session->full_name . $session->date . ($session->time_in ?? now())), 0, 8)),
+                'trace_id' => 'LOCAL-'.strtoupper(substr(md5($session->full_name.$session->date.($session->time_in ?? now())), 0, 8)),
             ];
 
             $match = DutySession::query()
@@ -185,14 +185,22 @@ class SessionsController extends Controller
         $errors = [];
         $seenInBatch = [];
 
-        if (!empty($records)) {
+        if (! empty($records)) {
             foreach ($records as $record) {
                 $signature = $service->recordSignature($record);
-                if (isset($seenInBatch[$signature])) { $skipped++; continue; }
+                if (isset($seenInBatch[$signature])) {
+                    $skipped++;
+
+                    continue;
+                }
                 $seenInBatch[$signature] = true;
 
                 $exists = Attendance::where('source_signature', $signature)->exists();
-                if ($exists) { $skipped++; continue; }
+                if ($exists) {
+                    $skipped++;
+
+                    continue;
+                }
 
                 Attendance::create([
                     'full_name' => $record['fullName'],
@@ -232,7 +240,7 @@ class SessionsController extends Controller
                 'sector' => $session->sector,
                 'integrity_score' => $session->integrity_score,
                 'volunteer_id' => $volunteerId,
-                'trace_id' => 'SYNC-' . strtoupper(substr(md5($session->full_name . $session->date . ($session->time_in ?? now())), 0, 8)),
+                'trace_id' => 'SYNC-'.strtoupper(substr(md5($session->full_name.$session->date.($session->time_in ?? now())), 0, 8)),
             ];
 
             $match = DutySession::query()

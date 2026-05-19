@@ -4,27 +4,17 @@ namespace App\Services;
 
 use App\Mail\ImportNotification;
 use App\Models\Attendance;
-use App\Services\NotificationService;
-use App\Types\AttendanceRecord;
-use App\Types\DuplicateDetectionResult;
-use App\Types\ExportFormat;
-use App\Types\FieldMapping;
-use App\Types\ImportFileFormat;
-use App\Types\ImportLogEntry;
-use App\Types\ImportPreviewResult;
-use App\Types\ImportProcessResult;
-use App\Types\ImportValidationResult;
-use App\Types\NormalizedImportRow;
-use App\Types\ValidationRules;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
 
 class ImportService
 {
     protected array $importLog = [];
+
     protected NotificationService $notifications;
 
     public function __construct()
@@ -40,8 +30,8 @@ class ImportService
         $allowedMimes = ['csv', 'xlsx', 'xls', 'txt'];
         $extension = strtolower($file->getClientOriginalExtension());
 
-        if (!in_array($extension, $allowedMimes)) {
-            $errors[] = "Invalid file type: {$extension}. Allowed types: " . implode(', ', $allowedMimes);
+        if (! in_array($extension, $allowedMimes)) {
+            $errors[] = "Invalid file type: {$extension}. Allowed types: ".implode(', ', $allowedMimes);
         }
 
         $maxSize = 10 * 1024 * 1024;
@@ -67,7 +57,7 @@ class ImportService
     {
         $validation = $this->validateImportFile($file);
 
-        if (!$validation['valid']) {
+        if (! $validation['valid']) {
             return [
                 'preview' => [],
                 'errors' => $validation['errors'],
@@ -82,7 +72,7 @@ class ImportService
 
             foreach ($rows as $index => $row) {
                 $rowErrors = $this->validateRow($row, $index + 1);
-                if (!empty($rowErrors)) {
+                if (! empty($rowErrors)) {
                     $errors = array_merge($errors, $rowErrors);
                 }
                 $preview[] = $row;
@@ -94,7 +84,8 @@ class ImportService
                 'total_rows' => count($rows),
             ];
         } catch (\Exception $e) {
-            Log::error('Import preview failed: ' . $e->getMessage());
+            Log::error('Import preview failed: '.$e->getMessage());
+
             return [
                 'preview' => [],
                 'errors' => [$e->getMessage()],
@@ -107,7 +98,7 @@ class ImportService
     {
         $validation = $this->validateImportFile($file);
 
-        if (!$validation['valid']) {
+        if (! $validation['valid']) {
             return [
                 'success' => 0,
                 'failed' => 0,
@@ -136,6 +127,7 @@ class ImportService
                             'status' => 'skipped',
                             'message' => 'Duplicate record',
                         ];
+
                         continue;
                     }
 
@@ -157,7 +149,7 @@ class ImportService
                     ];
                 } catch (\Exception $e) {
                     $failed++;
-                    $errors[] = "Row " . ($index + 1) . ": " . $e->getMessage();
+                    $errors[] = 'Row '.($index + 1).': '.$e->getMessage();
                     $this->importLog[] = [
                         'row' => $index + 1,
                         'status' => 'failed',
@@ -169,7 +161,7 @@ class ImportService
             $this->sendImportNotification($validation['filename'], $totalRows, $success, $failed, $skipped, empty($errors));
             $this->notifications->importSuccess($validation['filename'], $success, $failed, $skipped);
         } catch (\Exception $e) {
-            Log::error('Import failed: ' . $e->getMessage());
+            Log::error('Import failed: '.$e->getMessage());
             $errors[] = $e->getMessage();
             $this->notifications->importValidationFailed($file->getClientOriginalName(), [$e->getMessage()]);
         }
@@ -189,7 +181,7 @@ class ImportService
         $duplicates = [];
 
         foreach ($data as $index => $row) {
-            $signature = ($row['full_name'] ?? '') . '|' . ($row['date_time'] ?? '');
+            $signature = ($row['full_name'] ?? '').'|'.($row['date_time'] ?? '');
 
             if (isset($seen[$signature])) {
                 $duplicates[] = [
@@ -223,7 +215,7 @@ class ImportService
             Mail::to(config('mail.backup_email', 'aaronclydeccervantes@gmail.com'))
                 ->send(new ImportNotification($filename, $total, $success, $failed, $skipped, $overallSuccess));
         } catch (\Exception $e) {
-            Log::warning('Failed to send import notification email: ' . $e->getMessage());
+            Log::warning('Failed to send import notification email: '.$e->getMessage());
         }
     }
 
@@ -248,8 +240,9 @@ class ImportService
         $headers = fgetcsv($handle);
         $rows = [];
 
-        if (!$headers) {
+        if (! $headers) {
             fclose($handle);
+
             return [];
         }
 
@@ -270,11 +263,11 @@ class ImportService
 
     private function parseExcel(UploadedFile $file): array
     {
-        if (!extension_loaded('zip') && !class_exists(\PhpOffice\PhpSpreadsheet\Spreadsheet::class)) {
+        if (! extension_loaded('zip') && ! class_exists(Spreadsheet::class)) {
             throw new \RuntimeException('Excel support requires the phpoffice/phpspreadsheet package. Run: composer require phpoffice/phpspreadsheet');
         }
 
-        $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($file->getRealPath());
+        $spreadsheet = IOFactory::load($file->getRealPath());
         $worksheet = $spreadsheet->getActiveSheet();
         $rows = [];
 
@@ -291,6 +284,7 @@ class ImportService
 
             if ($rowIndex === 1) {
                 $headers = array_map('trim', $values);
+
                 continue;
             }
 
@@ -315,7 +309,7 @@ class ImportService
         $sourcePayload = $row['source_payload'] ?? null;
 
         // If source_payload is a JSON string, keep it as is for later parsing
-        if (is_string($sourcePayload) && !empty($sourcePayload)) {
+        if (is_string($sourcePayload) && ! empty($sourcePayload)) {
             try {
                 // Validate it's valid JSON
                 json_decode($sourcePayload, true, 512, JSON_THROW_ON_ERROR);

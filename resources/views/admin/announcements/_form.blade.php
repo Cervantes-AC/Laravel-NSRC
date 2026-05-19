@@ -1,4 +1,7 @@
 @csrf
+@if ($announcement->exists)
+    <input type="hidden" name="lock_version" value="{{ $announcement->lock_version ?? 1 }}">
+@endif
 
 <div class="grid gap-6">
     <div>

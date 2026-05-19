@@ -35,6 +35,7 @@ class ReportService
             $name = $session->full_name ?? '';
             if (empty($name)) {
                 $groups->push($session);
+
                 continue;
             }
 
@@ -47,7 +48,7 @@ class ReportService
                 }
             }
 
-            if (!$matched) {
+            if (! $matched) {
                 $groups[$name] = collect([$session]);
             }
         }
@@ -55,6 +56,7 @@ class ReportService
         return $groups->map(function ($groupSessions) {
             $first = $groupSessions->first();
             $first->full_name = $groupSessions->pluck('full_name')->unique()->implode(' / ');
+
             return $groupSessions;
         })->flatten();
     }
@@ -63,36 +65,36 @@ class ReportService
     {
         $query = DutySession::with('volunteer');
 
-        if (!empty($filters['user_id'])) {
+        if (! empty($filters['user_id'])) {
             $query->where('volunteer_id', $filters['user_id']);
         }
 
-        if (!empty($filters['personnel_search'])) {
+        if (! empty($filters['personnel_search'])) {
             $search = $filters['personnel_search'];
             $query->where(function ($q) use ($search) {
-                $q->where('full_name', 'like', '%' . $search . '%')
+                $q->where('full_name', 'like', '%'.$search.'%')
                     ->orWhereHas('volunteer', function ($volunteer) use ($search) {
-                        $volunteer->where('full_name', 'like', '%' . $search . '%')
-                            ->orWhere('name', 'like', '%' . $search . '%')
-                            ->orWhere('school_id', 'like', '%' . $search . '%')
-                            ->orWhere('email', 'like', '%' . $search . '%');
+                        $volunteer->where('full_name', 'like', '%'.$search.'%')
+                            ->orWhere('name', 'like', '%'.$search.'%')
+                            ->orWhere('school_id', 'like', '%'.$search.'%')
+                            ->orWhere('email', 'like', '%'.$search.'%');
                     });
             });
         }
 
-        if (!empty($filters['date_from'])) {
+        if (! empty($filters['date_from'])) {
             $query->whereDate('date', '>=', $filters['date_from']);
         }
 
-        if (!empty($filters['date_to'])) {
+        if (! empty($filters['date_to'])) {
             $query->whereDate('date', '<=', $filters['date_to']);
         }
 
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
-        if (!empty($filters['sector'])) {
+        if (! empty($filters['sector'])) {
             $query->where('sector', $filters['sector']);
         }
 
@@ -113,25 +115,25 @@ class ReportService
     {
         $query = DutySession::query();
 
-        if (!empty($filters['date_from'])) {
+        if (! empty($filters['date_from'])) {
             $query->whereDate('date', '>=', $filters['date_from']);
         }
 
-        if (!empty($filters['date_to'])) {
+        if (! empty($filters['date_to'])) {
             $query->whereDate('date', '<=', $filters['date_to']);
         }
 
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
-        if (!empty($filters['sector'])) {
+        if (! empty($filters['sector'])) {
             $query->where('sector', $filters['sector']);
         }
 
-        if (!empty($filters['personnel_search'])) {
+        if (! empty($filters['personnel_search'])) {
             $search = $filters['personnel_search'];
-            $query->where('full_name', 'like', '%' . $search . '%');
+            $query->where('full_name', 'like', '%'.$search.'%');
         }
 
         $summary = (object) [
@@ -160,23 +162,23 @@ class ReportService
     {
         $query = AuditLog::with('user');
 
-        if (!empty($filters['user_id'])) {
+        if (! empty($filters['user_id'])) {
             $query->where('user_id', $filters['user_id']);
         }
 
-        if (!empty($filters['type'])) {
+        if (! empty($filters['type'])) {
             $query->where('type', $filters['type']);
         }
 
-        if (!empty($filters['action'])) {
-            $query->where('action', 'LIKE', '%' . $filters['action'] . '%');
+        if (! empty($filters['action'])) {
+            $query->where('action', 'LIKE', '%'.$filters['action'].'%');
         }
 
-        if (!empty($filters['date_from'])) {
+        if (! empty($filters['date_from'])) {
             $query->whereDate('created_at', '>=', $filters['date_from']);
         }
 
-        if (!empty($filters['date_to'])) {
+        if (! empty($filters['date_to'])) {
             $query->whereDate('created_at', '<=', $filters['date_to']);
         }
 
@@ -196,19 +198,19 @@ class ReportService
     {
         $query = DutySession::query();
 
-        if (!empty($filters['date_from'])) {
+        if (! empty($filters['date_from'])) {
             $query->whereDate('date', '>=', $filters['date_from']);
         }
 
-        if (!empty($filters['date_to'])) {
+        if (! empty($filters['date_to'])) {
             $query->whereDate('date', '<=', $filters['date_to']);
         }
 
-        if (!empty($filters['status'])) {
+        if (! empty($filters['status'])) {
             $query->where('status', $filters['status']);
         }
 
-        if (!empty($filters['sector'])) {
+        if (! empty($filters['sector'])) {
             $query->where('sector', $filters['sector']);
         }
 
@@ -244,11 +246,11 @@ class ReportService
     {
         $query = DutySession::with('volunteer');
 
-        if (!empty($filters['date_from'])) {
+        if (! empty($filters['date_from'])) {
             $query->whereDate('created_at', '>=', $filters['date_from']);
         }
 
-        if (!empty($filters['date_to'])) {
+        if (! empty($filters['date_to'])) {
             $query->whereDate('created_at', '<=', $filters['date_to']);
         }
 
@@ -259,6 +261,7 @@ class ReportService
             foreach ($columns as $column) {
                 $row[$column] = data_get($record, $column, null);
             }
+
             return $row;
         });
 
@@ -302,6 +305,7 @@ class ReportService
     public function switchAIProvider(string $provider): self
     {
         $this->aiProvider->switchProvider($provider);
+
         return $this;
     }
 
@@ -311,6 +315,7 @@ class ReportService
     public function switchAPIKey(): self
     {
         $this->aiProvider->switchApiKey();
+
         return $this;
     }
 

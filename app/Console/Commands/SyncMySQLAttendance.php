@@ -2,9 +2,20 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Attendance;
+use App\Models\DutySession;
+use App\Models\User;
+use App\Models\VolunteerMetrics;
+use App\Services\DutyEngine;
+use App\Services\MetricsService;
 use App\Services\MySQLAttendanceService;
+use App\Services\NameNormalizationService;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class SyncMySQLAttendance extends Command
 {
@@ -58,7 +69,7 @@ class SyncMySQLAttendance extends Command
 
             return empty($result['errors']) ? 0 : 1;
         } catch (\Exception $e) {
-            $this->error('Sync failed: ' . $e->getMessage());
+            $this->error('Sync failed: '.$e->getMessage());
             Log::error('MySQL attendance sync failed', [
                 'error' => $e->getMessage(),
             ]);
@@ -78,7 +89,7 @@ class SyncMySQLAttendance extends Command
             return [
                 'imported' => 0,
                 'skipped' => 0,
-                'attendance_total' => \App\Models\Attendance::count(),
+                'attendance_total' => Attendance::count(),
                 'sessions_created' => 0,
                 'sessions_updated' => 0,
                 'errors' => ['No data retrieved from MySQL source'],
@@ -105,7 +116,7 @@ class SyncMySQLAttendance extends Command
                     $skipped++;
                 }
             } catch (\Exception $e) {
-                $errors[] = 'Row ' . ($index + 1) . ': ' . $e->getMessage();
+                $errors[] = 'Row '.($index + 1).': '.$e->getMessage();
                 Log::error('Failed to store MySQL attendance row', [
                     'record' => $record,
                     'error' => $e->getMessage(),
@@ -118,7 +129,7 @@ class SyncMySQLAttendance extends Command
         return [
             'imported' => $imported,
             'skipped' => $skipped,
-            'attendance_total' => \App\Models\Attendance::count(),
+            'attendance_total' => Attendance::count(),
             'sessions_created' => $sessionStats['created'],
             'sessions_updated' => $sessionStats['updated'],
             'errors' => $errors,
@@ -137,7 +148,7 @@ class SyncMySQLAttendance extends Command
         }
         $seenInBatch[$signature] = true;
 
-        $exists = \App\Models\Attendance::query()
+        $exists = Attendance::query()
             ->where('source_signature', $signature)
             ->exists();
 
@@ -145,7 +156,7 @@ class SyncMySQLAttendance extends Command
             return false;
         }
 
-        \App\Models\Attendance::create([
+        Attendance::create([
             'full_name' => $record['fullName'],
             'attendance' => $record['attendance'],
             'date_time' => $record['dateTime'],
@@ -163,15 +174,15 @@ class SyncMySQLAttendance extends Command
      */
     private function rebuildDutySessions(array $options): array
     {
-        $query = \App\Models\Attendance::query()->orderBy('date_time');
+        $query = Attendance::query()->orderBy('date_time');
 
         if (! empty($options['name'])) {
-            $query->where('full_name', 'like', '%' . $options['name'] . '%');
+            $query->where('full_name', 'like', '%'.$options['name'].'%');
         }
 
         if (! empty($options['date'])) {
             try {
-                $date = \Carbon\Carbon::createFromFormat('n/j/Y', $options['date']);
+                $date = Carbon::createFromFormat('n/j/Y', $options['date']);
                 $query->whereDate('date_time', $date);
             } catch (\Exception) {
                 Log::warning('Invalid date filter for duty session rebuild', ['date' => $options['date']]);
@@ -184,12 +195,12 @@ class SyncMySQLAttendance extends Command
             return ['created' => 0, 'updated' => 0];
         }
 
-        $dutyEngine = app(\App\Services\DutyEngine::class);
+        $dutyEngine = app(DutyEngine::class);
         $sessions = $dutyEngine->processDutyLogs($logs);
         $created = 0;
         $updated = 0;
 
-        \Illuminate\Support\Facades\DB::transaction(function () use ($sessions, &$created, &$updated) {
+        DB::transaction(function () use ($sessions, &$created, &$updated) {
             foreach ($sessions as $session) {
                 $volunteerId = $this->resolveVolunteerId($session->full_name);
                 $traceId = $this->buildTraceId($session);
@@ -208,7 +219,7 @@ class SyncMySQLAttendance extends Command
                     'trace_id' => $traceId,
                 ];
 
-                $match = \App\Models\DutySession::query()
+                $match = DutySession::query()
                     ->where('full_name', $session->full_name)
                     ->whereDate('date', $session->date)
                     ->when($session->time_in, fn ($q) => $q->where('time_in', $session->time_in))
@@ -218,13 +229,13 @@ class SyncMySQLAttendance extends Command
                     $match->update($attributes);
                     $updated++;
                 } else {
-                    \App\Models\DutySession::create($attributes);
+                    DutySession::create($attributes);
                     $created++;
                 }
             }
 
-            \App\Models\VolunteerMetrics::query()->delete();
-            app(\App\Services\MetricsService::class)->calculateVolunteerMetrics(\App\Models\DutySession::query()->get());
+            VolunteerMetrics::query()->delete();
+            app(MetricsService::class)->calculateVolunteerMetrics(DutySession::query()->get());
         });
 
         return ['created' => $created, 'updated' => $updated];
@@ -232,16 +243,16 @@ class SyncMySQLAttendance extends Command
 
     private function clearSpreadsheetMirrors(): void
     {
-        \Illuminate\Support\Facades\DB::transaction(function () {
-            \App\Models\VolunteerMetrics::query()->delete();
-            \App\Models\DutySession::withTrashed()->forceDelete();
-            \App\Models\Attendance::query()->delete();
+        DB::transaction(function () {
+            VolunteerMetrics::query()->delete();
+            DutySession::withTrashed()->forceDelete();
+            Attendance::query()->delete();
         });
     }
 
     private function resolveVolunteerId(string $fullName): ?int
     {
-        $exact = \App\Models\User::query()
+        $exact = User::query()
             ->where('full_name', $fullName)
             ->value('id');
 
@@ -249,8 +260,8 @@ class SyncMySQLAttendance extends Command
             return (int) $exact;
         }
 
-        $nameService = app(\App\Services\NameNormalizationService::class);
-        foreach (\App\Models\User::query()->whereNotNull('full_name')->get(['id', 'full_name']) as $user) {
+        $nameService = app(NameNormalizationService::class);
+        foreach (User::query()->whereNotNull('full_name')->get(['id', 'full_name']) as $user) {
             if ($nameService->areNamesSimilar($fullName, $user->full_name, 85.0)) {
                 return $user->id;
             }
@@ -259,29 +270,29 @@ class SyncMySQLAttendance extends Command
         return $this->createSpreadsheetVolunteer($fullName)->id;
     }
 
-    private function createSpreadsheetVolunteer(string $fullName): \App\Models\User
+    private function createSpreadsheetVolunteer(string $fullName): User
     {
-        $slug = \Illuminate\Support\Str::slug($fullName) ?: 'mysql-volunteer';
-        $email = $slug . '@mysql.local';
+        $slug = Str::slug($fullName) ?: 'mysql-volunteer';
+        $email = $slug.'@mysql.local';
         $suffix = 1;
 
-        while (\App\Models\User::query()->where('email', $email)->exists()) {
-            $email = $slug . '-' . $suffix . '@mysql.local';
+        while (User::query()->where('email', $email)->exists()) {
+            $email = $slug.'-'.$suffix.'@mysql.local';
             $suffix++;
         }
 
-        return \App\Models\User::create([
+        return User::create([
             'name' => $fullName,
             'full_name' => $fullName,
             'email' => $email,
-            'password' => \Illuminate\Support\Facades\Hash::make(\Illuminate\Support\Str::random(32)),
+            'password' => Hash::make(Str::random(32)),
             'role' => 'member',
             'status' => 'active',
             'email_verified_at' => now(),
         ]);
     }
 
-    private function buildTraceId(\App\Models\DutySession $session): string
+    private function buildTraceId(DutySession $session): string
     {
         $seed = implode('|', [
             $session->full_name,
@@ -289,6 +300,6 @@ class SyncMySQLAttendance extends Command
             $session->time_in?->format('Y-m-d H:i:s') ?? '',
         ]);
 
-        return 'MS-' . strtoupper(substr(md5($seed), 0, 8));
+        return 'MS-'.strtoupper(substr(md5($seed), 0, 8));
     }
 }

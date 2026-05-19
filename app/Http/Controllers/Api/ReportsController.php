@@ -6,8 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\DutySession;
 use App\Services\DataExportService;
 use App\Services\ReportService;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReportsController extends Controller
@@ -34,7 +36,7 @@ class ReportsController extends Controller
         $data = $results['data'] ?? [];
         $records = is_array($data) && isset($data['records']) ? $data['records'] : (is_array($data) ? $data : collect($data));
 
-        if ($records instanceof \Illuminate\Support\Collection) {
+        if ($records instanceof Collection) {
             $records = $records->toArray();
         } elseif ($records instanceof \Illuminate\Database\Eloquent\Collection) {
             $records = $records->toArray();
@@ -64,7 +66,8 @@ class ReportsController extends Controller
         $raw = $request->input('data', []);
         $records = $raw['records'] ?? $raw;
         $data = $this->normalizeRows(collect($records));
-        return $exportService->exportToCSV($data, 'formal_attendance_report_' . now()->format('Ymd_His'));
+
+        return $exportService->exportToCSV($data, 'formal_attendance_report_'.now()->format('Ymd_His'));
     }
 
     public function exportPdf(Request $request, DataExportService $exportService): StreamedResponse
@@ -87,13 +90,13 @@ class ReportsController extends Controller
                     'total_records' => $rows->count(),
                 ],
             ],
-        ], 'formal_attendance_report_' . now()->format('Ymd_His'));
+        ], 'formal_attendance_report_'.now()->format('Ymd_His'));
     }
 
-    private function normalizeRows(\Illuminate\Support\Collection $records): \Illuminate\Support\Collection
+    private function normalizeRows(Collection $records): Collection
     {
         return $records->map(function ($record) {
-            $row = $record instanceof \Illuminate\Database\Eloquent\Model ? $record->toArray() : (array) $record;
+            $row = $record instanceof Model ? $record->toArray() : (array) $record;
 
             if (array_key_exists('full_name', $row) || array_key_exists('duration_minutes', $row)) {
                 return [

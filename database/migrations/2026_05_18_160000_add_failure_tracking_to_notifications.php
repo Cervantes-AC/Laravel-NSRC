@@ -16,7 +16,7 @@ return new class extends Migration
             $table->json('failure_context')->nullable()->after('failure_reason');
             $table->timestamp('acknowledged_at')->nullable()->after('read_at');
             $table->string('acknowledged_by')->nullable()->after('acknowledged_at');
-            
+
             // Index for better query performance
             $table->index(['severity', 'created_at']);
             $table->index(['category', 'created_at']);
@@ -30,7 +30,7 @@ return new class extends Migration
             $table->dropIndex(['severity', 'created_at']);
             $table->dropIndex(['category', 'created_at']);
             $table->dropIndex(['notifiable_id', 'notifiable_type', 'severity']);
-            
+
             $table->dropColumn([
                 'severity',
                 'category',

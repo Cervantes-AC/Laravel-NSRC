@@ -2,9 +2,9 @@
 
 namespace App\Services;
 
+use App\Models\Attendance;
 use App\Models\DutySession;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Log;
 
 class DutyEngine
 {
@@ -43,11 +43,24 @@ class DutyEngine
 
     public function calculateDuration($timeIn, $timeOut): int
     {
-        if (!$timeIn || !$timeOut) {
+        // If no time_in, duration is 0
+        if (! $timeIn) {
             return 0;
         }
 
         $start = $timeIn instanceof \DateTimeInterface ? $timeIn : now()->parse($timeIn);
+
+        // If no time_out, calculate from time_in to end of day (23:59:59)
+        if (! $timeOut) {
+            $endOfDay = $start->copy()->endOfDay();
+
+            if ($endOfDay <= $start) {
+                return 0;
+            }
+
+            return (int) $start->diffInMinutes($endOfDay);
+        }
+
         $end = $timeOut instanceof \DateTimeInterface ? $timeOut : now()->parse($timeOut);
 
         if ($end <= $start) {
@@ -75,7 +88,7 @@ class DutyEngine
         }
 
         // Missing timeout - partial integrity (has time_in but no time_out)
-        if ($timeIn && !$timeOut) {
+        if ($timeIn && ! $timeOut) {
             return 70.0;
         }
 
@@ -92,7 +105,7 @@ class DutyEngine
             return $duration >= 1 ? 'COMPLETE' : 'INVALID_LOG';
         }
 
-        if ($timeIn && !$timeOut) {
+        if ($timeIn && ! $timeOut) {
             // Record exists with time_in but no time_out - mark as MISSING_TIMEOUT
             return 'MISSING_TIMEOUT';
         }
@@ -105,7 +118,7 @@ class DutyEngine
         $grouped = collect();
 
         foreach ($logs as $log) {
-            $name = $log instanceof \App\Models\Attendance
+            $name = $log instanceof Attendance
                 ? $log->full_name
                 : ($log['full_name'] ?? '');
 
@@ -123,7 +136,7 @@ class DutyEngine
                 }
             }
 
-            if (!$matched) {
+            if (! $matched) {
                 $grouped[$name] = collect([$log]);
             }
         }
@@ -134,7 +147,7 @@ class DutyEngine
     private function pairTimeInTimeOut(Collection $logs): Collection
     {
         $sorted = $logs->sortBy(function ($log) {
-            return $log instanceof \App\Models\Attendance
+            return $log instanceof Attendance
                 ? $log->date_time
                 : ($log['date_time'] ?? now());
         })->values();
@@ -145,14 +158,14 @@ class DutyEngine
 
         foreach ($sorted as $log) {
             $attendance = $this->normalizeAttendanceLabel(
-                $log instanceof \App\Models\Attendance
+                $log instanceof Attendance
                     ? (string) $log->attendance
                     : (string) ($log['attendance'] ?? '')
             );
-            $dateTime = $log instanceof \App\Models\Attendance
+            $dateTime = $log instanceof Attendance
                 ? $log->date_time
                 : ($log['date_time'] ?? null);
-            $logLocation = $log instanceof \App\Models\Attendance
+            $logLocation = $log instanceof Attendance
                 ? (string) ($log->location ?? '')
                 : (string) ($log['location'] ?? '');
 

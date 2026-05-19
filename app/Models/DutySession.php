@@ -25,6 +25,7 @@ class DutySession extends Model
         'sector',
         'integrity_score',
         'volunteer_id',
+        'lock_version',
     ];
 
     protected $casts = [
@@ -32,6 +33,7 @@ class DutySession extends Model
         'time_in' => 'datetime',
         'time_out' => 'datetime',
         'integrity_score' => 'float',
+        'lock_version' => 'integer',
     ];
 
     protected $with = ['volunteer'];

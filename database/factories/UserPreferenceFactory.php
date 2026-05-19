@@ -3,11 +3,12 @@
 namespace Database\Factories;
 
 use App\Models\User;
+use App\Models\UserPreference;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class UserPreferenceFactory extends Factory
 {
-    protected $model = \App\Models\UserPreference::class;
+    protected $model = UserPreference::class;
 
     public function definition(): array
     {
@@ -22,11 +23,11 @@ class UserPreferenceFactory extends Factory
 
     public function light(): static
     {
-        return $this->state(fn() => ['theme' => 'light']);
+        return $this->state(fn () => ['theme' => 'light']);
     }
 
     public function dark(): static
     {
-        return $this->state(fn() => ['theme' => 'dark']);
+        return $this->state(fn () => ['theme' => 'dark']);
     }
 }

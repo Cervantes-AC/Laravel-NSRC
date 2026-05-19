@@ -595,7 +595,7 @@
     </table>
 
     {{-- Bottom stats --}}
-    @if( > 0)
+    @if($totalRecords > 0)
     <div style="margin-bottom: 14px; margin-top: 20px; font-size: 9px;">
         <div style="font-weight: 800; color: #1e3a8a; text-transform: uppercase; letter-spacing: .08em; font-size: 8px; margin-bottom: 8px; padding-bottom: 4px; border-bottom: 2px solid #1e3a8a;">
             III. Statistical Summary

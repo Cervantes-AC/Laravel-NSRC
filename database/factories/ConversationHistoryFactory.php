@@ -2,12 +2,13 @@
 
 namespace Database\Factories;
 
+use App\Models\ConversationHistory;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class ConversationHistoryFactory extends Factory
 {
-    protected $model = \App\Models\ConversationHistory::class;
+    protected $model = ConversationHistory::class;
 
     public function definition(): array
     {

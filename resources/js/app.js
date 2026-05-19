@@ -90,6 +90,10 @@ Alpine.data('dashboard', () => ({
         axios.post('/api/member/time-out').then(res => {
             if (res.data.success) {
                 this.loadData();
+                // Trigger attendance display after timeout
+                setTimeout(() => {
+                    window.dispatchEvent(new CustomEvent('timeOutComplete', { detail: res.data }));
+                }, 500);
             }
         }).catch(err => {
             alert(err.response?.data?.message || 'Failed to log time out.');
@@ -367,6 +371,17 @@ Alpine.data('memberAttendanceApp', () => ({
         if (page < 1 || page > this.totalAttendancePages) return;
         this.currentPage = page;
     },
+    init() {
+        // Auto-load attendance for today on init
+        this.dateFrom = new Date().toISOString().split('T')[0];
+        this.dateTo = new Date().toISOString().split('T')[0];
+        this.generateReport();
+        
+        // Listen for time out completion event
+        window.addEventListener('timeOutComplete', () => {
+            this.generateReport();
+        });
+    },
     generateReport() {
         this.currentPage = 1;
         this.loading = true;
@@ -532,7 +547,13 @@ Alpine.data('logControl', () => ({
             this.hasActiveSession = false;
             this.activeSince = '';
             if (this.timerInterval) clearInterval(this.timerInterval);
-            setTimeout(() => { this.logMessage = ''; }, 5000);
+            // Dispatch event to trigger attendance display
+            window.dispatchEvent(new CustomEvent('timeOutComplete', { detail: res.data }));
+            // Refresh status after a short delay
+            setTimeout(() => { 
+                this.checkStatus();
+                this.logMessage = ''; 
+            }, 1000);
         }).catch(err => {
             this.logSuccess = false;
             this.logMessage = err.response?.data?.message || 'Failed to log time out.';
@@ -1050,6 +1071,8 @@ Alpine.data('logControl', () => ({
         axios.post('/api/member/time-out').then(res => {
             this.logMessage = res.data.message;
             this.logSuccess = true;
+            // Dispatch event to trigger attendance display
+            window.dispatchEvent(new CustomEvent('timeOutComplete', { detail: res.data }));
             this.checkStatus();
             if (this.timerInterval) { clearInterval(this.timerInterval); this.timerInterval = null; }
             this.elapsedMinutes = 0;
@@ -1063,6 +1086,31 @@ Alpine.data('logControl', () => ({
         const h = Math.floor(mins / 60);
         const m = mins % 60;
         return h > 0 ? `${h}h ${m}m` : `${m}m`;
+    }
+}));
+
+Alpine.data('themeToggle', () => ({
+    isDark: false,
+    init() {
+        const stored = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        this.isDark = stored === 'dark' || (!stored && prefersDark);
+        if (this.isDark) {
+            document.documentElement.classList.add('dark');
+            document.body.classList.add('dark');
+        }
+    },
+    toggle() {
+        this.isDark = !this.isDark;
+        if (this.isDark) {
+            document.documentElement.classList.add('dark');
+            document.body.classList.add('dark');
+            localStorage.setItem('theme', 'dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+            document.body.classList.remove('dark');
+            localStorage.setItem('theme', 'light');
+        }
     }
 }));
 

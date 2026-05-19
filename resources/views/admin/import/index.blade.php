@@ -28,6 +28,8 @@
                                     <select id="import_type" name="import_type" required aria-required="true" class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                         <option value="">{{ __('Select Type') }}</option>
                                         <option value="personnel" {{ old('import_type') === 'personnel' ? 'selected' : '' }}>{{ __('Personnel') }}</option>
+                                        <option value="accounts" {{ old('import_type') === 'accounts' ? 'selected' : '' }}>{{ __('Accounts') }}</option>
+                                        <option value="attendance" {{ old('import_type') === 'attendance' ? 'selected' : '' }}>{{ __('Attendance') }}</option>
                                         <option value="sessions" {{ old('import_type') === 'sessions' ? 'selected' : '' }}>{{ __('Duty Sessions') }}</option>
                                     </select>
                                     @error('import_type')
@@ -129,17 +131,29 @@
                             <h3 class="text-lg font-medium text-gray-900 mb-4">{{ __('Templates') }}</h3>
                             <p class="text-sm text-gray-600 mb-4">{{ __('Download a template to ensure correct formatting:') }}</p>
                             <div class="space-y-3">
+                                <a href="{{ route('admin.import.template', 'attendance') }}" class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition" aria-label="{{ __('Download attendance template') }}">
+                                    <svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    <span class="text-sm font-medium text-gray-700">{{ __('Attendance Template') }}</span>
+                                </a>
+                                <a href="{{ route('admin.import.template', 'sessions') }}" class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition" aria-label="{{ __('Download sessions template') }}">
+                                    <svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    </svg>
+                                    <span class="text-sm font-medium text-gray-700">{{ __('Sessions Template') }}</span>
+                                </a>
                                 <a href="{{ route('admin.import.template', 'personnel') }}" class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition" aria-label="{{ __('Download personnel template') }}">
                                     <svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                     </svg>
                                     <span class="text-sm font-medium text-gray-700">{{ __('Personnel Template') }}</span>
                                 </a>
-                                <a href="{{ route('admin.import.template') }}" class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition" aria-label="{{ __('Download attendance template') }}">
+                                <a href="{{ route('admin.import.template', 'accounts') }}" class="flex items-center gap-3 p-3 border border-gray-200 rounded-lg hover:bg-gray-50 transition" aria-label="{{ __('Download accounts template') }}">
                                     <svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                     </svg>
-                                    <span class="text-sm font-medium text-gray-700">{{ __('Attendance Template') }}</span>
+                                    <span class="text-sm font-medium text-gray-700">{{ __('Accounts Template') }}</span>
                                 </a>
                             </div>
 
@@ -148,8 +162,10 @@
                                 <ul class="text-xs text-blue-700 space-y-1 list-disc list-inside">
                                     <li>{{ __('Max file size: 10MB') }}</li>
                                     <li>{{ __('Supported formats: CSV, XLSX, XLS, TXT') }}</li>
-                                    <li>{{ __('Required: timestamp, full_name, attendance') }}</li>
-                                    <li>{{ __('Attendance values: Time in, Time out') }}</li>
+                                    <li>{{ __('Attendance: timestamp, full_name, attendance') }}</li>
+                                    <li>{{ __('Sessions: full_name, date, time_in, time_out, duration_minutes, status') }}</li>
+                                    <li>{{ __('Personnel: full_name, email, role, status') }}</li>
+                                    <li>{{ __('Accounts: full_name, email, role, status') }}</li>
                                     <li>{{ __('Email notification sent to: aaronclydeccervantes@gmail.com') }}</li>
                                 </ul>
                             </div>

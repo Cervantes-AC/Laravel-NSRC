@@ -9,6 +9,7 @@
                     <form method="POST" action="{{ route('admin.personnel.update', $user) }}" class="space-y-6">
                         @csrf
                         @method('PATCH')
+                        <input type="hidden" name="lock_version" value="{{ $user->lock_version ?? 1 }}">
 
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>

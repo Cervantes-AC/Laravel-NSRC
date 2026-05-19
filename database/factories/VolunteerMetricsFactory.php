@@ -3,11 +3,12 @@
 namespace Database\Factories;
 
 use App\Models\User;
+use App\Models\VolunteerMetrics;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class VolunteerMetricsFactory extends Factory
 {
-    protected $model = \App\Models\VolunteerMetrics::class;
+    protected $model = VolunteerMetrics::class;
 
     public function definition(): array
     {

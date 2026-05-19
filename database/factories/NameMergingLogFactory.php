@@ -2,11 +2,12 @@
 
 namespace Database\Factories;
 
+use App\Models\NameMergingLog;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class NameMergingLogFactory extends Factory
 {
-    protected $model = \App\Models\NameMergingLog::class;
+    protected $model = NameMergingLog::class;
 
     public function definition(): array
     {

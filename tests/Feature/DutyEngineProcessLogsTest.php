@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Services\DutyEngine;
-use App\Services\NameNormalizationService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -45,8 +44,8 @@ class DutyEngineProcessLogsTest extends TestCase
 
         $this->assertCount(1, $sessions);
         $session = $sessions->first();
-        $this->assertEquals('ONGOING', $session->status);
-        $this->assertEquals(60.0, $session->integrity_score);
+        $this->assertEquals('MISSING_TIMEOUT', $session->status);
+        $this->assertEquals(70.0, $session->integrity_score);
     }
 
     public function test_process_logs_handles_normalized_labels(): void
@@ -73,7 +72,7 @@ class DutyEngineProcessLogsTest extends TestCase
         $sessions = $this->engine->processDutyLogs($logs);
 
         $this->assertCount(2, $sessions);
-        $this->assertEquals('ONGOING', $sessions->get(0)->status);
+        $this->assertEquals('MISSING_TIMEOUT', $sessions->get(0)->status);
         $this->assertEquals('COMPLETE', $sessions->get(1)->status);
     }
 

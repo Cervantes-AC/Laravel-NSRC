@@ -23,8 +23,8 @@ class ProfileController extends Controller
         $qrCode = null;
 
         // Generate QR code URL if 2FA is not enabled
-        if (!$user->two_factor_enabled) {
-            $google2fa = new Google2FA();
+        if (! $user->two_factor_enabled) {
+            $google2fa = new Google2FA;
             $secret = $google2fa->generateSecretKey();
             $qrCodeUrl = $google2fa->getQRCodeUrl(
                 config('app.name'),
@@ -77,15 +77,15 @@ class ProfileController extends Controller
             'totp_code' => ['required', 'string', 'size:6'],
         ]);
 
-        $google2fa = new Google2FA();
+        $google2fa = new Google2FA;
         $secret = session('two_factor_secret');
 
-        if (!$secret) {
+        if (! $secret) {
             $secret = $google2fa->generateSecretKey();
         }
 
         // Verify the TOTP code
-        if (!$google2fa->verifyKey($secret, $request->totp_code)) {
+        if (! $google2fa->verifyKey($secret, $request->totp_code)) {
             return Redirect::route('profile.edit')->withErrors([
                 'totp_code' => __('The provided code is invalid.'),
             ]);
@@ -128,6 +128,7 @@ class ProfileController extends Controller
         for ($i = 0; $i < $count; $i++) {
             $codes[] = strtoupper(bin2hex(random_bytes(4)));
         }
+
         return $codes;
     }
 
@@ -160,7 +161,7 @@ class ProfileController extends Controller
 
         Auth::logout();
 
-        $user->delete();
+        $user->forceDelete();
 
         $request->session()->invalidate();
         $request->session()->regenerateToken();

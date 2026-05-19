@@ -62,7 +62,7 @@ class DutyEngineTest extends TestCase
     public function test_generate_integrity_score(): void
     {
         $this->assertEquals(100.0, $this->engine->generateIntegrityScore(now(), now()));
-        $this->assertEquals(60.0, $this->engine->generateIntegrityScore(now(), null));
+        $this->assertEquals(70.0, $this->engine->generateIntegrityScore(now(), null));
         $this->assertEquals(40.0, $this->engine->generateIntegrityScore(null, now()));
         $this->assertEquals(40.0, $this->engine->generateIntegrityScore(null, null));
     }
@@ -70,7 +70,7 @@ class DutyEngineTest extends TestCase
     public function test_determine_status(): void
     {
         $this->assertEquals('COMPLETE', $this->engine->determineStatus(now(), now(), true));
-        $this->assertEquals('ONGOING', $this->engine->determineStatus(now(), null, true));
+        $this->assertEquals('MISSING_TIMEOUT', $this->engine->determineStatus(now(), null, true));
         $this->assertEquals('MISSING_TIMEOUT', $this->engine->determineStatus(now(), null, false));
         $this->assertEquals('INVALID_LOG', $this->engine->determineStatus(null, now(), false));
     }

@@ -26,6 +26,49 @@
             var(--app-bg);
     }
 
+    .dark body,
+    body.dark {
+        --app-bg: #0f172a;
+        --app-panel: #1e293b;
+        --app-border: #334155;
+        --app-ink: #e2e8f0;
+        --app-muted: #94a3b8;
+    }
+
+    .dark label {
+        @apply text-slate-300;
+    }
+
+    .dark input[type='text'],
+    .dark input[type='email'],
+    .dark input[type='password'],
+    .dark input[type='search'],
+    .dark input[type='date'],
+    .dark input[type='time'],
+    .dark input[type='number'],
+    .dark input[type='file'],
+    .dark select,
+    .dark textarea {
+        @apply border-slate-600 bg-slate-800 text-slate-100 placeholder:text-slate-500;
+    }
+
+    .dark input[type='checkbox'],
+    .dark input[type='radio'] {
+        @apply border-slate-600;
+    }
+
+    .dark table {
+        @apply text-slate-300;
+    }
+
+    .dark thead {
+        @apply bg-slate-800/90;
+    }
+
+    .dark th {
+        @apply text-slate-400;
+    }
+
     ::selection {
         @apply bg-blue-100 text-blue-950;
     }
@@ -83,12 +126,20 @@
         @apply min-h-screen bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.10),transparent_30rem),linear-gradient(180deg,#f8fafc_0%,#eef4f8_100%)];
     }
 
+    .dark .app-shell {
+        @apply bg-[radial-gradient(circle_at_top_left,rgba(37,99,235,0.15),transparent_30rem),linear-gradient(180deg,#0f172a_0%,#1e293b_100%)];
+    }
+
     .app-sidebar {
         @apply bg-slate-950 text-white shadow-2xl shadow-slate-950/20;
     }
 
     .app-topbar {
         @apply border-b border-slate-200/80 bg-white/90 shadow-sm shadow-slate-200/70 backdrop-blur-xl;
+    }
+
+    .dark .app-topbar {
+        @apply border-slate-700/80 bg-slate-900/90 shadow-slate-950/30;
     }
 
     .page-container {
@@ -99,12 +150,20 @@
         @apply text-xl font-bold tracking-normal text-slate-950 sm:text-2xl;
     }
 
+    .dark .page-title {
+        @apply text-slate-100;
+    }
+
     .page-kicker {
         @apply mt-1 text-sm font-medium text-slate-500;
     }
 
     .app-card {
         @apply rounded-lg border border-slate-200 bg-white shadow-sm shadow-slate-200/70;
+    }
+
+    .dark .app-card {
+        @apply border-slate-700 bg-slate-800 shadow-slate-950/30;
     }
 
     .app-card-padded {
@@ -119,6 +178,10 @@
         @apply inline-flex items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:border-slate-400 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60;
     }
 
+    .dark .btn-secondary {
+        @apply border-slate-600 bg-slate-700 text-slate-200 hover:border-slate-500 hover:bg-slate-600;
+    }
+
     .btn-danger {
         @apply inline-flex items-center justify-center rounded-lg border border-transparent bg-red-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm shadow-red-600/20 transition hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60;
     }
@@ -127,20 +190,40 @@
         @apply rounded-lg border border-slate-200 bg-white p-5 shadow-sm shadow-slate-200/70 transition hover:-translate-y-0.5 hover:shadow-md;
     }
 
+    .dark .metric-card {
+        @apply border-slate-700 bg-slate-800 shadow-slate-950/30;
+    }
+
     .soft-panel {
         @apply rounded-lg border border-slate-200 bg-slate-50/80;
+    }
+
+    .dark .soft-panel {
+        @apply border-slate-700 bg-slate-800/60;
     }
 
     .table-shell {
         @apply overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm;
     }
 
+    .dark .table-shell {
+        @apply border-slate-700 bg-slate-800;
+    }
+
     .table-shell table {
         @apply min-w-full divide-y divide-slate-200;
     }
 
+    .dark .table-shell table {
+        @apply divide-slate-700;
+    }
+
     .table-shell tbody {
         @apply divide-y divide-slate-100 bg-white;
+    }
+
+    .dark .table-shell tbody {
+        @apply divide-slate-700 bg-slate-800;
     }
 
     .table-shell tr {
@@ -149,6 +232,10 @@
 
     .table-shell tbody tr:hover {
         @apply bg-blue-50/40;
+    }
+
+    .dark .table-shell tbody tr:hover {
+        @apply bg-blue-900/20;
     }
 
     main > .py-12 {

@@ -21,7 +21,7 @@ class AuditLogController extends Controller
         }
 
         if ($request->filled('action')) {
-            $query->where('action', 'like', '%' . $request->action . '%');
+            $query->where('action', 'like', '%'.$request->action.'%');
         }
 
         if ($request->filled('user_id')) {
@@ -50,7 +50,7 @@ class AuditLogController extends Controller
         }
 
         if ($request->filled('action')) {
-            $query->where('action', 'like', '%' . $request->action . '%');
+            $query->where('action', 'like', '%'.$request->action.'%');
         }
 
         if ($request->filled('user_id')) {
@@ -66,7 +66,7 @@ class AuditLogController extends Controller
         }
 
         $data = $query->latest()->get();
-        $filename = 'audit-logs-' . now()->format('Y-m-d');
+        $filename = 'audit-logs-'.now()->format('Y-m-d');
 
         return $this->exportService->exportToCSV($data, $filename);
     }

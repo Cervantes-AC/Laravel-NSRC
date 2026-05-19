@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\DutySession;
 use Illuminate\Support\Collection;
 
 class NameNormalizationService
@@ -16,7 +17,7 @@ class NameNormalizationService
             $parts = preg_split('/\s+/', $name);
         }
 
-        $parts = array_filter($parts, fn($p) => $p !== '');
+        $parts = array_filter($parts, fn ($p) => $p !== '');
         $parts = array_values($parts);
 
         sort($parts);
@@ -53,7 +54,7 @@ class NameNormalizationService
         $highestScore = 0.0;
 
         foreach ($sessions as $session) {
-            $sessionName = $session instanceof \App\Models\DutySession
+            $sessionName = $session instanceof DutySession
                 ? $session->full_name
                 : ($session['full_name'] ?? '');
 

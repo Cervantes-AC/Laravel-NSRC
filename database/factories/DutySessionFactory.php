@@ -2,17 +2,18 @@
 
 namespace Database\Factories;
 
+use App\Models\DutySession;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class DutySessionFactory extends Factory
 {
-    protected $model = \App\Models\DutySession::class;
+    protected $model = DutySession::class;
 
     public function definition(): array
     {
         $timeIn = fake()->dateTimeBetween('-1 month', 'now');
-        $timeOut = (clone $timeIn)->modify('+' . rand(2, 10) . ' hours');
+        $timeOut = (clone $timeIn)->modify('+'.rand(2, 10).' hours');
         $duration = ($timeOut->getTimestamp() - $timeIn->getTimestamp()) / 60;
         $locations = ['Main Gate', 'Admin Office', 'Clinic', 'Canteen', 'Dormitory'];
         $sectors = ['Security', 'Administration', 'Health Services', 'Food Services', 'Accommodation'];
@@ -35,12 +36,12 @@ class DutySessionFactory extends Factory
 
     public function complete(): static
     {
-        return $this->state(fn() => ['status' => 'COMPLETE']);
+        return $this->state(fn () => ['status' => 'COMPLETE']);
     }
 
     public function ongoing(): static
     {
-        return $this->state(fn() => [
+        return $this->state(fn () => [
             'status' => 'ONGOING',
             'time_out' => null,
             'duration_minutes' => null,

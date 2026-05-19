@@ -97,7 +97,7 @@ class AIModelService
     public function getUserModel(): string
     {
         $user = Auth::user();
-        if (!$user) {
+        if (! $user) {
             return 'claude-3-5-sonnet'; // Default model
         }
 
@@ -110,18 +110,18 @@ class AIModelService
     public function setUserModel(string $modelId): bool
     {
         $user = Auth::user();
-        if (!$user) {
+        if (! $user) {
             return false;
         }
 
         // Validate model exists
-        if (!isset(self::AVAILABLE_MODELS[$modelId])) {
+        if (! isset(self::AVAILABLE_MODELS[$modelId])) {
             return false;
         }
 
         // Get or create user preferences
         $preferences = $user->preferences ?? $user->preferences()->create();
-        
+
         return $preferences->update(['ai_model' => $modelId]);
     }
 
@@ -131,10 +131,10 @@ class AIModelService
     public function getModelsByProvider(): array
     {
         $grouped = [];
-        
+
         foreach (self::AVAILABLE_MODELS as $id => $model) {
             $provider = $model['provider'];
-            if (!isset($grouped[$provider])) {
+            if (! isset($grouped[$provider])) {
                 $grouped[$provider] = [];
             }
             $grouped[$provider][$id] = $model;
@@ -150,7 +150,7 @@ class AIModelService
     {
         return array_filter(
             self::AVAILABLE_MODELS,
-            fn($model) => $model['tier'] === $tier
+            fn ($model) => $model['tier'] === $tier
         );
     }
 
@@ -160,8 +160,8 @@ class AIModelService
     public function getModelConfig(string $modelId): array
     {
         $model = $this->getModel($modelId);
-        
-        if (!$model) {
+
+        if (! $model) {
             return [];
         }
 

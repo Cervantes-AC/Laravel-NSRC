@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\DutySession;
-use App\Models\User;
 use App\Services\DutyEngine;
 use App\Services\MetricsService;
 use Illuminate\Http\JsonResponse;
@@ -87,7 +86,7 @@ class MemberAttendanceController extends Controller
             'sector' => 'General',
             'integrity_score' => 60.0,
             'volunteer_id' => $user->id,
-            'trace_id' => 'MEMBER-' . strtoupper(substr(md5($user->id . $now), 0, 8)),
+            'trace_id' => 'MEMBER-'.strtoupper(substr(md5($user->id.$now), 0, 8)),
         ]);
 
         Attendance::create([
@@ -99,7 +98,7 @@ class MemberAttendanceController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Time in logged successfully at ' . $now->format('h:i A') . '.',
+            'message' => 'Time in logged successfully at '.$now->format('h:i A').'.',
             'session' => [
                 'id' => $session->id,
                 'time_in' => $session->time_in?->format('h:i A'),
@@ -119,7 +118,7 @@ class MemberAttendanceController extends Controller
             ->latest()
             ->first();
 
-        if (!$session) {
+        if (! $session) {
             return response()->json(['success' => false, 'message' => 'No active session found. Please log time in first.'], 422);
         }
 
@@ -144,7 +143,7 @@ class MemberAttendanceController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Time out logged successfully. Duration: ' . floor($duration / 60) . 'h ' . ($duration % 60) . 'm.',
+            'message' => 'Time out logged successfully. Duration: '.floor($duration / 60).'h '.($duration % 60).'m.',
             'session' => [
                 'id' => $session->id,
                 'time_in' => $session->time_in?->format('h:i A'),

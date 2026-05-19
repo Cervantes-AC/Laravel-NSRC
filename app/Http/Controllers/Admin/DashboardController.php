@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Attendance;
-use App\Models\DutySession;
 use App\Models\User;
 use App\Services\AlertService;
 use App\Services\MetricsService;
@@ -14,7 +12,7 @@ class DashboardController extends Controller
     public function index(AlertService $alerts, MetricsService $metricsService)
     {
         $summary = $metricsService->getSystemSummary();
-        
+
         $stats = [
             'total_users' => $summary['total_users'],
             'active_users' => $summary['active_users'],

@@ -21,7 +21,7 @@ class ImportNotification extends Mailable
 
     public function build(): static
     {
-        return $this->subject('Import Complete: ' . ($this->overallSuccess ? 'Success' : 'Completed with Errors'))
+        return $this->subject('Import Complete: '.($this->overallSuccess ? 'Success' : 'Completed with Errors'))
             ->view('emails.import-notification')
             ->with([
                 'filename' => $this->filename,

@@ -137,7 +137,7 @@
             open: false,
             selectModel(modelId) {
                 // Send AJAX request to update model
-                fetch('{{ route("ai-model.update") }}', {
+                fetch('{{ route("api.ai-model.update") }}', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

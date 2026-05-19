@@ -12,7 +12,7 @@ class MySQLAttendanceService
      * Fetch attendance data from MySQL with optional filters.
      *
      * @param  array{name?: string, date?: string}  $options  date format: M/d/yyyy
-     * @return array<int, array{fullName: string, attendance: string, dateTime: \Carbon\Carbon, location: ?string, shiftType: ?string, payload: array<string, mixed>}>
+     * @return array<int, array{fullName: string, attendance: string, dateTime: Carbon, location: ?string, shiftType: ?string, payload: array<string, mixed>}>
      */
     public function fetchAttendanceData(array $options = []): array
     {
@@ -22,6 +22,7 @@ class MySQLAttendanceService
 
             if ($records->isEmpty()) {
                 Log::info('No attendance records found in MySQL', ['options' => $options]);
+
                 return [];
             }
 
@@ -55,13 +56,13 @@ class MySQLAttendanceService
     }
 
     /**
-     * @param  array{fullName: string, attendance: string, dateTime: \Carbon\Carbon, location: ?string, shiftType: ?string, payload?: array<string, mixed>}  $record
+     * @param  array{fullName: string, attendance: string, dateTime: Carbon, location: ?string, shiftType: ?string, payload?: array<string, mixed>}  $record
      */
     public function recordSignature(array $record): string
     {
         return strtolower(trim($record['fullName']))
-            . '|' . $record['dateTime']->format('Y-m-d H:i:s')
-            . '|' . $this->normalizeAttendanceType($record['attendance']);
+            .'|'.$record['dateTime']->format('Y-m-d H:i:s')
+            .'|'.$this->normalizeAttendanceType($record['attendance']);
     }
 
     public function normalizeAttendanceType(string $attendance): string
@@ -89,7 +90,7 @@ class MySQLAttendanceService
 
         if (! empty($options['name'])) {
             $nameColumn = config('attendance.mysql.name_column', 'full_name');
-            $query->where($nameColumn, 'like', '%' . $options['name'] . '%');
+            $query->where($nameColumn, 'like', '%'.$options['name'].'%');
         }
 
         if (! empty($options['date'])) {
@@ -103,12 +104,13 @@ class MySQLAttendanceService
         }
 
         $dateColumn = config('attendance.mysql.date_column', 'date_time');
+
         return $query->orderBy($dateColumn);
     }
 
     /**
      * @param  array<int, array<string, mixed>>  $mysqlData
-     * @return array<int, array{fullName: string, attendance: string, dateTime: \Carbon\Carbon, location: ?string, shiftType: ?string, payload: array<string, mixed>}>
+     * @return array<int, array{fullName: string, attendance: string, dateTime: Carbon, location: ?string, shiftType: ?string, payload: array<string, mixed>}>
      */
     private function mapMySQLData(array $mysqlData): array
     {

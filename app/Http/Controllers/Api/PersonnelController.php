@@ -5,9 +5,9 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\DutySession;
 use App\Models\User;
-use Illuminate\Support\Collection;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 
 class PersonnelController extends Controller
 {
@@ -34,13 +34,20 @@ class PersonnelController extends Controller
 
             foreach ($sessions as $session) {
                 $issues = $this->deriveIssues($session);
-                if (count($issues) > 0) $invalidRecordCount++;
+                if (count($issues) > 0) {
+                    $invalidRecordCount++;
+                }
 
                 if ($session->time_in && $session->time_out) {
                     $minutes = $session->time_in->diffInMinutes($session->time_out);
-                    if ($minutes < 60) $totalUndertimeMinutes += $minutes;
-                    elseif ($minutes <= 480) $totalRegularMinutes += $minutes;
-                    else { $totalRegularMinutes += 480; $totalOvertimeMinutes += ($minutes - 480); }
+                    if ($minutes < 60) {
+                        $totalUndertimeMinutes += $minutes;
+                    } elseif ($minutes <= 480) {
+                        $totalRegularMinutes += $minutes;
+                    } else {
+                        $totalRegularMinutes += 480;
+                        $totalOvertimeMinutes += ($minutes - 480);
+                    }
                 }
             }
 
@@ -101,7 +108,7 @@ class PersonnelController extends Controller
             }
 
             return [
-                'id' => 'unlinked-' . md5($name),
+                'id' => 'unlinked-'.md5($name),
                 'fullName' => $name,
                 'volunteerId' => null,
                 'email' => 'No linked user account',
@@ -122,8 +129,7 @@ class PersonnelController extends Controller
 
         if ($search) {
             $l = strtolower($search);
-            $enrichedData = $enrichedData->filter(fn ($item) =>
-                str_contains(strtolower($item['fullName']), $l) ||
+            $enrichedData = $enrichedData->filter(fn ($item) => str_contains(strtolower($item['fullName']), $l) ||
                 str_contains(strtolower($item['serialNumber']), $l) ||
                 str_contains(strtolower($item['email']), $l));
         }
@@ -142,6 +148,7 @@ class PersonnelController extends Controller
                 'issues' => $a['invalidRecordCount'] <=> $b['invalidRecordCount'],
                 default => 0,
             };
+
             return $sortDirection === 'asc' ? $cmp : -$cmp;
         })->values();
 
@@ -171,7 +178,9 @@ class PersonnelController extends Controller
     public function history(Request $request): JsonResponse
     {
         $name = $request->input('name');
-        if (!$name) return response()->json(['sessions' => []]);
+        if (! $name) {
+            return response()->json(['sessions' => []]);
+        }
 
         $sessions = DutySession::where('full_name', $name)
             ->orderBy('date', 'desc')
@@ -193,7 +202,7 @@ class PersonnelController extends Controller
     private function deriveIssues(DutySession $session): array
     {
         $issues = [];
-        if (!$session->time_out) {
+        if (! $session->time_out) {
             $issues[] = ['date' => $session->date->format('Y-m-d'), 'type' => 'MISSING_TIMEOUT', 'description' => "No time-out recorded on {$session->date->format('Y-m-d')}."];
         }
         if ($session->time_in && $session->time_out) {
@@ -204,6 +213,7 @@ class PersonnelController extends Controller
         if ($session->date && $session->date->isFuture()) {
             $issues[] = ['date' => $session->date->format('Y-m-d'), 'type' => 'FUTURE_DATE', 'description' => "Session date {$session->date->format('Y-m-d')} is in the future."];
         }
+
         return $issues;
     }
 }

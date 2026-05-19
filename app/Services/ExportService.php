@@ -3,6 +3,11 @@
 namespace App\Services;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Storage;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ExportService
@@ -19,14 +24,14 @@ class ExportService
 
     public function exportToExcel(Collection $data, string $filename): StreamedResponse
     {
-        if (!class_exists(\PhpOffice\PhpSpreadsheet\Spreadsheet::class)) {
+        if (! class_exists(Spreadsheet::class)) {
             throw new \RuntimeException('Excel export requires the phpoffice/phpspreadsheet package. Run: composer require phpoffice/phpspreadsheet');
         }
 
         $sanitized = $this->dataExport->sanitizeData($data);
         $headers = $sanitized->isNotEmpty() ? array_keys($sanitized->first()->toArray()) : [];
 
-        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $spreadsheet = new Spreadsheet;
         $sheet = $spreadsheet->getActiveSheet();
 
         $col = 0;
@@ -49,13 +54,13 @@ class ExportService
             $row++;
         }
 
-        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        $writer = new Xlsx($spreadsheet);
 
         $response = new StreamedResponse(function () use ($writer) {
             $writer->save('php://output');
         }, 200, [
             'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '.xlsx"',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'.xlsx"',
             'Cache-Control' => 'max-age=0',
         ]);
 
@@ -92,12 +97,12 @@ class ExportService
                 default => 'csv',
             };
 
-            \Illuminate\Support\Facades\Storage::disk('local')->put(
+            Storage::disk('local')->put(
                 "exports/{$filename}.{$extension}",
                 $content
             );
 
-            \Illuminate\Support\Facades\Mail::raw("Your export '{$filename}' is ready. Please download it from the admin panel.", function ($message) use ($email, $filename, $format) {
+            Mail::raw("Your export '{$filename}' is ready. Please download it from the admin panel.", function ($message) use ($email, $filename, $format) {
                 $extension = match ($format) {
                     'xlsx' => 'xlsx',
                     'pdf' => 'pdf',
@@ -105,7 +110,7 @@ class ExportService
                 };
                 $message->to($email)
                     ->subject("Export Ready: {$filename}")
-                    ->attach(\Illuminate\Support\Facades\Storage::disk('local')->path("exports/{$filename}.{$extension}"), [
+                    ->attach(Storage::disk('local')->path("exports/{$filename}.{$extension}"), [
                         'as' => "{$filename}.{$extension}",
                         'mime' => match ($format) {
                             'xlsx' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
@@ -117,7 +122,8 @@ class ExportService
 
             return true;
         } catch (\Exception $e) {
-            \Illuminate\Support\Facades\Log::error('Scheduled export failed: ' . $e->getMessage());
+            Log::error('Scheduled export failed: '.$e->getMessage());
+
             return false;
         }
     }

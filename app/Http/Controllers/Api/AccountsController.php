@@ -28,8 +28,8 @@ class AccountsController extends Controller
 
         if ($search !== '') {
             $query->where(function ($q) use ($search) {
-                $q->where('full_name', 'like', '%' . $search . '%')
-                    ->orWhere('email', 'like', '%' . $search . '%');
+                $q->where('full_name', 'like', '%'.$search.'%')
+                    ->orWhere('email', 'like', '%'.$search.'%');
             });
         }
 
@@ -156,7 +156,9 @@ class AccountsController extends Controller
             'action' => 'required|in:approve,suspend,reject',
         ]);
 
-        $status = match ($request->action) { 'approve' => 'active', 'suspend' => 'suspended', 'reject' => 'rejected' };
+        $status = match ($request->action) {
+            'approve' => 'active', 'suspend' => 'suspended', 'reject' => 'rejected'
+        };
         User::whereIn('id', $request->ids)->update(['status' => $status]);
 
         return response()->json(['success' => true, 'message' => 'Bulk action completed successfully.']);

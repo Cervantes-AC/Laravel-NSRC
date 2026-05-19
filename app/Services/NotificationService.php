@@ -67,10 +67,10 @@ class NotificationService
     {
         $user->notifications()->create([
             'id' => (string) Str::uuid(),
-            'type' => 'backup_' . $status,
+            'type' => 'backup_'.$status,
             'data' => [
-                'title' => 'Backup ' . ucfirst($status),
-                'message' => "{$type} backup " . ($status === 'completed' ? 'completed successfully' : 'failed') . ($details ? ": {$details}" : ''),
+                'title' => 'Backup '.ucfirst($status),
+                'message' => "{$type} backup ".($status === 'completed' ? 'completed successfully' : 'failed').($details ? ": {$details}" : ''),
                 'action_type' => 'backup',
                 'backup_type' => $type,
                 'status' => $status,
@@ -83,10 +83,10 @@ class NotificationService
     {
         $user->notifications()->create([
             'id' => (string) Str::uuid(),
-            'type' => 'export_' . $status,
+            'type' => 'export_'.$status,
             'data' => [
-                'title' => 'Export ' . ucfirst($status),
-                'message' => "{$type} export " . ($status === 'completed' ? 'completed successfully' : 'failed') . ($details ? ": {$details}" : ''),
+                'title' => 'Export '.ucfirst($status),
+                'message' => "{$type} export ".($status === 'completed' ? 'completed successfully' : 'failed').($details ? ": {$details}" : ''),
                 'action_type' => 'export',
                 'export_type' => $type,
                 'status' => $status,
@@ -98,7 +98,7 @@ class NotificationService
     public function sendImportNotification(User $user, string $status, int $successCount = 0, int $failedCount = 0, string $details = ''): void
     {
         $level = $failedCount > 0 ? 'warning' : 'success';
-        $message = "Import " . ($status === 'completed' ? 'completed' : 'failed');
+        $message = 'Import '.($status === 'completed' ? 'completed' : 'failed');
         if ($status === 'completed') {
             $message .= ": {$successCount} records imported";
             if ($failedCount > 0) {
@@ -111,9 +111,9 @@ class NotificationService
 
         $user->notifications()->create([
             'id' => (string) Str::uuid(),
-            'type' => 'import_' . $status,
+            'type' => 'import_'.$status,
             'data' => [
-                'title' => 'Import ' . ucfirst($status),
+                'title' => 'Import '.ucfirst($status),
                 'message' => $message,
                 'action_type' => 'import',
                 'status' => $status,
@@ -134,9 +134,9 @@ class NotificationService
 
         $user->notifications()->create([
             'id' => (string) Str::uuid(),
-            'type' => 'validation_' . $status,
+            'type' => 'validation_'.$status,
             'data' => [
-                'title' => ucfirst($action) . ' Validation',
+                'title' => ucfirst($action).' Validation',
                 'message' => $message,
                 'action_type' => $action,
                 'validation_status' => $status,
@@ -149,9 +149,9 @@ class NotificationService
     {
         $user->notifications()->create([
             'id' => (string) Str::uuid(),
-            'type' => 'action_' . $status,
+            'type' => 'action_'.$status,
             'data' => [
-                'title' => ucfirst($action) . ' ' . ucfirst($status),
+                'title' => ucfirst($action).' '.ucfirst($status),
                 'message' => $message,
                 'action_type' => $action,
                 'status' => $status,
@@ -218,7 +218,7 @@ class NotificationService
         $this->notifyAdmins(
             'backup',
             'Backup Completed',
-            ucfirst($backupType) . " backup completed successfully: {$filename} ({$size})",
+            ucfirst($backupType)." backup completed successfully: {$filename} ({$size})",
             [
                 'level' => 'success',
                 'action' => 'backup',
@@ -234,7 +234,7 @@ class NotificationService
         $this->notifyAdmins(
             'backup',
             'Backup Failed',
-            ucfirst($backupType) . " backup failed: {$error}",
+            ucfirst($backupType)." backup failed: {$error}",
             [
                 'level' => 'error',
                 'action' => 'backup',
@@ -244,11 +244,31 @@ class NotificationService
         );
     }
 
+    public function backupEmailFailed(string $backupType, string $filename, string $error): void
+    {
+        $this->notifyAdmins(
+            'backup',
+            'Backup Email Notification Failed',
+            "Failed to send backup notification email for {$backupType} backup ({$filename}): {$error}",
+            [
+                'level' => 'critical',
+                'action' => 'backup_email',
+                'backup_type' => $backupType,
+                'filename' => $filename,
+                'error' => $error,
+            ]
+        );
+    }
+
     public function importSuccess(string $filename, int $success, int $failed, int $skipped): void
     {
         $message = "Import completed: {$filename} - {$success} success";
-        if ($failed > 0) $message .= ", {$failed} failed";
-        if ($skipped > 0) $message .= ", {$skipped} skipped";
+        if ($failed > 0) {
+            $message .= ", {$failed} failed";
+        }
+        if ($skipped > 0) {
+            $message .= ", {$skipped} skipped";
+        }
 
         $this->notifyAdmins(
             'import',
@@ -268,7 +288,9 @@ class NotificationService
     public function importValidationFailed(string $filename, array $errors): void
     {
         $errorSummary = implode(', ', array_slice($errors, 0, 3));
-        if (count($errors) > 3) $errorSummary .= ' and ' . (count($errors) - 3) . ' more';
+        if (count($errors) > 3) {
+            $errorSummary .= ' and '.(count($errors) - 3).' more';
+        }
 
         $this->notifyAdmins(
             'import',
@@ -288,7 +310,7 @@ class NotificationService
         $this->notifyAdmins(
             'export',
             'Export Completed',
-            ucfirst($exportType) . " export ready: {$filename}.{$format}",
+            ucfirst($exportType)." export ready: {$filename}.{$format}",
             [
                 'level' => 'success',
                 'action' => 'export',
@@ -304,7 +326,7 @@ class NotificationService
         $this->notifyAdmins(
             'export',
             'Export Scheduled',
-            ucfirst($exportType) . " export has been scheduled and will be emailed when ready.",
+            ucfirst($exportType).' export has been scheduled and will be emailed when ready.',
             [
                 'level' => 'info',
                 'action' => 'export',
@@ -319,7 +341,7 @@ class NotificationService
         $this->notifyAdmins(
             'export',
             'Export Failed',
-            ucfirst($exportType) . " export failed: {$error}",
+            ucfirst($exportType)." export failed: {$error}",
             [
                 'level' => 'error',
                 'action' => 'export',

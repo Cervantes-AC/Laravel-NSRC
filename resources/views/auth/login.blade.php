@@ -51,5 +51,15 @@
                 {{ __('Log in') }}
             </x-primary-button>
         </div>
+
+        <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-200">
+            <a href="{{ url('/') }}" class="text-sm text-gray-600 hover:text-gray-900 underline">
+                &larr; {{ __('Back to Home') }}
+            </a>
+
+            <a href="{{ route('register') }}" class="text-sm text-gray-600 hover:text-gray-900 underline">
+                {{ __("Don't have an account?") }}
+            </a>
+        </div>
     </form>
 </x-guest-layout>

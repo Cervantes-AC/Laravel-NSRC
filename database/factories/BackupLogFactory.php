@@ -2,11 +2,12 @@
 
 namespace Database\Factories;
 
+use App\Models\BackupLog;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class BackupLogFactory extends Factory
 {
-    protected $model = \App\Models\BackupLog::class;
+    protected $model = BackupLog::class;
 
     public function definition(): array
     {
@@ -15,7 +16,7 @@ class BackupLogFactory extends Factory
 
         return [
             'type' => fake()->randomElement($types),
-            'filename' => 'backup-' . fake()->date('Y-m-d') . '.sql',
+            'filename' => 'backup-'.fake()->date('Y-m-d').'.sql',
             'size' => fake()->numberBetween(1024, 1048576),
             'status' => fake()->randomElement($statuses),
             'details' => fake()->sentence(),
@@ -24,11 +25,11 @@ class BackupLogFactory extends Factory
 
     public function successful(): static
     {
-        return $this->state(fn() => ['status' => 'success']);
+        return $this->state(fn () => ['status' => 'success']);
     }
 
     public function failed(): static
     {
-        return $this->state(fn() => ['status' => 'failed']);
+        return $this->state(fn () => ['status' => 'failed']);
     }
 }

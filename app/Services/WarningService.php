@@ -104,10 +104,10 @@ class WarningService
         $severity = $failurePercentage > 50 ? 'critical' : 'warning';
 
         $reason = "Batch operation failed for {$failedItems}/{$totalItems} items ({$failurePercentage}%)";
-        if (!empty($failedIds)) {
-            $reason .= ". Failed IDs: " . implode(', ', array_slice($failedIds, 0, 5));
+        if (! empty($failedIds)) {
+            $reason .= '. Failed IDs: '.implode(', ', array_slice($failedIds, 0, 5));
             if (count($failedIds) > 5) {
-                $reason .= " and " . (count($failedIds) - 5) . " more";
+                $reason .= ' and '.(count($failedIds) - 5).' more';
             }
         }
 
@@ -137,13 +137,13 @@ class WarningService
         $errorCount = count($errors);
         $errorSummary = implode('; ', array_slice($errors, 0, 3));
         if ($errorCount > 3) {
-            $errorSummary .= " and " . ($errorCount - 3) . " more errors";
+            $errorSummary .= ' and '.($errorCount - 3).' more errors';
         }
 
         $reason = "Validation failed for {$dataType}: {$errorSummary}";
 
         $this->logActionFailure(
-            "Data Validation",
+            'Data Validation',
             $reason,
             $user,
             array_merge($context, [
@@ -244,7 +244,7 @@ class WarningService
     ): void {
         $countInfo = $totalCount > 0 ? " ({$processedCount}/{$totalCount} processed)" : '';
         $this->logActionFailure(
-            ucfirst($type) . " Operation",
+            ucfirst($type).' Operation',
             "Failed to {$type} data{$countInfo}: {$reason}",
             $user,
             array_merge($context, [
@@ -314,7 +314,7 @@ class WarningService
     ): void {
         $userInfo = $user ? " by {$user->email}" : '';
         $this->logActionFailure(
-            "Authorization",
+            'Authorization',
             "Unauthorized attempt to {$action}{$userInfo}",
             $user,
             array_merge($context, ['action' => $action]),

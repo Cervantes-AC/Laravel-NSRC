@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\VolunteerMetrics;
 use App\Models\DutySession;
 use App\Models\User;
+use App\Models\VolunteerMetrics;
+use Illuminate\Database\Seeder;
 
 class VolunteerMetricsSeeder extends Seeder
 {

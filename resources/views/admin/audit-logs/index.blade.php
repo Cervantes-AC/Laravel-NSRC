@@ -7,6 +7,17 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     <div x-data="auditLogsApp" class="space-y-4" aria-label="{{ __('Audit logs') }}">
+
+                        {{-- Stats Cards --}}
+                        <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
+                            <template x-for="(count, key) in stats" :key="key">
+                                <div class="bg-gray-50 rounded-lg p-3 text-center border border-gray-200">
+                                    <div class="text-lg font-bold" x-text="count"></div>
+                                    <div class="text-xs text-gray-500 uppercase" x-text="key"></div>
+                                </div>
+                            </template>
+                        </div>
+
                         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                             <div class="flex flex-col sm:flex-row gap-4 flex-1">
                                 <div class="flex-1">
@@ -15,13 +26,11 @@
                                 <div>
                                     <select x-model="type" @change="loadLogs()" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                                         <option value="">{{ __('All Types') }}</option>
-                                        <option value="login">{{ __('Login') }}</option>
-                                        <option value="logout">{{ __('Logout') }}</option>
-                                        <option value="create">{{ __('Create') }}</option>
-                                        <option value="update">{{ __('Update') }}</option>
-                                        <option value="delete">{{ __('Delete') }}</option>
-                                        <option value="export">{{ __('Export') }}</option>
-                                        <option value="import">{{ __('Import') }}</option>
+                                        <option value="SECURITY">{{ __('Security') }}</option>
+                                        <option value="REGISTRY">{{ __('Registry') }}</option>
+                                        <option value="OPERATIONS">{{ __('Operations') }}</option>
+                                        <option value="SYSTEM">{{ __('System') }}</option>
+                                        <option value="ACCESS">{{ __('Access') }}</option>
                                     </select>
                                 </div>
                                 <div>
@@ -65,10 +74,20 @@
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="l.created_at"></td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="l.user"></td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                                <span class="px-2 py-1 rounded-full text-xs font-medium" :class="l.type === 'login' || l.type === 'logout' ? 'bg-blue-100 text-blue-800' : l.type === 'create' ? 'bg-green-100 text-green-800' : l.type === 'update' ? 'bg-yellow-100 text-yellow-800' : l.type === 'delete' ? 'bg-red-100 text-red-800' : 'bg-gray-100 text-gray-800'" x-text="l.type.charAt(0).toUpperCase() + l.type.slice(1)"></span>
+                                                <span class="px-2 py-1 rounded-full text-xs font-medium"
+                                                    :class="{
+                                                        'bg-red-100 text-red-800': l.type === 'SECURITY',
+                                                        'bg-blue-100 text-blue-800': l.type === 'ACCESS',
+                                                        'bg-green-100 text-green-800': l.type === 'REGISTRY',
+                                                        'bg-yellow-100 text-yellow-800': l.type === 'OPERATIONS',
+                                                        'bg-purple-100 text-purple-800': l.type === 'SYSTEM',
+                                                        'bg-gray-100 text-gray-800': !['SECURITY','ACCESS','REGISTRY','OPERATIONS','SYSTEM'].includes(l.type)
+                                                    }"
+                                                    x-text="l.type.charAt(0) + l.type.slice(1).toLowerCase()">
+                                                </span>
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900" x-text="l.action"></td>
-                                            <td class="px-6 py-4 text-sm text-gray-900 max-w-xs truncate" x-text="l.details"></td>
+                                            <td class="px-6 py-4 text-sm text-gray-900 max-w-xs truncate" x-text="l.details" :title="l.details"></td>
                                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-mono" x-text="l.ip_address"></td>
                                         </tr>
                                     </template>
@@ -99,4 +118,71 @@
             </div>
         </div>
     </div>
+
+    @push('scripts')
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('auditLogsApp', () => ({
+                logs: [],
+                stats: { 'Total': 0, 'Security': 0, 'Registry': 0, 'Operations': 0, 'System': 0, 'Access': 0 },
+                search: '',
+                type: '',
+                dateFrom: '',
+                dateTo: '',
+                perPage: 15,
+                currentPage: 1,
+                totalPages: 1,
+                loading: false,
+
+                init() {
+                    this.loadLogs();
+                },
+
+                async loadLogs() {
+                    this.loading = true;
+                    try {
+                        const params = new URLSearchParams({
+                            search: this.search,
+                            type: this.type,
+                            dateFrom: this.dateFrom,
+                            dateTo: this.dateTo,
+                            perPage: this.perPage,
+                            page: this.currentPage,
+                        });
+                        const resp = await fetch(`/api/audit-logs?${params}`);
+                        const data = await resp.json();
+                        this.logs = data.logs;
+                        this.totalPages = data.totalPages;
+                        this.currentPage = data.currentPage;
+                        this.stats = data.stats || this.stats;
+                    } catch (e) {
+                        console.error('Failed to load audit logs', e);
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+
+                clearFilters() {
+                    this.search = '';
+                    this.type = '';
+                    this.dateFrom = '';
+                    this.dateTo = '';
+                    this.perPage = 15;
+                    this.currentPage = 1;
+                    this.loadLogs();
+                },
+
+                async exportLogs() {
+                    const params = new URLSearchParams({
+                        search: this.search,
+                        type: this.type,
+                        dateFrom: this.dateFrom,
+                        dateTo: this.dateTo,
+                    });
+                    window.open(`/api/audit-logs/export?${params}`, '_blank');
+                },
+            }));
+        });
+    </script>
+    @endpush
 </x-app-layout>

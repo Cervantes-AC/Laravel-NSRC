@@ -4,15 +4,16 @@ namespace App\Types;
 
 /**
  * Attendance Data Type Definitions
- * 
+ *
  * This file defines all type structures for import/export operations
  * to ensure data consistency between import and export services.
  */
 
 /**
  * Raw attendance record from database or import source
- * 
+ *
  * @typedef {object} AttendanceRecord
+ *
  * @property {string} full_name - Volunteer's full name (required)
  * @property {string} attendance - Attendance type/status (required)
  * @property {string|null} date_time - Date and time of attendance (nullable)
@@ -55,9 +56,9 @@ class AttendanceRecord
     public static function fromArray(array $data): self
     {
         $sourcePayload = $data['source_payload'] ?? null;
-        
+
         // Handle JSON string conversion
-        if (is_string($sourcePayload) && !empty($sourcePayload)) {
+        if (is_string($sourcePayload) && ! empty($sourcePayload)) {
             try {
                 $sourcePayload = json_decode($sourcePayload, true, 512, JSON_THROW_ON_ERROR);
             } catch (\JsonException) {
@@ -79,8 +80,9 @@ class AttendanceRecord
 
 /**
  * Normalized import row structure
- * 
+ *
  * @typedef {object} NormalizedImportRow
+ *
  * @property {string} full_name - Trimmed volunteer name
  * @property {string} attendance - Trimmed attendance value
  * @property {mixed} date_time - Parsed datetime
@@ -120,8 +122,9 @@ class NormalizedImportRow
 
 /**
  * Export data structure
- * 
+ *
  * @typedef {object} ExportData
+ *
  * @property {string} full_name - Volunteer's full name
  * @property {string} attendance - Attendance type/status
  * @property {string|null} date_time - Date and time
@@ -161,8 +164,9 @@ class ExportData
 
 /**
  * Import validation result
- * 
+ *
  * @typedef {object} ImportValidationResult
+ *
  * @property {bool} valid - Whether validation passed
  * @property {array} errors - List of validation errors
  * @property {array} warnings - List of warnings
@@ -184,8 +188,9 @@ class ImportValidationResult
 
 /**
  * Import preview result
- * 
+ *
  * @typedef {object} ImportPreviewResult
+ *
  * @property {array} preview - First 10 rows of preview data
  * @property {array} errors - Validation errors
  * @property {int} total_rows - Total rows in file
@@ -201,8 +206,9 @@ class ImportPreviewResult
 
 /**
  * Import processing result
- * 
+ *
  * @typedef {object} ImportProcessResult
+ *
  * @property {int} success - Number of successfully imported records
  * @property {int} failed - Number of failed records
  * @property {int} skipped - Number of skipped records (duplicates)
@@ -222,8 +228,9 @@ class ImportProcessResult
 
 /**
  * Duplicate detection result
- * 
+ *
  * @typedef {object} DuplicateDetectionResult
+ *
  * @property {array} duplicates - List of duplicate records found
  * @property {int} count - Total duplicates found
  */
@@ -237,8 +244,9 @@ class DuplicateDetectionResult
 
 /**
  * Import log entry
- * 
+ *
  * @typedef {object} ImportLogEntry
+ *
  * @property {int} row - Row number
  * @property {string} status - Status (success, failed, skipped)
  * @property {string} message - Status message
@@ -301,7 +309,7 @@ enum ShiftType: string
 
 /**
  * Import/Export field mapping
- * 
+ *
  * Defines the required and optional fields for import/export operations
  */
 class FieldMapping
@@ -359,6 +367,7 @@ class FieldMapping
         if (isset(self::FIELD_ALIASES[$field])) {
             $names = array_merge($names, self::FIELD_ALIASES[$field]);
         }
+
         return $names;
     }
 
@@ -368,13 +377,13 @@ class FieldMapping
     public static function normalizeFieldName(string $name): ?string
     {
         $name = strtolower(trim($name));
-        
+
         foreach (self::FIELD_ALIASES as $standard => $aliases) {
             if ($name === $standard || in_array($name, $aliases)) {
                 return $standard;
             }
         }
-        
+
         return null;
     }
 }

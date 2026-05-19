@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Barryvdh\DomPDF\Facade\Pdf;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Collection;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -25,7 +26,7 @@ class DataExportService
             fclose($handle);
         }, 200, [
             'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '.csv"',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'.csv"',
         ]);
 
         return $response;
@@ -39,7 +40,7 @@ class DataExportService
             echo $pdf->output();
         }, 200, [
             'Content-Type' => 'application/pdf',
-            'Content-Disposition' => 'attachment; filename="' . $filename . '.pdf"',
+            'Content-Disposition' => 'attachment; filename="'.$filename.'.pdf"',
         ]);
 
         return $response;
@@ -48,7 +49,7 @@ class DataExportService
     public function sanitizeData(Collection $data): Collection
     {
         return $data->map(function ($item) {
-            $itemArray = $item instanceof \Illuminate\Database\Eloquent\Model
+            $itemArray = $item instanceof Model
                 ? $item->toArray()
                 : (array) $item;
 

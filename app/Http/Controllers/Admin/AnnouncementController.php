@@ -7,6 +7,7 @@ use App\Mail\NewAnnouncement;
 use App\Models\Announcement;
 use App\Models\AuditLog;
 use App\Models\User;
+use App\Services\CrudService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -16,15 +17,25 @@ use Illuminate\View\View;
 
 class AnnouncementController extends Controller
 {
+    public function __construct(
+        private CrudService $crudService,
+    ) {}
+
     public function index(Request $request): View
     {
-        $announcements = Announcement::with('creator')
-            ->when($request->input('search'), fn ($query, $search) => $query
-                ->where(fn ($q) => $q->where('title', 'like', "%{$search}%")->orWhere('body', 'like', "%{$search}%")))
-            ->when($request->input('status'), fn ($query, $status) => $query->where('status', $status))
-            ->latest()
-            ->paginate(10)
-            ->withQueryString();
+        $query = Announcement::with('creator')
+            ->when($request->input('search'), fn ($q, $search) => $q
+                ->where(fn ($sub) => $sub->where('title', 'like', "%{$search}%")->orWhere('body', 'like', "%{$search}%")))
+            ->when($request->input('status'), fn ($q, $status) => $q->where('status', $status));
+
+        $trashed = $request->input('trashed');
+        if ($trashed === 'only') {
+            $query->onlyTrashed();
+        } elseif ($trashed === 'with') {
+            $query->withTrashed();
+        }
+
+        $announcements = $query->latest()->paginate(10)->withQueryString();
 
         return view('admin.announcements.index', compact('announcements'));
     }
@@ -49,10 +60,12 @@ class AnnouncementController extends Controller
             $data['published_at'] = now();
         }
 
-        $announcement = Announcement::create($data);
+        $announcement = $this->crudService->create(Announcement::class, $data, [
+            'action' => 'CREATE_ANNOUNCEMENT',
+            'type' => 'OPERATIONS',
+        ]);
 
         $this->notifyMembersIfPublished($announcement);
-        $this->audit('CREATE_ANNOUNCEMENT', $announcement);
 
         return redirect()->route('admin.announcements.index')
             ->with('success', 'Announcement created successfully.');
@@ -67,7 +80,7 @@ class AnnouncementController extends Controller
     {
         $data = $this->validated($request);
 
-        if ($data['status'] === 'published' && !$announcement->published_at) {
+        if ($data['status'] === 'published' && ! $announcement->published_at) {
             $data['published_at'] = now();
         }
 
@@ -75,10 +88,19 @@ class AnnouncementController extends Controller
             $data['published_at'] = null;
         }
 
+        $submittedLock = $request->input('lock_version');
+        if ($submittedLock !== null && $this->crudService->hasConflict($announcement, (int) $submittedLock)) {
+            return back()->withErrors([
+                'lock_version' => 'This announcement was modified by another user. Please refresh and try again.',
+            ])->withInput();
+        }
+
+        $data['lock_version'] = $announcement->lock_version + 1;
+
         $announcement->update($data);
 
-        $this->notifyMembersIfPublished($announcement);
         $this->audit('UPDATE_ANNOUNCEMENT', $announcement);
+        $this->notifyMembersIfPublished($announcement);
 
         return redirect()->route('admin.announcements.index')
             ->with('success', 'Announcement updated successfully.');
@@ -86,11 +108,29 @@ class AnnouncementController extends Controller
 
     public function destroy(Announcement $announcement): RedirectResponse
     {
+        $cascadeWarning = $this->crudService->getCascadeWarning($announcement);
+
         $this->audit('DELETE_ANNOUNCEMENT', $announcement);
         $announcement->delete();
 
+        $flash = 'Announcement deleted successfully.';
+        if ($cascadeWarning) {
+            $flash .= ' ' . $cascadeWarning;
+        }
+
         return redirect()->route('admin.announcements.index')
-            ->with('success', 'Announcement deleted successfully.');
+            ->with('success', $flash);
+    }
+
+    public function restore($id): RedirectResponse
+    {
+        $announcement = Announcement::withTrashed()->findOrFail($id);
+
+        $this->audit('RESTORE_ANNOUNCEMENT', $announcement);
+        $announcement->restore();
+
+        return redirect()->route('admin.announcements.index')
+            ->with('success', 'Announcement restored successfully.');
     }
 
     private function validated(Request $request): array

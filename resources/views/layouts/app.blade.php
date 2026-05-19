@@ -4,10 +4,18 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
-        <title>{{ config('app.name', 'Laravel') }}</title>
-        <link rel="icon" type="image/png" href="{{ asset(config('app.logo', 'images/nsrc-logo.png')) }}">
+        <title>{{ config('app.name', 'NSRC AMS') }}</title>
+        <link rel="icon" type="image/png" href="{{ asset(config('app.favicon', config('app.logo', 'images/nsrc-logo.png'))) }}">
         <link rel="preconnect" href="https://fonts.bunny.net">
         <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet" />
+        @php
+            $primaryColor = \App\Models\Setting::getValue('branding_primary_color', '#f97316');
+            $secondaryColor = \App\Models\Setting::getValue('branding_secondary_color', '#3b82f6');
+            $accentColor = \App\Models\Setting::getValue('branding_accent_color', '#10b981');
+        @endphp
+        <style>
+            :root { --brand-primary: {{ $primaryColor }}; --brand-secondary: {{ $secondaryColor }}; --brand-accent: {{ $accentColor }}; }
+        </style>
         @vite(['resources/css/app.css', 'resources/js/app.js'])
     </head>
     <body class="font-sans antialiased app-shell" x-data="appShell({ toggleBreakpoint: 1024 })" @load="init()" @resize.window="updateToggleVisibility()">
@@ -39,6 +47,16 @@
                         </div>
                         <div class="flex items-center gap-2">
                             <x-ai-model-switcher />
+                            <div x-data="themeToggle()" class="relative">
+                                <button @click="toggle()" class="p-2 text-slate-500 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg transition" :title="isDark ? 'Switch to light mode' : 'Switch to dark mode'" aria-label="Toggle dark mode">
+                                    <svg x-show="!isDark" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                                    </svg>
+                                    <svg x-show="isDark" class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display: none;">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                                    </svg>
+                                </button>
+                            </div>
                             <div x-data="notificationCenter(false)">
                                 <div @click="open = !open" class="relative p-2 text-slate-500 hover:text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-lg cursor-pointer" aria-label="Toggle notifications">
                                     <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">

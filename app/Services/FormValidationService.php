@@ -32,7 +32,7 @@ class FormValidationService
             ['email' => 'required|email']
         );
 
-        return !$validator->fails();
+        return ! $validator->fails();
     }
 
     public function validatePhone(string $phone): bool
@@ -42,12 +42,12 @@ class FormValidationService
             ['phone' => 'required|regex:/^([0-9\s\-\+\(\)]*)$/|min:10|max:15']
         );
 
-        return !$validator->fails();
+        return ! $validator->fails();
     }
 
     public function validateDateRange($start, $end): bool
     {
-        if (!$start || !$end) {
+        if (! $start || ! $end) {
             return false;
         }
 

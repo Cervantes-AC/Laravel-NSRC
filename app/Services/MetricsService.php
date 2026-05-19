@@ -6,8 +6,8 @@ use App\Models\Attendance;
 use App\Models\DutySession;
 use App\Models\User;
 use App\Models\VolunteerMetrics;
+use Carbon\Carbon;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\DB;
 
 class MetricsService
 {
@@ -23,7 +23,7 @@ class MetricsService
         $metrics = collect();
 
         foreach ($grouped as $volunteerId => $volunteerSessions) {
-            $dailyGroups = $volunteerSessions->groupBy(fn ($s) => $s->date instanceof \Carbon\Carbon ? $s->date->toDateString() : $s->date);
+            $dailyGroups = $volunteerSessions->groupBy(fn ($s) => $s->date instanceof Carbon ? $s->date->toDateString() : $s->date);
 
             $totalRegularMinutes = 0;
             $totalOvertimeMinutes = 0;
